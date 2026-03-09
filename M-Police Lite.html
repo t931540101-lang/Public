@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Obsidian_M-Police</title>
+    <style>
+        :root {
+            --police-blue: #1a2a3a;
+            --accent-gold: #c2b99a;
+            --bg-gray: #f4f4f4;
+            --text-white: #ffffff;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Microsoft JhengHei", sans-serif; }
+        body { background: var(--bg-gray); overflow-x: hidden; height: 100vh; display: flex; flex-direction: column; }
+
+        /* 頂部導航 */
+        header { background: var(--police-blue); color: var(--text-white); padding: 15px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+        .status-dot { width: 10px; height: 10px; background: #00ff00; border-radius: 50%; display: inline-block; margin-right: 5px; box-shadow: 0 0 5px #00ff00; }
+        .header-title { font-size: 16px; font-weight: bold; letter-spacing: 1px; }
+
+        /* 地圖模擬區域 */
+        #map-area { flex: 1; background: #ddd; position: relative; overflow: hidden; }
+        #map-area iframe { width: 100%; height: 100%; border: none; filter: grayscale(0.5) contrast(1.2); }
+        .map-overlay { position: absolute; top: 10px; right: 10px; background: rgba(26, 42, 58, 0.8); color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; }
+
+        /* 查詢操作區 */
+        .query-panel { background: white; padding: 15px; border-radius: 20px 20px 0 0; box-shadow: 0 -5px 15px rgba(0,0,0,0.1); z-index: 10; }
+        .input-group { margin-bottom: 12px; }
+        label { display: block; font-size: 12px; color: #666; margin-bottom: 5px; font-weight: bold; }
+        input { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 10px; font-size: 16px; outline: none; transition: border 0.3s; }
+        input:focus { border-color: var(--police-blue); }
+
+        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        button { padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 14px; }
+        .btn-query { background: var(--police-blue); color: white; }
+        .btn-report { background: #c0392b; color: white; }
+        button:active { transform: scale(0.95); opacity: 0.8; }
+
+        /* 查詢結果 */
+        #result-box { margin-top: 15px; padding: 15px; background: #f9f9f9; border-left: 5px solid var(--police-blue); border-radius: 5px; display: none; }
+        .result-title { font-size: 13px; font-weight: bold; color: #333; margin-bottom: 5px; }
+        .result-content { font-size: 15px; color: #d63384; font-weight: bold; }
+
+        /* 底部安全距 */
+        .safe-area { height: env(safe-area-inset-bottom); background: white; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-title"><span class="status-dot"></span>M-POLICE 模擬系統</div>
+    <div style="font-size: 12px; opacity: 0.7;">V1.0.4</div>
+</header>
+
+<div id="map-area">
+    <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d14561.464670267448!2d120.6833!3d24.1508!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1zh-TW!2stw!4v1710000000000!5m2!1zh-TW!2stw" allowfullscreen="" loading="lazy"></iframe>
+    <div class="map-overlay">GPS 定位中...</div>
+</div>
+
+<div class="query-panel">
+    <div class="input-group">
+        <label>身份證 / 車牌 / 案件號碼</label>
+        <input type="text" id="queryInput" placeholder="請輸入查詢內容..." autocomplete="off">
+    </div>
+    
+    <div class="btn-group">
+        <button class="btn-query" onclick="doQuery()">執行查詢</button>
+        <button class="btn-report" onclick="doReport()">緊急回報</button>
+    </div>
+
+    <div id="result-box">
+        <div class="result-title">系統查詢結果：</div>
+        <div class="result-content" id="resultContent"></div>
+    </div>
+</div>
+
+<div class="safe-area"></div>
+
+<script>
+    function doQuery() {
+        const val = document.getElementById('queryInput').value.trim();
+        const box = document.getElementById('result-box');
+        const content = document.getElementById('resultContent');
+        
+        if (!val) {
+            alert("請輸入查詢條件");
+            return;
+        }
+
+        // 模擬查詢動畫與結果
+        content.textContent = "正在連線資料庫...";
+        box.style.display = "block";
+        
+        setTimeout(() => {
+            // 這裡可以寫自訂邏輯，例如模擬通緝或正常
+            const status = Math.random() > 0.8 ? "⚠️ 注意：資料異常 / 追蹤中" : "✅ 查無資料 / 狀態正常";
+            content.textContent = `[${val}] ${status}`;
+            
+            // 存入 Local Storage 紀錄 (模擬歷史紀錄)
+            const logs = JSON.parse(localStorage.getItem('police_logs') || '[]');
+            logs.push({time: new Date().toLocaleString(), query: val, status: status});
+            localStorage.setItem('police_logs', JSON.stringify(logs.slice(-10))); // 只存最後10筆
+        }, 800);
+    }
+
+    function doReport() {
+        if (confirm("是否立即將當前座標回報至勤務中心？")) {
+            alert("回報成功！已通知勤務中心支援。");
+            // 實際可串接 Firebase push 訊息到你的 R1 勤務總處房
+        }
+    }
+</script>
+
+</body>
+</html>
