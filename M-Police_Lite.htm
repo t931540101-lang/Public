@@ -3,100 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>M-Police 戰術終端 V1.2</title>
+    <title>M-Police 戰術終端 V1.3</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
         :root {
             --police-blue: #001a33;
             --tactical-green: #00ff41;
+            --neon-blue: #00d2ff;
             --warning-red: #ff3e3e;
-            --bg-dark: #0a0a0a;
-            --panel-bg: rgba(10, 10, 10, 0.95);
+            --bg-dark: #050505;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Noto Sans TC', sans-serif; }
-        body { background: var(--bg-dark); color: white; overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Share Tech Mono', monospace; }
+        body { background: var(--bg-dark); color: var(--tactical-green); overflow: hidden; height: 100vh; display: flex; flex-direction: column; }
 
-        /* 頂部勤務狀態 */
+        /* 頂部發光狀態欄 */
         .status-bar {
-            background: var(--police-blue);
-            padding: 10px 15px;
+            background: rgba(0, 26, 51, 0.8);
+            padding: 12px 15px;
             display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 2px solid var(--tactical-green);
-            font-family: 'Share Tech Mono', monospace;
+            border-bottom: 1px solid var(--tactical-green);
+            box-shadow: 0 0 15px rgba(0, 255, 65, 0.2);
             z-index: 1000;
         }
-        .duty-info span { color: var(--tactical-green); font-weight: bold; }
+        .duty-info span { color: #fff; text-shadow: 0 0 5px var(--tactical-green); }
 
-        /* 地圖區域 */
-        #map { flex: 1; width: 100%; background: #000; z-index: 1; }
+        /* 地圖區域與掃描網格 */
+        #map-box { flex: 1; width: 100%; position: relative; background: #000; }
+        #map { width: 100%; height: 100%; filter: brightness(0.7) contrast(1.2) grayscale(0.5); }
+        
+        /* 戰術網格疊加層 */
+        .tactical-grid {
+            position: absolute; inset: 0;
+            background-image: linear-gradient(rgba(0, 255, 65, 0.05) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(0, 255, 65, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px;
+            pointer-events: none; z-index: 400;
+        }
 
-        /* 雷達動畫層 (疊加在地圖上) */
+        /* 戰術數據跑馬燈 (左右兩側) */
+        .side-data {
+            position: absolute; top: 100px; font-size: 10px;
+            text-transform: uppercase; z-index: 500; opacity: 0.7; pointer-events: none;
+        }
+        .data-left { left: 15px; text-align: left; }
+        .data-right { right: 15px; text-align: right; }
+
+        /* 強化版雷達 */
         .radar-box {
             position: absolute; top: 50%; left: 50%;
-            width: 260px; height: 260px;
+            width: 280px; height: 280px;
             pointer-events: none; z-index: 500;
             transform: translate(-50%, -50%);
         }
         .radar-circle {
             width: 100%; height: 100%;
-            border: 1px solid rgba(0, 255, 65, 0.4);
+            border: 1px solid rgba(0, 255, 65, 0.3);
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(0,255,65,0.05) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(0,255,65,0.08) 0%, transparent 70%);
             position: relative;
+        }
+        .radar-circle::before {
+            content: ""; position: absolute; top: 50%; left: 50%; width: 140px; height: 140px;
+            border: 1px solid rgba(0, 255, 65, 0.15); border-radius: 50%; transform: translate(-50%, -50%);
         }
         .radar-circle::after {
             content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            border-top: 2px solid var(--tactical-green);
-            border-radius: 50%; animation: rotate 3s linear infinite;
+            background: conic-gradient(from 0deg, rgba(0, 255, 65, 0.3) 0%, transparent 20%);
+            border-radius: 50%; animation: rotate 4s linear infinite;
         }
-        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 
-        /* 查詢面板 */
+        /* 底部輸入區強化 */
         .query-panel {
-            background: var(--panel-bg);
-            padding: 15px; border-top: 1px solid var(--tactical-green);
-            z-index: 1000;
+            background: rgba(10, 10, 10, 0.95);
+            padding: 20px 15px; border-top: 1px solid var(--tactical-green);
+            z-index: 1000; box-shadow: 0 -5px 20px rgba(0,0,0,0.8);
         }
-        .input-group { display: flex; gap: 8px; margin-bottom: 8px; }
+        .input-group { display: flex; gap: 10px; margin-bottom: 12px; }
         input {
             flex: 1; background: #000; border: 1px solid var(--tactical-green);
-            color: var(--tactical-green); padding: 12px; border-radius: 4px;
-            font-size: 16px; outline: none;
+            color: var(--tactical-green); padding: 14px; border-radius: 2px;
+            font-size: 18px; outline: none; box-shadow: inset 0 0 5px rgba(0,255,65,0.2);
         }
         button {
             background: var(--tactical-green); color: black;
-            border: none; padding: 0 15px; border-radius: 4px;
-            font-weight: bold; cursor: pointer;
+            border: none; padding: 0 25px; border-radius: 2px;
+            font-weight: bold; cursor: pointer; text-transform: uppercase;
+            transition: all 0.2s;
         }
-        #result-display {
-            font-family: 'Share Tech Mono', monospace; font-size: 13px; color: #888;
-        }
-        .alert { color: var(--warning-red); font-weight: bold; }
+        button:active { background: #fff; box-shadow: 0 0 15px #fff; }
+
+        #result-display { font-size: 12px; color: #666; letter-spacing: 1px; }
+        .alert-box { color: var(--warning-red); border: 1px solid var(--warning-red); padding: 5px; margin-top: 5px; }
+
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
 <div class="status-bar">
-    <div class="duty-info">ID: <span>D-01762</span> | UNIT: <span>BLACK-TECH</span></div>
+    <div class="duty-info">ID: <span>D-01762</span> | TYPE: <span>MP-TACTICAL</span></div>
     <div id="timer">00:00:00</div>
 </div>
 
-<div id="map"></div>
-<div class="radar-box"><div class="radar-circle"></div></div>
+<div id="map-box">
+    <div id="map"></div>
+    <div class="tactical-grid"></div>
+    <div class="side-data data-left">
+        LAT: <span id="lat-val">24.1477</span><br>
+        LNG: <span id="lng-val">120.6736</span><br>
+        SYS: ACTIVE<br>
+        SIG: 4G-EXT
+    </div>
+    <div class="side-data data-right">
+        REC: ENCRYPTED<br>
+        BUFF: 1024KB<br>
+        V: 1.3.0-H<br>
+        ZONE: NORTH_DIST
+    </div>
+    <div class="radar-box"><div class="radar-circle"></div></div>
+</div>
 
 <div class="query-panel">
     <div class="input-group">
-        <input type="text" id="query-input" placeholder="輸入車牌 / 身分證號碼" autocomplete="off">
-        <button onclick="runQuery()">查詢</button>
+        <input type="text" id="query-input" placeholder="SEARCH TARGET..." autocomplete="off">
+        <button onclick="runQuery()">GO</button>
     </div>
-    <div id="result-display">SYSTEM STANDBY...</div>
+    <div id="result-display">> SYSTEM STANDBY. WAITING FOR INPUT...</div>
 </div>
 
 <script>
-    // 1. 初始化計時器
     let seconds = 0;
     setInterval(() => {
         seconds++;
@@ -106,39 +144,35 @@
         document.getElementById('timer').innerText = `${h}:${m}:${s}`;
     }, 1000);
 
-    // 2. 初始化開源地圖 (Leaflet)
-    const map = L.map('map', { zoomControl: false }).setView([24.1477, 120.6736], 16);
-    
-    // 使用深色地圖風格 (不需要 API Key)
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; OpenStreetMap'
-    }).addTo(map);
+    const map = L.map('map', { zoomControl: false, attributionControl: false }).setView([24.1477, 120.6736], 16);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
 
-    // 3. 獲取真實定位
+    let marker;
     if (navigator.geolocation) {
         navigator.geolocation.watchPosition(pos => {
             const { latitude, longitude } = pos.coords;
             const newPos = [latitude, longitude];
             map.setView(newPos);
-            // 加上藍色定位點
-            L.circleMarker(newPos, { color: '#007bff', radius: 8, fillOpacity: 0.8 }).addTo(map);
-        }, err => console.error(err), { enableHighAccuracy: true });
+            document.getElementById('lat-val').innerText = latitude.toFixed(4);
+            document.getElementById('lng-val').innerText = longitude.toFixed(4);
+            if (marker) map.removeLayer(marker);
+            marker = L.circleMarker(newPos, { color: '#00d2ff', radius: 6, fillOpacity: 1, weight: 2, className: 'pos-marker' }).addTo(map);
+        }, null, { enableHighAccuracy: true });
     }
 
-    // 4. 模擬查詢邏輯
     function runQuery() {
         const input = document.getElementById('query-input').value.trim().toUpperCase();
         const display = document.getElementById('result-display');
         if (!input) return;
 
-        display.innerHTML = "ACCESSING DATABASE... [SCANNING]";
+        display.innerHTML = "> ACCESSING MAIN_DATABASE... [SCANNING]";
         setTimeout(() => {
-            if (input === "JQW-695") {
-                display.innerHTML = `<span class="alert">⚠️ ALERT: TARGET VEHICLE STOLEN (MOCK TEST)</span>`;
+            if (input === "TEST-99") {
+                display.innerHTML = `<div class="alert-box">! WARNING: TARGET_VEHICLE_FLAGGED (LEVEL_1)</div>`;
             } else {
-                display.innerHTML = `QUERY SUCCESS: [${input}] STATUS NORMAL.`;
+                display.innerHTML = `> QUERY SUCCESS: TARGET [${input}] STATUS: GREEN.`;
             }
-        }, 1200);
+        }, 1000);
     }
 </script>
 
