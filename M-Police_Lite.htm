@@ -3,112 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Obsidian_M-Police</title>
+    <title>M-Police 戰術終端 V1.1</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
         :root {
-            --police-blue: #1a2a3a;
-            --accent-gold: #c2b99a;
-            --bg-gray: #f4f4f4;
-            --text-white: #ffffff;
+            --police-blue: #001a33;
+            --tactical-green: #00ff41;
+            --warning-red: #ff3e3e;
+            --bg-dark: #0a0a0a;
+            --panel-bg: rgba(20, 20, 20, 0.85);
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Microsoft JhengHei", sans-serif; }
-        body { background: var(--bg-gray); overflow-x: hidden; height: 100vh; display: flex; flex-direction: column; }
 
-        /* 頂部導航 */
-        header { background: var(--police-blue); color: var(--text-white); padding: 15px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
-        .status-dot { width: 10px; height: 10px; background: #00ff00; border-radius: 50%; display: inline-block; margin-right: 5px; box-shadow: 0 0 5px #00ff00; }
-        .header-title { font-size: 16px; font-weight: bold; letter-spacing: 1px; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Noto Sans TC', sans-serif; }
+        body { background: var(--bg-dark); color: white; overflow: hidden; height: 100vh; }
 
-        /* 地圖模擬區域 */
-        #map-area { flex: 1; background: #ddd; position: relative; overflow: hidden; }
-        #map-area iframe { width: 100%; height: 100%; border: none; filter: grayscale(0.5) contrast(1.2); }
-        .map-overlay { position: absolute; top: 10px; right: 10px; background: rgba(26, 42, 58, 0.8); color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; }
+        /* 頂部勤務狀態 */
+        .status-bar {
+            background: var(--police-blue);
+            padding: 10px 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 2px solid var(--tactical-green);
+            font-family: 'Share Tech Mono', monospace;
+            z-index: 100; position: relative;
+        }
 
-        /* 查詢操作區 */
-        .query-panel { background: white; padding: 15px; border-radius: 20px 20px 0 0; box-shadow: 0 -5px 15px rgba(0,0,0,0.1); z-index: 10; }
-        .input-group { margin-bottom: 12px; }
-        label { display: block; font-size: 12px; color: #666; margin-bottom: 5px; font-weight: bold; }
-        input { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 10px; font-size: 16px; outline: none; transition: border 0.3s; }
-        input:focus { border-color: var(--police-blue); }
+        .duty-info span { color: var(--tactical-green); font-weight: bold; }
 
-        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        button { padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 14px; }
-        .btn-query { background: var(--police-blue); color: white; }
-        .btn-report { background: #c0392b; color: white; }
-        button:active { transform: scale(0.95); opacity: 0.8; }
+        /* 地圖容器 */
+        #map-container {
+            width: 100%; height: calc(100vh - 180px);
+            position: relative; background: #111;
+        }
 
-        /* 查詢結果 */
-        #result-box { margin-top: 15px; padding: 15px; background: #f9f9f9; border-left: 5px solid var(--police-blue); border-radius: 5px; display: none; }
-        .result-title { font-size: 13px; font-weight: bold; color: #333; margin-bottom: 5px; }
-        .result-content { font-size: 15px; color: #d63384; font-weight: bold; }
+        #map { width: 100%; height: 100%; }
 
-        /* 底部安全距 */
-        .safe-area { height: env(safe-area-inset-bottom); background: white; }
+        /* 雷達掃描動畫 */
+        .radar-overlay {
+            position: absolute; top: 50%; left: 50%;
+            width: 200px; height: 200px;
+            border: 1px solid var(--tactical-green);
+            border-radius: 50%; transform: translate(-50%, -50%);
+            pointer-events: none; opacity: 0.3;
+            background: radial-gradient(circle, rgba(0,255,65,0.1) 0%, transparent 70%);
+        }
+        .radar-overlay::after {
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            border-top: 2px solid var(--tactical-green);
+            border-radius: 50%; animation: rotate 2s linear infinite;
+        }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* 查詢面板 */
+        .query-panel {
+            position: fixed; bottom: 0; width: 100%;
+            background: var(--panel-bg);
+            padding: 15px; border-top: 1px solid rgba(0, 255, 65, 0.3);
+            backdrop-filter: blur(10px); z-index: 110;
+        }
+
+        .input-group { display: flex; gap: 10px; margin-bottom: 10px; }
+        input {
+            flex: 1; background: #000; border: 1px solid var(--tactical-green);
+            color: var(--tactical-green); padding: 12px; border-radius: 5px;
+            font-size: 16px; outline: none;
+        }
+        button {
+            background: var(--tactical-green); color: black;
+            border: none; padding: 10px 20px; border-radius: 5px;
+            font-weight: bold; cursor: pointer;
+        }
+
+        /* 模擬結果顯示 */
+        #result-display {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 14px; min-height: 20px; color: #aaa;
+        }
+        .alert { color: var(--warning-red); animation: blink 0.5s infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
     </style>
 </head>
 <body>
 
-<header>
-    <div class="header-title"><span class="status-dot"></span>M-POLICE 模擬系統</div>
-    <div style="font-size: 12px; opacity: 0.7;">V1.0.4</div>
-</header>
+<div class="status-bar">
+    <div class="duty-info">ID: <span>D-01762</span> | UNIT: <span>BLACK-TECH</span></div>
+    <div id="timer">00:00:00</div>
+</div>
 
-<div id="map-area">
-    <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d14561.464670267448!2d120.6833!3d24.1508!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1zh-TW!2stw!4v1710000000000!5m2!1zh-TW!2stw" allowfullscreen="" loading="lazy"></iframe>
-    <div class="map-overlay">GPS 定位中...</div>
+<div id="map-container">
+    <iframe id="map" frameborder="0" style="border:0" 
+        src="https://www.google.com/maps/embed/v1/place?key=YOUR_API_KEY&q=Taichung+Park" allowfullscreen>
+    </iframe>
+    <div class="radar-overlay"></div>
 </div>
 
 <div class="query-panel">
     <div class="input-group">
-        <label>身份證 / 車牌 / 案件號碼</label>
-        <input type="text" id="queryInput" placeholder="請輸入查詢內容..." autocomplete="off">
+        <input type="text" id="query-input" placeholder="輸入身分證 / 車牌 / 案件號" autocomplete="off">
+        <button onclick="runQuery()">查詢</button>
     </div>
-    
-    <div class="btn-group">
-        <button class="btn-query" onclick="doQuery()">執行查詢</button>
-        <button class="btn-report" onclick="doReport()">緊急回報</button>
-    </div>
-
-    <div id="result-box">
-        <div class="result-title">系統查詢結果：</div>
-        <div class="result-content" id="resultContent"></div>
-    </div>
+    <div id="result-display">系統待命...</div>
 </div>
 
-<div class="safe-area"></div>
-
 <script>
-    function doQuery() {
-        const val = document.getElementById('queryInput').value.trim();
-        const box = document.getElementById('result-box');
-        const content = document.getElementById('resultContent');
-        
-        if (!val) {
-            alert("請輸入查詢條件");
-            return;
-        }
+    // 計時器邏輯
+    let seconds = 0;
+    setInterval(() => {
+        seconds++;
+        let h = Math.floor(seconds / 3600).toString().padStart(2, '0');
+        let m = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
+        let s = (seconds % 60).toString().padStart(2, '0');
+        document.getElementById('timer').innerText = `${h}:${m}:${s}`;
+    }, 1000);
 
-        // 模擬查詢動畫與結果
-        content.textContent = "正在連線資料庫...";
-        box.style.display = "block";
+    // 模擬查詢邏輯 (白帽版)
+    function runQuery() {
+        const input = document.getElementById('query-input').value.trim().toUpperCase();
+        const display = document.getElementById('result-display');
+        
+        if (!input) return;
+        
+        display.innerHTML = "正在連通資料庫... [SCANNING]";
         
         setTimeout(() => {
-            // 這裡可以寫自訂邏輯，例如模擬通緝或正常
-            const status = Math.random() > 0.8 ? "⚠️ 注意：資料異常 / 追蹤中" : "✅ 查無資料 / 狀態正常";
-            content.textContent = `[${val}] ${status}`;
-            
-            // 存入 Local Storage 紀錄 (模擬歷史紀錄)
-            const logs = JSON.parse(localStorage.getItem('police_logs') || '[]');
-            logs.push({time: new Date().toLocaleString(), query: val, status: status});
-            localStorage.setItem('police_logs', JSON.stringify(logs.slice(-10))); // 只存最後10筆
-        }, 800);
+            if (input === "TEST-99") {
+                display.innerHTML = `<span class="alert">⚠️ 警示：該目標為遺失車輛 (模擬測試)</span>`;
+            } else {
+                display.innerHTML = `查詢完成：目標 [${input}] 狀態正常。`;
+            }
+        }, 1500);
     }
 
-    function doReport() {
-        if (confirm("是否立即將當前座標回報至勤務中心？")) {
-            alert("回報成功！已通知勤務中心支援。");
-            // 實際可串接 Firebase push 訊息到你的 R1 勤務總處房
-        }
+    // 取得真實定位並更新 Iframe (簡易版)
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(pos => {
+            const { latitude, longitude } = pos.coords;
+            // 這裡可以根據經緯度動態更新地圖網址
+            console.log(`目前座標: ${latitude}, ${longitude}`);
+        });
     }
 </script>
 
