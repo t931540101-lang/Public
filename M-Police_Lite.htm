@@ -3,155 +3,140 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>M-Police Tactical V2.0</title>
-    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <title>M-Police 整合查詢系統</title>
     <style>
         :root {
-            --tactical-green: #00ff41;
-            --warning-red: #ff3e3e;
-            --ar-blue: #00d2ff;
+            --police-blue: #1565C0;
+            --bg-light: #F0F4F8;
+            --input-border: #BDC3C7;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Share Tech Mono', monospace; }
-        body { background: #000; color: var(--tactical-green); overflow: hidden; height: 100vh; }
-
-        /* 相機背景 */
-        #video-preview {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            object-fit: cover; z-index: 1; filter: brightness(0.8) contrast(1.2);
-        }
-
-        /* 戰術抬頭顯示器 (HUD) */
-        .hud-overlay {
-            position: fixed; inset: 0; z-index: 10;
-            pointer-events: none; border: 20px solid rgba(0, 255, 65, 0.05);
-        }
-
-        /* 掃描線動畫 */
-        .scan-line {
-            position: absolute; width: 100%; height: 2px;
-            background: linear-gradient(to bottom, transparent, var(--tactical-green), transparent);
-            opacity: 0.5; animation: scan 3s linear infinite;
-        }
-        @keyframes scan { from { top: 0%; } to { top: 100%; } }
-
-        /* 人臉追蹤框 (模擬 AI 鎖定) */
-        .target-box {
-            position: absolute; top: 35%; left: 25%; width: 50%; height: 30%;
-            border: 2px solid var(--tactical-green);
-            box-shadow: 0 0 15px var(--tactical-green);
-            transition: all 0.1s ease;
-        }
-        .target-box::before, .target-box::after {
-            content: ""; position: absolute; width: 20px; height: 20px; border: 2px solid #fff;
-        }
-        .target-box::before { top: -2px; left: -2px; border-right: 0; border-bottom: 0; }
-        .target-box::after { bottom: -2px; right: -2px; border-left: 0; border-top: 0; }
-
-        /* 鎖定框旁的數據 */
-        .target-data {
-            position: absolute; right: -120px; top: 0;
-            font-size: 10px; line-height: 1.2; background: rgba(0,0,0,0.5); padding: 5px;
-        }
-
-        /* 頂部與底部面板 */
-        .panel {
-            position: fixed; width: 100%; z-index: 20; background: rgba(0,0,0,0.7);
-            padding: 10px 15px; border: 1px solid var(--tactical-green);
-            backdrop-filter: blur(5px); pointer-events: auto;
-        }
-        .top-panel { top: 0; display: flex; justify-content: space-between; }
-        .bottom-panel { bottom: 0; }
-
-        .btn {
-            background: var(--tactical-green); color: #000; border: none;
-            padding: 8px 15px; font-weight: bold; font-size: 12px; cursor: pointer;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Microsoft JhengHei", sans-serif; }
+        body { background-color: var(--bg-light); color: #2C3E50; display: flex; justify-content: center; height: 100vh; }
         
-        #log-window { font-size: 10px; height: 40px; overflow: hidden; color: #888; margin-top: 5px; }
+        .container { width: 100%; max-width: 400px; padding: 30px 25px; display: flex; flex-direction: column; align-items: center; }
+
+        /* 頂部 Logo 區 */
+        .logo-area { text-align: center; margin-bottom: 40px; }
+        .shield-icon { font-size: 60px; color: var(--police-blue); margin-bottom: 10px; }
+        .sub-title { font-size: 14px; letter-spacing: 3px; color: #7F8C8D; font-weight: bold; }
+        .main-title { font-size: 24px; font-weight: 900; color: #34495E; margin-top: 5px; }
+
+        /* 輸入與選單區 */
+        .form-group { width: 100%; margin-bottom: 18px; }
+        label { display: block; font-size: 13px; color: var(--police-blue); font-weight: bold; margin-bottom: 5px; margin-left: 2px; }
+        input, select { 
+            width: 100%; padding: 12px; border: 1px solid var(--input-border); 
+            border-radius: 6px; font-size: 16px; background: white; outline: none;
+        }
+        input:focus { border-color: var(--police-blue); box-shadow: 0 0 5px rgba(21, 101, 192, 0.2); }
+
+        /* 按鈕區 */
+        .btn-row { display: flex; width: 100%; gap: 10px; margin-top: 25px; }
+        .btn { 
+            flex: 2; padding: 14px; border: none; border-radius: 6px; 
+            font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.2s;
+        }
+        .btn-login { background-color: var(--police-blue); color: white; }
+        .btn-clear { flex: 1; background-color: #95A5A6; color: white; }
+        .btn-sync { 
+            width: 100%; margin-top: 15px; background: transparent; 
+            border: 2px solid var(--police-blue); color: var(--police-blue); 
+            padding: 10px; font-size: 15px; border-radius: 6px;
+        }
+        .btn:active { transform: scale(0.98); opacity: 0.9; }
+
+        /* 提示框 */
+        #toast {
+            position: fixed; bottom: 50px; background: rgba(0,0,0,0.7); 
+            color: white; padding: 10px 20px; border-radius: 20px; font-size: 14px;
+            display: none; z-index: 100;
+        }
     </style>
 </head>
 <body>
 
-<video id="video-preview" autoplay playsinline></video>
-
-<div class="hud-overlay">
-    <div class="scan-line"></div>
-    
-    <div class="target-box" id="tracker">
-        <div class="target-data">
-            ID: UNKNOWN<br>
-            MATCH: <span id="match-pc">0.0</span>%<br>
-            TEMP: 36.5C<br>
-            STATE: SCANNING
-        </div>
+<div class="container">
+    <div class="logo-area">
+        <div class="shield-icon">🛡️</div>
+        <div class="sub-title">內政部警政署</div>
+        <div class="main-title">M-Police 整合查詢</div>
     </div>
-</div>
 
-<div class="panel top-panel">
-    <div>MODE: [AR-VISION]</div>
-    <div id="clock">00:00:00</div>
-</div>
-
-<div class="panel bottom-panel">
-    <div style="display: flex; gap: 10px;">
-        <button class="btn" onclick="toggleCamera()">SWITCH CAM</button>
-        <button class="btn" onclick="captureTarget()" style="background: var(--warning-red); color: #fff;">LOCK TARGET</button>
+    <div class="form-group">
+        <label>載具帳號 (ID)</label>
+        <input type="text" id="user_id" placeholder="請輸入帳號">
     </div>
-    <div id="log-window">> SYSTEM INITIALIZING...</div>
+
+    <div class="form-group">
+        <label>認證密碼 (PW)</label>
+        <input type="password" id="user_pw" placeholder="請輸入密碼">
+    </div>
+
+    <div class="form-group">
+        <label>勤務類別</label>
+        <select id="patrol_type">
+            <option>巡邏</option>
+            <option>臨檢</option>
+            <option>處事</option>
+            <option>其他</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>交通載具</label>
+        <select id="vehicle_type">
+            <option>汽車</option>
+            <option>機車</option>
+            <option>徒步</option>
+        </select>
+    </div>
+
+    <div class="btn-row">
+        <button class="btn btn-login" onclick="handleAction('驗證憑證中...')">登入系統</button>
+        <button class="btn btn-clear" onclick="clearForm()">清除</button>
+    </div>
+
+    <button class="btn-sync" onclick="handleAction('正在同步通緝/失竊資料庫...')">🔄 離線資料同步 (Offline Sync)</button>
 </div>
+
+<div id="toast"></div>
 
 <script>
-    const video = document.getElementById('video-preview');
-    const log = document.getElementById('log-window');
-    const matchPc = document.getElementById('match-pc');
+    // 1. 自動讀取上次的設定 (Local Storage)
+    window.onload = () => {
+        if(localStorage.getItem('m_id')) document.getElementById('user_id').value = localStorage.getItem('m_id');
+        if(localStorage.getItem('m_patrol')) document.getElementById('patrol_type').value = localStorage.getItem('m_patrol');
+        if(localStorage.getItem('m_vehicle')) document.getElementById('vehicle_type').value = localStorage.getItem('m_vehicle');
+    };
 
-    // 1. 啟動相機
-    async function initCamera() {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ 
-                video: { facingMode: "environment" }, 
-                audio: false 
-            });
-            video.srcObject = stream;
-            addLog("CAMERA LINK ESTABLISHED.");
-        } catch (err) {
-            addLog("ERROR: CAMERA ACCESS DENIED.");
+    // 2. 模擬操作與存檔
+    function handleAction(msg) {
+        // 儲存當前設定，下次不用重選
+        localStorage.setItem('m_id', document.getElementById('user_id').value);
+        localStorage.setItem('m_patrol', document.getElementById('patrol_type').value);
+        localStorage.setItem('m_vehicle', document.getElementById('vehicle_type').value);
+        
+        showToast(msg);
+        
+        // 模擬跳轉 (如果是要做整套，這裡可以跳轉到你的地圖頁面)
+        if(msg.includes('驗證')) {
+            setTimeout(() => showToast("身份驗證成功，系統已就緒"), 1500);
         }
     }
 
-    // 2. 模擬日誌跳動
-    function addLog(msg) {
-        log.innerHTML = "> " + msg + "<br>" + log.innerHTML;
+    function clearForm() {
+        document.getElementById('user_id').value = "";
+        document.getElementById('user_pw').value = "";
+        showToast("欄位已清除");
     }
 
-    // 3. 模擬 AI 數據變化
-    setInterval(() => {
-        if(Math.random() > 0.5) {
-            let val = (Math.random() * 30 + 60).toFixed(1);
-            matchPc.innerText = val;
-            // 讓追蹤框輕微抖動，增加真實感
-            const tracker = document.getElementById('tracker');
-            tracker.style.transform = `translate(${Math.random()*4-2}px, ${Math.random()*4-2}px)`;
-        }
-    }, 500);
-
-    function captureTarget() {
-        addLog("TARGET LOCKED. ANALYZING BIOMETRICS...");
-        setTimeout(() => {
-            addLog("MATCH FOUND: CITIZEN_DB_SCAN_COMPLETED.");
-        }, 1500);
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.innerText = msg;
+        t.style.display = 'block';
+        setTimeout(() => t.style.display = 'none', 2000);
     }
-
-    function toggleCamera() {
-        addLog("RELAYING SIGNAL... SWITCHING SENSORS.");
-    }
-
-    // 初始化
-    initCamera();
-    setInterval(() => {
-        document.getElementById('clock').innerText = new Date().toLocaleTimeString();
-    }, 1000);
 </script>
 
 </body>
