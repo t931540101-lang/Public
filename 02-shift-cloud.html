@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
@@ -22,228 +21,224 @@
       --text:    #3a3226;
       --sub:     #8e835d;
 
-```
-  /* 班別顏色 */
-  --dayb:    #e67e22;
-  --nightb:  #2980b9;
-  --nighte:  #8e44ad;
-  --off:     #c0392b;
-  --regular: #7f8c8d;
-  --annual:  #d35400;
-  --comp:    #16a085;
-  --swap:    #f39c12;
-}
+      /* 班別顏色 */
+      --dayb:    #c0392b;
+      --nightb:  #2980b9;
+      --nighte:  #8e44ad;
+      --off:     #c0392b;
+      --regular: #7f8c8d;
+      --annual:  #d35400;
+      --comp:    #16a085;
+      --swap:    #f39c12;
+    }
 
-* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-body { font-family:'Noto Sans TC',sans-serif; background:var(--bg); min-height:100vh; color:var(--text); }
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    body { font-family:'Noto Sans TC',sans-serif; background:var(--bg); min-height:100vh; color:var(--text); }
 
-/* ── 登入頁 ── */
-#login-page {
-  min-height:100vh; display:flex; flex-direction:column;
-  align-items:center; justify-content:center;
-  padding:32px 24px; gap:14px;
-  background: linear-gradient(160deg, #1a2e1f 0%, #2e5a44 100%);
-}
-.login-logo { font-size:56px; }
-.login-title { font-size:22px; font-weight:900; color:#fff; letter-spacing:2px; }
-.login-sub { font-size:13px; color:rgba(255,255,255,0.6); }
-.login-input {
-  width:100%; max-width:340px;
-  padding:13px 16px; border-radius:12px;
-  border:2px solid rgba(255,255,255,0.2);
-  background:rgba(255,255,255,0.1);
-  font-size:15px; color:#fff; font-family:inherit; outline:none;
-  transition:border .2s;
-}
-.login-input::placeholder { color:rgba(255,255,255,0.4); }
-.login-input:focus { border-color:rgba(255,255,255,0.6); }
-.login-btn {
-  width:100%; max-width:340px; padding:14px;
-  background:#fff; color:var(--accent);
-  border:none; border-radius:12px;
-  font-size:16px; font-weight:900; cursor:pointer;
-  font-family:inherit; transition:opacity .15s;
-}
-.login-btn:active { opacity:.8; }
-.login-err { color:#ff8a80; font-size:13px; min-height:18px; }
+    /* ── 登入頁 ── */
+    #login-page {
+      min-height:100vh; display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      padding:32px 24px; gap:14px;
+      background: linear-gradient(160deg, #1a2e1f 0%, #2e5a44 100%);
+    }
+    .login-logo { font-size:56px; }
+    .login-title { font-size:22px; font-weight:900; color:#fff; letter-spacing:2px; }
+    .login-sub { font-size:13px; color:rgba(255,255,255,0.6); }
+    .login-input {
+      width:100%; max-width:340px;
+      padding:13px 16px; border-radius:12px;
+      border:2px solid rgba(255,255,255,0.2);
+      background:rgba(255,255,255,0.1);
+      font-size:15px; color:#fff; font-family:inherit; outline:none;
+      transition:border .2s;
+    }
+    .login-input::placeholder { color:rgba(255,255,255,0.4); }
+    .login-input:focus { border-color:rgba(255,255,255,0.6); }
+    .login-btn {
+      width:100%; max-width:340px; padding:14px;
+      background:#fff; color:var(--accent);
+      border:none; border-radius:12px;
+      font-size:16px; font-weight:900; cursor:pointer;
+      font-family:inherit; transition:opacity .15s;
+    }
+    .login-btn:active { opacity:.8; }
+    .login-err { color:#ff8a80; font-size:13px; min-height:18px; }
 
-/* ── 主頁 ── */
-#main-page { display:none; max-width:480px; margin:0 auto; min-height:100vh; }
+    /* ── 主頁 ── */
+    #main-page { display:none; max-width:480px; margin:0 auto; min-height:100vh; }
 
-/* ── Top bar ── */
-.top-bar {
-  background:var(--header); color:#fff;
-  padding:10px 14px;
-  padding-top:calc(10px + env(safe-area-inset-top));
-  display:flex; align-items:center; justify-content:space-between;
-  position:sticky; top:0; z-index:60;
-}
-.top-user { font-size:13px; font-weight:700; }
-.top-right { display:flex; gap:8px; align-items:center; }
-.top-btn {
-  background:rgba(255,255,255,0.12); border:none; color:#fff;
-  padding:5px 10px; border-radius:8px; font-size:12px;
-  font-weight:700; cursor:pointer; font-family:inherit;
-}
-.top-btn:active { background:rgba(255,255,255,0.25); }
-.top-btn.danger { background:rgba(192,57,43,0.4); }
+    /* ── Top bar ── */
+    .top-bar {
+      background:var(--header); color:#fff;
+      padding:10px 14px;
+      padding-top:calc(10px + env(safe-area-inset-top));
+      display:flex; align-items:center; justify-content:space-between;
+      position:sticky; top:0; z-index:60;
+    }
+    .top-user { font-size:13px; font-weight:700; }
+    .top-right { display:flex; gap:8px; align-items:center; }
+    .top-btn {
+      background:rgba(255,255,255,0.12); border:none; color:#fff;
+      padding:5px 10px; border-radius:8px; font-size:12px;
+      font-weight:700; cursor:pointer; font-family:inherit;
+    }
+    .top-btn:active { background:rgba(255,255,255,0.25); }
+    .top-btn.danger { background:rgba(192,57,43,0.4); }
 
-/* ── Header ── */
-.cal-header {
-  background:var(--accent); color:#fff;
-  padding:12px 16px;
-  display:flex; justify-content:space-between; align-items:center;
-  box-shadow:0 2px 8px rgba(0,0,0,0.15);
-}
-.month-btn {
-  background:rgba(255,255,255,0.15); border:none; color:#fff;
-  width:36px; height:36px; border-radius:10px;
-  font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center;
-  transition:background .15s;
-}
-.month-btn:active { background:rgba(255,255,255,0.3); }
-.month-info { text-align:center; }
-.month-info h1 { font-size:17px; font-weight:900; letter-spacing:1px; }
-.month-info p  { font-size:12px; opacity:.75; margin-top:2px; }
+    /* ── Header ── */
+    .cal-header {
+      background:var(--accent); color:#fff;
+      padding:12px 16px;
+      display:flex; justify-content:space-between; align-items:center;
+      box-shadow:0 2px 8px rgba(0,0,0,0.15);
+    }
+    .month-btn {
+      background:rgba(255,255,255,0.15); border:none; color:#fff;
+      width:36px; height:36px; border-radius:10px;
+      font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+      transition:background .15s;
+    }
+    .month-btn:active { background:rgba(255,255,255,0.3); }
+    .month-info { text-align:center; }
+    .month-info h1 { font-size:17px; font-weight:900; letter-spacing:1px; }
+    .month-info p  { font-size:12px; opacity:.75; margin-top:2px; }
 
-/* ── 週標題 ── */
-.weekdays {
-  display:grid; grid-template-columns:repeat(7,1fr);
-  background:#f0e9d2; border-bottom:1px solid var(--border);
-}
-.wd {
-  text-align:center; padding:7px 0;
-  font-size:11px; font-weight:900; color:var(--sub);
-}
-.wd.sun { color:#c0392b; }
-.wd.sat { color:#2980b9; }
+    /* ── 週標題 ── */
+    .weekdays {
+      display:grid; grid-template-columns:repeat(7,1fr);
+      background:#f0e9d2; border-bottom:1px solid var(--border);
+    }
+    .wd {
+      text-align:center; padding:7px 0;
+      font-size:11px; font-weight:900; color:var(--sub);
+    }
+    .wd.sun { color:#c0392b; }
+    .wd.sat { color:#2980b9; }
 
-/* ── 月曆格子 ── */
-.calendar {
-  display:grid; grid-template-columns:repeat(7,1fr);
-  background:var(--border); gap:1px;
-  border-left:1px solid var(--border);
-}
+    /* ── 月曆格子 ── */
+    .calendar {
+      display:grid; grid-template-columns:repeat(7,1fr);
+      background:var(--border); gap:1px;
+      border-left:1px solid var(--border);
+    }
 
-.day-cell {
-  background:var(--card); min-height:80px;
-  padding:4px 3px; display:flex; flex-direction:column;
-  cursor:pointer; transition:background .1s; position:relative;
-  -webkit-user-select:none; user-select:none;
-}
-.day-cell:active { background:#e8f5e9; }
-.day-cell.empty { background:var(--bg); cursor:default; }
-.day-cell.today { box-shadow:inset 0 0 0 2px #c0392b; background:#fffcf5; }
+    .day-cell {
+      background:var(--card); min-height:80px;
+      padding:4px 3px; display:flex; flex-direction:column;
+      cursor:pointer; transition:background .1s; position:relative;
+      -webkit-user-select:none; user-select:none;
+    }
+    .day-cell:active { background:#e8f5e9; }
+    .day-cell.empty { background:var(--bg); cursor:default; }
+    .day-cell.today { box-shadow:inset 0 0 0 2px #c0392b; background:#fffcf5; }
 
-.day-num {
-  font-size:12px; font-weight:900; text-align:right;
-  padding-right:2px; line-height:1;
-}
-.day-cell.is-sun .day-num { color:#c0392b; }
-.day-cell.is-sat .day-num { color:#2980b9; }
+    .day-num {
+      font-size:12px; font-weight:900; text-align:right;
+      padding-right:2px; line-height:1;
+    }
+    .day-cell.is-sun .day-num { color:#c0392b; }
+    .day-cell.is-sat .day-num { color:#2980b9; }
 
-.shift-tag {
-  margin-top:auto; border-radius:5px;
-  padding:3px 2px; text-align:center;
-  font-size:10px; font-weight:900; color:#fff;
-  line-height:1.2; word-break:break-all;
-}
+    .shift-tag {
+      margin-top:auto; border-radius:5px;
+      padding:3px 2px; text-align:center;
+      font-size:10px; font-weight:900; color:#fff;
+      line-height:1.2; word-break:break-all;
+    }
 
-/* 班別背景色 */
-.t-dayb    { background:var(--dayb); }
-.t-nightb  { background:var(--nightb); }
-.t-nighte  { background:var(--nighte); }
-.t-off     { background:var(--off); }
-.t-regular { background:var(--regular); }
-.t-annual  { background:var(--annual); }
-.t-comp    { background:var(--comp); }
-.t-swap    { background:var(--swap); }
+    /* 班別背景色 */
+    .t-dayb    { background:var(--dayb); }
+    .t-nightb  { background:var(--nightb); }
+    .t-nighte  { background:var(--nighte); }
+    .t-off     { background:var(--off); }
+    .t-regular { background:var(--regular); }
+    .t-annual  { background:var(--annual); }
+    .t-comp    { background:var(--comp); }
+    .t-swap    { background:var(--swap); }
 
-/* ── 底部統計列 ── */
-.stats-bar {
-  background:#f0e9d2; border-top:2px solid var(--border);
-  padding:8px 10px; display:flex; flex-wrap:wrap; gap:5px;
-}
-.stat-chip {
-  padding:4px 10px; border-radius:20px;
-  font-size:11px; font-weight:700; color:#fff;
-}
+    /* ── 底部統計列 ── */
+    .stats-bar {
+      background:#f0e9d2; border-top:2px solid var(--border);
+      padding:8px 10px; display:flex; flex-wrap:wrap; gap:5px;
+    }
+    .stat-chip {
+      padding:4px 10px; border-radius:20px;
+      font-size:11px; font-weight:700; color:#fff;
+    }
 
-/* ── 底部操作面板 ── */
-.bottom-panel {
-  position:fixed; bottom:0; left:50%; transform:translateX(-50%);
-  width:100%; max-width:480px;
-  background:#f2ebd5; border-top:2px solid var(--border);
-  padding:10px 12px;
-  padding-bottom:calc(10px + env(safe-area-inset-bottom));
-  z-index:70; box-shadow:0 -4px 16px rgba(0,0,0,0.1);
-}
-.selected-shift-bar {
-  display:flex; align-items:center; justify-content:space-between;
-  margin-bottom:8px; min-height:32px;
-}
-.sel-label { font-size:13px; color:var(--sub); font-weight:700; }
-.sel-badge {
-  padding:4px 14px; border-radius:20px; font-size:13px;
-  font-weight:900; color:#fff;
-}
-.clear-toggle {
-  padding:6px 14px; border-radius:10px; border:none;
-  font-size:12px; font-weight:700; cursor:pointer;
-  font-family:inherit; transition:all .15s;
-  background:#fff; color:#999; border:2px solid var(--border);
-}
-.clear-toggle.active { background:#c0392b; color:#fff; border-color:#c0392b; }
+    /* ── 底部操作面板 ── */
+    .bottom-panel {
+      position:fixed; bottom:0; left:0; right:0;
+      width:100%; max-width:480px;
+      background:#f2ebd5; border-top:2px solid var(--border);
+      padding:10px 12px;
+      padding-bottom:calc(10px + env(safe-area-inset-bottom));
+      z-index:70; box-shadow:0 -4px 16px rgba(0,0,0,0.1);
+    }
+    .selected-shift-bar {
+      display:flex; align-items:center; justify-content:space-between;
+      margin-bottom:8px; min-height:32px;
+    }
+    .sel-label { font-size:13px; color:var(--sub); font-weight:700; }
+    .sel-badge {
+      padding:4px 14px; border-radius:20px; font-size:13px;
+      font-weight:900; color:#fff;
+    }
+    .clear-toggle {
+      padding:6px 14px; border-radius:10px; border:none;
+      font-size:12px; font-weight:700; cursor:pointer;
+      font-family:inherit; transition:all .15s;
+      background:#fff; color:#999; border:2px solid var(--border);
+    }
+    .clear-toggle.active { background:#c0392b; color:#fff; border-color:#c0392b; }
 
-.shifts-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
-.shift-btn {
-  padding:10px 4px; border-radius:10px; border:none;
-  font-size:12px; font-weight:900; color:#fff;
-  cursor:pointer; font-family:inherit;
-  transition:transform .1s, opacity .15s;
-  box-shadow:0 2px 4px rgba(0,0,0,0.1);
-}
-.shift-btn:active { transform:scale(.94); opacity:.85; }
-.sb-dayb    { background:var(--dayb); }
-.sb-nightb  { background:var(--nightb); }
-.sb-nighte  { background:var(--nighte); }
-.sb-off     { background:var(--off); }
-.sb-regular { background:var(--regular); }
-.sb-annual  { background:var(--annual); }
-.sb-comp    { background:var(--comp); }
-.sb-swap    { background:var(--swap); }
+    .shifts-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
+    .shift-btn {
+      padding:10px 4px; border-radius:10px; border:none;
+      font-size:12px; font-weight:900; color:#fff;
+      cursor:pointer; font-family:inherit;
+      transition:transform .1s, opacity .15s;
+      box-shadow:0 2px 4px rgba(0,0,0,0.1);
+    }
+    .shift-btn:active { transform:scale(.94); opacity:.85; }
+    .sb-dayb    { background:var(--dayb); }
+    .sb-nightb  { background:var(--nightb); }
+    .sb-nighte  { background:var(--nighte); }
+    .sb-off     { background:var(--off); }
+    .sb-regular { background:var(--regular); }
+    .sb-annual  { background:var(--annual); }
+    .sb-comp    { background:var(--comp); }
+    .sb-swap    { background:var(--swap); }
 
-/* ── 確認 Modal ── */
-.confirm-overlay {
-  position:fixed; inset:0; background:rgba(0,0,0,0.5);
-  display:none; align-items:center; justify-content:center;
-  z-index:200; padding:24px;
-}
-.confirm-overlay.open { display:flex; }
-.confirm-box {
-  background:#fff; border-radius:20px; padding:24px;
-  width:100%; max-width:320px; text-align:center;
-  animation:popIn .2s ease;
-}
-@keyframes popIn { from{transform:scale(.9);opacity:0} to{transform:scale(1);opacity:1} }
-.confirm-title { font-size:16px; font-weight:900; margin-bottom:6px; }
-.confirm-sub   { font-size:13px; color:#999; margin-bottom:20px; }
-.confirm-badge { display:inline-block; padding:6px 20px; border-radius:20px; color:#fff; font-weight:900; font-size:15px; margin-bottom:20px; }
-.confirm-btns  { display:flex; gap:10px; }
-.confirm-btn   { flex:1; padding:12px; border-radius:12px; border:none; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; }
-.cb-cancel { background:#f3f4f6; color:#666; }
-.cb-ok     { background:var(--accent); color:#fff; }
+    /* ── 確認 Modal ── */
+    .confirm-overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,0.5);
+      display:none; align-items:center; justify-content:center;
+      z-index:200; padding:24px;
+    }
+    .confirm-overlay.open { display:flex; }
+    .confirm-box {
+      background:#fff; border-radius:20px; padding:24px;
+      width:100%; max-width:320px; text-align:center;
+      animation:popIn .2s ease;
+    }
+    @keyframes popIn { from{transform:scale(.9);opacity:0} to{transform:scale(1);opacity:1} }
+    .confirm-title { font-size:16px; font-weight:900; margin-bottom:6px; }
+    .confirm-sub   { font-size:13px; color:#999; margin-bottom:20px; }
+    .confirm-badge { display:inline-block; padding:6px 20px; border-radius:20px; color:#fff; font-weight:900; font-size:15px; margin-bottom:20px; }
+    .confirm-btns  { display:flex; gap:10px; }
+    .confirm-btn   { flex:1; padding:12px; border-radius:12px; border:none; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; }
+    .cb-cancel { background:#f3f4f6; color:#666; }
+    .cb-ok     { background:var(--accent); color:#fff; }
 
-/* calendar 底部留空給面板 */
-.cal-wrap { padding-bottom: 160px; }
-```
-
+    /* calendar 底部留空給面板 */
+    .cal-wrap { padding-bottom: 160px; }
   </style>
 </head>
 <body>
 
 <!-- ===== 登入頁 ===== -->
-
 <div id="login-page">
   <div class="login-logo">📅</div>
   <div class="login-title">黑雲端班表系統</div>
@@ -256,7 +251,6 @@ body { font-family:'Noto Sans TC',sans-serif; background:var(--bg); min-height:1
 </div>
 
 <!-- ===== 主頁 ===== -->
-
 <div id="main-page">
   <div class="top-bar">
     <div class="top-user">
@@ -278,25 +272,21 @@ body { font-family:'Noto Sans TC',sans-serif; background:var(--bg); min-height:1
       <button class="month-btn" onclick="changeMonth(1)">›</button>
     </div>
 
-```
-<div class="weekdays">
-  <div class="wd sun">日</div>
-  <div class="wd">一</div>
-  <div class="wd">二</div>
-  <div class="wd">三</div>
-  <div class="wd">四</div>
-  <div class="wd">五</div>
-  <div class="wd sat">六</div>
-</div>
+    <div class="weekdays">
+      <div class="wd sun">日</div>
+      <div class="wd">一</div>
+      <div class="wd">二</div>
+      <div class="wd">三</div>
+      <div class="wd">四</div>
+      <div class="wd">五</div>
+      <div class="wd sat">六</div>
+    </div>
 
-<div class="calendar" id="calendar"></div>
-<div class="stats-bar" id="statsBar"></div>
-```
-
+    <div class="calendar" id="calendar"></div>
+    <div class="stats-bar" id="statsBar"></div>
   </div>
 
   <!-- 底部操作 -->
-
   <div class="bottom-panel">
     <div class="selected-shift-bar">
       <div class="sel-label">目前選擇：</div>
@@ -317,7 +307,6 @@ body { font-family:'Noto Sans TC',sans-serif; background:var(--bg); min-height:1
 </div>
 
 <!-- 確認 Modal -->
-
 <div class="confirm-overlay" id="confirmOverlay">
   <div class="confirm-box">
     <div class="confirm-title" id="confirmTitle">確認排班</div>
@@ -331,7 +320,6 @@ body { font-family:'Noto Sans TC',sans-serif; background:var(--bg); min-height:1
 </div>
 
 <!-- 統計 Modal -->
-
 <div class="confirm-overlay" id="statsOverlay">
   <div class="confirm-box" style="max-width:360px;">
     <div class="confirm-title" id="statsTitle">本月統計</div>
@@ -359,7 +347,7 @@ const SYSTEM_PIN = "black2024";
 
 // ── 班別設定 ──
 const SHIFTS = {
-  dayb:    { name:'日B班', cls:'t-dayb',    color:'#e67e22' },
+  dayb:    { name:'日B班', cls:'t-dayb',    color:'#c0392b' },
   nightb:  { name:'夜B班', cls:'t-nightb',  color:'#2980b9' },
   nighte:  { name:'夜E班', cls:'t-nighte',  color:'#8e44ad' },
   off:     { name:'休假',  cls:'t-off',     color:'#c0392b' },
@@ -664,6 +652,5 @@ function closeStats() {
   document.getElementById('statsOverlay').classList.remove('open');
 }
 </script>
-
 </body>
 </html>
