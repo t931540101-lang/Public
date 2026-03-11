@@ -174,7 +174,53 @@
             document.getElementById('login_id').value = localStorage.getItem('saved_id');
         }
     };
-</script>
+// 查詢邏輯 (對接後端真實資料)
+    async function doQuery() {
+        const target = document.getElementById('query_input').value;
+        const resBox = document.getElementById('query_res');
+        
+        if (!target) {
+            alert("請輸入查詢資訊");
+            return;
+        }
 
-</body>
-</html>
+        resBox.innerHTML = "🛰️ 正在連線黑曜石基地...<br>同步 AWS 東京伺服器中";
+        
+        try {
+            // 注意：這裡的網址必須對應你後端跑的 Port (目前是 3000)
+            const response = await fetch('http://localhost:3000/api/query', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ value: target })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                const p = result.data;
+                resBox.innerHTML = `
+                    <b style="color:var(--police-blue)">查詢結果：${p.name}</b><br>
+                    --------------------------<br>
+                    ● 員工編號：${p.empId}<br>
+                    ● 所屬單位：${p.department}<br>
+                    ● 車牌號碼：${p.plate}<br>
+                    ● 勤務狀態：<span style="color:blue; font-weight:bold;">${p.status || '正常'}</span><br>
+                    ● 系統備註：${p.note || '無'}<br>
+                    --------------------------<br>
+                    <small>雲端同步時間：${new Date().toLocaleString()}</small>
+                `;
+            } else {
+                resBox.innerHTML = `
+                    <b style="color:red">系統警示</b><br>
+                    --------------------------<br>
+                    ${result.message}<br>
+                    請確認輸入內容是否正確。
+                `;
+            }
+        } catch (err) {
+            console.error(err);
+            resBox.innerHTML = `<b style="color:red">連線失敗</b><br>請確認後端戰術伺服器 (Port 3000) 是否已啟動。`;
+        }
+    }
