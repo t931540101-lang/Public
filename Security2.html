@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>班表後台管理系統</title>
+<meta name="theme-color" content="#0f172a">
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #f1f5f9;
+  --card:    #ffffff;
+  --sidebar: #0f172a;
+  --accent:  #3b82f6;
+  --border:  #e2e8f0;
+  --text:    #1e293b;
+  --sub:     #64748b;
+  --success: #22c55e;
+  --warn:    #f59e0b;
+  --danger:  #ef4444;
+
+  --f1: #1d4ed8;
+  --f2: #15803d;
+  --f3: #7e22ce;
+
+  --dayb:    #f57c00;
+  --nightb:  #1976d2;
+  --nighte:  #7b1fa2;
+  --off:     #388e3c;
+  --annual:  #c62828;
+  --regular: #546e7a;
+  --holiday: #e91e63;
+  --swap:    #00838f;
+  --sick:    #6d4c41;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Noto Sans TC',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+/* ── 登入頁 ── */
+#login-page {
+  min-height:100vh; display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%);
+  padding:24px;
+}
+.login-card {
+  background:#fff; border-radius:20px; padding:40px 36px;
+  width:100%; max-width:400px; text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,0.3);
+}
+.login-icon  { font-size:52px; margin-bottom:12px; }
+.login-title { font-size:22px; font-weight:900; color:var(--text); margin-bottom:4px; }
+.login-sub   { font-size:13px; color:var(--sub); margin-bottom:24px; }
+.l-input {
+  width:100%; padding:12px 16px; border-radius:10px;
+  border:2px solid var(--border); font-size:15px;
+  font-family:inherit; outline:none; margin-bottom:12px;
+  transition:border .2s;
+}
+.l-input:focus { border-color:var(--accent); }
+.l-btn {
+  width:100%; padding:14px; border-radius:10px; border:none;
+  background:var(--accent); color:#fff; font-size:16px;
+  font-weight:900; cursor:pointer; font-family:inherit;
+  transition:opacity .15s; margin-top:4px;
+}
+.l-btn:hover { opacity:.9; }
+.l-err { color:var(--danger); font-size:13px; min-height:18px; margin-top:8px; }
+
+/* ── 主版面 ── */
+#admin-page { display:none; min-height:100vh; }
+
+.layout { display:flex; min-height:100vh; }
+
+/* Sidebar */
+.sidebar {
+  width:220px; background:var(--sidebar); color:#fff;
+  display:flex; flex-direction:column; flex-shrink:0;
+  position:sticky; top:0; height:100vh;
+}
+.sb-logo {
+  padding:24px 20px 16px;
+  border-bottom:1px solid rgba(255,255,255,0.08);
+}
+.sb-logo h1 { font-size:15px; font-weight:900; letter-spacing:1px; }
+.sb-logo p  { font-size:11px; opacity:.5; margin-top:2px; }
+
+.sb-nav { flex:1; padding:12px 0; }
+.sb-item {
+  display:flex; align-items:center; gap:10px;
+  padding:10px 20px; cursor:pointer; font-size:14px;
+  font-weight:700; color:rgba(255,255,255,0.6);
+  transition:all .15s; border-left:3px solid transparent;
+}
+.sb-item:hover { color:#fff; background:rgba(255,255,255,0.05); }
+.sb-item.active { color:#fff; background:rgba(59,130,246,0.2); border-left-color:var(--accent); }
+.sb-icon { font-size:18px; width:22px; text-align:center; }
+
+.sb-factory {
+  padding:12px 20px; border-top:1px solid rgba(255,255,255,0.08);
+  font-size:11px; color:rgba(255,255,255,.4); font-weight:700;
+  letter-spacing:1px;
+}
+.sb-f-item {
+  display:flex; align-items:center; gap:8px;
+  padding:8px 20px; cursor:pointer; font-size:13px; font-weight:700;
+  color:rgba(255,255,255,0.55); transition:all .15s;
+  border-radius:0; border-left:3px solid transparent;
+}
+.sb-f-item:hover { color:#fff; }
+.sb-f-item.active { color:#fff; border-left-color:currentColor; }
+.sb-f-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+
+.sb-bottom {
+  padding:16px 20px;
+  border-top:1px solid rgba(255,255,255,0.08);
+}
+.sb-user  { font-size:12px; color:rgba(255,255,255,.5); margin-bottom:8px; }
+.sb-logout {
+  width:100%; padding:8px; background:rgba(239,68,68,0.2); border:none;
+  border-radius:8px; color:#fca5a5; font-size:12px; font-weight:700;
+  cursor:pointer; font-family:inherit; transition:background .15s;
+}
+.sb-logout:hover { background:rgba(239,68,68,0.35); }
+
+/* 主內容區 */
+.main { flex:1; padding:24px; overflow:auto; }
+
+.page-header {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:20px; flex-wrap:wrap; gap:12px;
+}
+.page-title { font-size:20px; font-weight:900; }
+.page-sub   { font-size:13px; color:var(--sub); margin-top:2px; }
+
+/* 卡片 */
+.card {
+  background:var(--card); border-radius:14px;
+  box-shadow:0 1px 4px rgba(0,0,0,0.06);
+  margin-bottom:20px; overflow:hidden;
+}
+.card-header {
+  padding:16px 20px; border-bottom:1px solid var(--border);
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  flex-wrap:wrap;
+}
+.card-title { font-size:15px; font-weight:900; }
+.card-body  { padding:20px; }
+
+/* 按鈕 */
+.btn {
+  padding:8px 16px; border-radius:8px; border:none;
+  font-size:13px; font-weight:700; cursor:pointer;
+  font-family:inherit; transition:opacity .15s; display:inline-flex;
+  align-items:center; gap:6px;
+}
+.btn:hover { opacity:.85; }
+.btn-primary { background:var(--accent); color:#fff; }
+.btn-success { background:var(--success); color:#fff; }
+.btn-warn    { background:var(--warn); color:#fff; }
+.btn-danger  { background:var(--danger); color:#fff; }
+.btn-outline { background:#fff; color:var(--text); border:2px solid var(--border); }
+
+/* 統計卡 */
+.stat-cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:14px; margin-bottom:20px; }
+.stat-card  { background:var(--card); border-radius:12px; padding:18px; box-shadow:0 1px 4px rgba(0,0,0,0.06); }
+.stat-num   { font-size:28px; font-weight:900; margin-bottom:4px; }
+.stat-label { font-size:12px; color:var(--sub); }
+.stat-badge { display:inline-block; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:700; color:#fff; margin-top:6px; }
+
+/* 月份控制 */
+.month-ctrl {
+  display:flex; align-items:center; gap:10px;
+}
+.month-ctrl select, .month-ctrl input {
+  padding:7px 12px; border-radius:8px; border:2px solid var(--border);
+  font-size:13px; font-family:inherit; outline:none; background:#fff;
+}
+.month-ctrl select:focus, .month-ctrl input:focus { border-color:var(--accent); }
+
+/* 廠別 tab */
+.factory-tabs { display:flex; gap:6px; margin-bottom:16px; flex-wrap:wrap; }
+.f-tab {
+  padding:7px 16px; border-radius:20px; border:2px solid var(--border);
+  font-size:13px; font-weight:700; cursor:pointer; background:#fff;
+  color:var(--sub); transition:all .15s; font-family:inherit;
+}
+.f-tab.active-f1 { background:#dbeafe; color:var(--f1); border-color:var(--f1); }
+.f-tab.active-f2 { background:#dcfce7; color:var(--f2); border-color:var(--f2); }
+.f-tab.active-f3 { background:#f3e8ff; color:var(--f3); border-color:var(--f3); }
+
+/* 班表總覽表格 */
+.schedule-wrap { overflow-x:auto; }
+table { width:100%; border-collapse:collapse; min-width:900px; }
+th, td { border:1px solid var(--border); padding:0; text-align:center; }
+th {
+  background:#f8fafc; font-size:11px; font-weight:900;
+  color:var(--sub); padding:8px 4px; white-space:nowrap;
+  position:sticky; top:0; z-index:2;
+}
+th.name-col { position:sticky; left:0; z-index:3; background:#f8fafc; min-width:80px; }
+td.name-cell {
+  position:sticky; left:0; background:#fff; z-index:1;
+  font-weight:700; font-size:13px; padding:8px 10px;
+  white-space:nowrap;
+}
+.day-th { min-width:36px; font-size:10px; }
+.day-th.is-sun { color:var(--danger); }
+.day-th.is-sat { color:var(--f1); }
+.day-th.is-today { background:#fef3c7; }
+
+.shift-cell {
+  padding:3px 2px; cursor:pointer; transition:background .1s;
+  min-height:44px; height:44px; vertical-align:middle;
+}
+.shift-cell:hover { filter:brightness(.92); }
+.shift-cell.has-shift { }
+.sc-inner {
+  border-radius:4px; padding:2px 3px;
+  font-size:9px; font-weight:900; color:#fff;
+  line-height:1.3; min-height:30px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+}
+.sc-time { font-size:8px; opacity:.85; }
+
+/* 班別顏色 */
+.bg-dayb    { background:var(--dayb); }
+.bg-nightb  { background:var(--nightb); }
+.bg-nighte  { background:var(--nighte); }
+.bg-off     { background:var(--off); }
+.bg-annual  { background:var(--annual); }
+.bg-regular { background:var(--regular); }
+.bg-holiday { background:var(--holiday); }
+.bg-swap    { background:var(--swap); }
+.bg-sick    { background:var(--sick); }
+
+/* 編輯 Modal */
+.modal-overlay {
+  position:fixed; inset:0; background:rgba(0,0,0,0.45);
+  display:none; align-items:center; justify-content:center;
+  z-index:500; padding:20px;
+}
+.modal-overlay.open { display:flex; }
+.modal-box {
+  background:#fff; border-radius:18px; padding:24px;
+  width:100%; max-width:400px;
+  animation:popIn .2s ease;
+}
+@keyframes popIn { from{transform:scale(.92);opacity:0} to{transform:scale(1);opacity:1} }
+.modal-title { font-size:17px; font-weight:900; margin-bottom:4px; }
+.modal-sub   { font-size:13px; color:var(--sub); margin-bottom:20px; }
+.shift-pick-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:16px; }
+.sp-btn {
+  padding:10px 4px; border-radius:10px; border:2px solid transparent;
+  font-size:12px; font-weight:900; color:#fff; cursor:pointer;
+  font-family:inherit; transition:all .15s; text-align:center;
+  line-height:1.3;
+}
+.sp-btn:hover { transform:scale(1.03); }
+.sp-btn.selected { box-shadow:0 0 0 3px rgba(59,130,246,0.6); transform:scale(1.03); }
+.modal-btns { display:flex; gap:8px; }
+.modal-btn  { flex:1; padding:12px; border-radius:10px; border:none; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; }
+.mb-cancel  { background:#f1f5f9; color:#666; }
+.mb-clear   { background:#fee2e2; color:var(--danger); }
+.mb-save    { background:var(--accent); color:#fff; }
+
+/* 人員管理 */
+.staff-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; }
+.staff-card {
+  border:2px solid var(--border); border-radius:12px; padding:16px;
+  background:#fff; transition:border .15s;
+}
+.staff-card:hover { border-color:var(--accent); }
+.staff-name { font-size:15px; font-weight:900; margin-bottom:4px; }
+.staff-id   { font-size:12px; color:var(--sub); }
+.staff-factory { display:inline-block; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:700; color:#fff; margin-top:6px; }
+
+/* 匯出區 */
+.export-options { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; }
+.export-card {
+  border:2px solid var(--border); border-radius:12px; padding:20px;
+  text-align:center; cursor:pointer; transition:all .15s; background:#fff;
+}
+.export-card:hover { border-color:var(--accent); background:#f0f7ff; }
+.export-icon  { font-size:36px; margin-bottom:10px; }
+.export-name  { font-size:14px; font-weight:900; margin-bottom:4px; }
+.export-desc  { font-size:12px; color:var(--sub); }
+
+/* 響應式 */
+@media (max-width: 768px) {
+  .sidebar { display:none; }
+  .main { padding:16px; }
+  .stat-cards { grid-template-columns:1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ 登入頁 ══ -->
+<div id="login-page">
+  <div class="login-card">
+    <div class="login-icon">🛡️</div>
+    <div class="login-title">後台管理系統</div>
+    <div class="login-sub">三廠班表管理後台 · 僅限管理員</div>
+    <input class="l-input" id="adminUser" placeholder="管理員帳號">
+    <input class="l-input" id="adminPass" placeholder="管理員密碼" type="password">
+    <button class="l-btn" onclick="doAdminLogin()">登入後台</button>
+    <div class="l-err" id="loginErr"></div>
+  </div>
+</div>
+
+<!-- ══ 主頁 ══ -->
+<div id="admin-page">
+  <div class="layout">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sb-logo">
+        <h1>⚙️ 班表後台</h1>
+        <p>三廠雲端管理系統</p>
+      </div>
+      <div class="sb-nav">
+        <div class="sb-item active" onclick="showPage('overview')" id="nav-overview">
+          <span class="sb-icon">📊</span>班表總覽
+        </div>
+        <div class="sb-item" onclick="showPage('edit')" id="nav-edit">
+          <span class="sb-icon">✏️</span>編輯班表
+        </div>
+        <div class="sb-item" onclick="showPage('export')" id="nav-export">
+          <span class="sb-icon">📤</span>匯出報表
+        </div>
+        <div class="sb-item" onclick="showPage('staff')" id="nav-staff">
+          <span class="sb-icon">👥</span>人員管理
+        </div>
+      </div>
+      <div class="sb-factory">廠別快切</div>
+      <div class="sb-f-item" id="sf-f1" onclick="quickFactory('f1')" style="color:#60a5fa">
+        <div class="sb-f-dot" style="background:#1d4ed8"></div>A廠
+      </div>
+      <div class="sb-f-item" id="sf-f2" onclick="quickFactory('f2')" style="color:#86efac">
+        <div class="sb-f-dot" style="background:#15803d"></div>B廠
+      </div>
+      <div class="sb-f-item" id="sf-f3" onclick="quickFactory('f3')" style="color:#c4b5fd">
+        <div class="sb-f-dot" style="background:#7e22ce"></div>C廠
+      </div>
+      <div class="sb-bottom">
+        <div class="sb-user" id="sbUser"></div>
+        <button class="sb-logout" onclick="doLogout()">登出系統</button>
+      </div>
+    </div>
+
+    <!-- 主內容 -->
+    <div class="main">
+
+      <!-- ── 總覽頁 ── -->
+      <div id="page-overview">
+        <div class="page-header">
+          <div>
+            <div class="page-title">📊 班表總覽</div>
+            <div class="page-sub">查看所有廠別、所有人員的排班狀況</div>
+          </div>
+          <div class="month-ctrl">
+            <select id="ovYear" onchange="loadOverview()"></select>
+            <select id="ovMonth" onchange="loadOverview()"></select>
+          </div>
+        </div>
+
+        <div class="stat-cards" id="statCards"></div>
+
+        <div class="factory-tabs" id="factoryTabs">
+          <button class="f-tab active-f1" onclick="switchFactory('f1')" id="tab-f1">🔵 A廠</button>
+          <button class="f-tab" onclick="switchFactory('f2')" id="tab-f2">🟢 B廠</button>
+          <button class="f-tab" onclick="switchFactory('f3')" id="tab-f3">🟣 C廠</button>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title" id="overviewTitle">A廠 班表總覽</div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-success" onclick="exportCSV()">📥 匯出CSV</button>
+            </div>
+          </div>
+          <div class="card-body" style="padding:0">
+            <div class="schedule-wrap">
+              <table id="scheduleTable"></table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── 編輯頁 ── -->
+      <div id="page-edit" style="display:none">
+        <div class="page-header">
+          <div>
+            <div class="page-title">✏️ 編輯班表</div>
+            <div class="page-sub">直接點擊格子修改任何人的排班</div>
+          </div>
+          <div class="month-ctrl">
+            <select id="edYear" onchange="loadEdit()"></select>
+            <select id="edMonth" onchange="loadEdit()"></select>
+          </div>
+        </div>
+
+        <div class="factory-tabs">
+          <button class="f-tab active-f1" onclick="switchEditFactory('f1')" id="etab-f1">🔵 A廠</button>
+          <button class="f-tab" onclick="switchEditFactory('f2')" id="etab-f2">🟢 B廠</button>
+          <button class="f-tab" onclick="switchEditFactory('f3')" id="etab-f3">🟣 C廠</button>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title" id="editTitle">A廠 班表編輯</div>
+            <div style="font-size:12px;color:var(--sub)">點擊格子即可修改</div>
+          </div>
+          <div class="card-body" style="padding:0">
+            <div class="schedule-wrap">
+              <table id="editTable"></table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── 匯出頁 ── -->
+      <div id="page-export" style="display:none">
+        <div class="page-header">
+          <div>
+            <div class="page-title">📤 匯出報表</div>
+            <div class="page-sub">選擇廠別和月份匯出班表資料</div>
+          </div>
+          <div class="month-ctrl">
+            <select id="exYear"></select>
+            <select id="exMonth"></select>
+          </div>
+        </div>
+
+        <div class="factory-tabs">
+          <button class="f-tab active-f1" onclick="switchExFactory('f1')" id="xtab-f1">🔵 A廠</button>
+          <button class="f-tab" onclick="switchExFactory('f2')" id="xtab-f2">🟢 B廠</button>
+          <button class="f-tab" onclick="switchExFactory('f3')" id="xtab-f3">🟣 C廠</button>
+          <button class="f-tab" onclick="switchExFactory('all')" id="xtab-all">🏭 三廠合併</button>
+        </div>
+
+        <div class="export-options">
+          <div class="export-card" onclick="exportCSV()">
+            <div class="export-icon">📊</div>
+            <div class="export-name">匯出 CSV</div>
+            <div class="export-desc">可用 Excel 開啟<br>適合進一步編輯</div>
+          </div>
+          <div class="export-card" onclick="exportHTML()">
+            <div class="export-icon">🖨️</div>
+            <div class="export-name">列印 / PDF</div>
+            <div class="export-desc">開啟列印視窗<br>可存成 PDF</div>
+          </div>
+          <div class="export-card" onclick="exportSummary()">
+            <div class="export-icon">📋</div>
+            <div class="export-name">班次統計表</div>
+            <div class="export-desc">每人各班次數量<br>匯出 CSV</div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:8px;">
+          <div class="card-header">
+            <div class="card-title">預覽</div>
+          </div>
+          <div class="card-body" style="padding:0">
+            <div class="schedule-wrap">
+              <table id="previewTable"></table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── 人員管理頁 ── -->
+      <div id="page-staff" style="display:none">
+        <div class="page-header">
+          <div>
+            <div class="page-title">👥 人員管理</div>
+            <div class="page-sub">查看各廠已有排班記錄的人員</div>
+          </div>
+          <div class="month-ctrl">
+            <select id="stYear"></select>
+            <select id="stMonth"></select>
+          </div>
+        </div>
+        <div id="staffContent"></div>
+      </div>
+
+    </div><!-- /main -->
+  </div><!-- /layout -->
+</div><!-- /admin-page -->
+
+<!-- 編輯 Modal -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal-box">
+    <div class="modal-title">修改排班</div>
+    <div class="modal-sub" id="editModalSub"></div>
+    <div class="shift-pick-grid" id="shiftPickGrid"></div>
+    <div class="modal-btns">
+      <button class="modal-btn mb-cancel" onclick="closeEditModal()">取消</button>
+      <button class="modal-btn mb-clear"  onclick="clearCell()">清除</button>
+      <button class="modal-btn mb-save"   onclick="saveCell()">儲存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════
+//  Firebase
+// ══════════════════════════════════════
+const firebaseConfig = {
+  apiKey:      "AIzaSyB2_tKKsVT4kdW7PPkJgI9O7S1YdCWor48",
+  databaseURL: "https://factor-security-d1965-default-rtdb.firebaseio.com",
+  projectId:   "factor-security-d1965",
+  appId:       "1:864846943143:web:4cfa18cd20d2f712225c82"
+};
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// ── 管理員帳密（請自行修改）──
+const ADMIN_ACCOUNTS = [
+  { user: 'admin', pass: 'admin2024' }
+];
+
+// ── 廠別設定 ──
+const FACTORIES = {
+  f1: { name:'A廠', color:'#1d4ed8', bg:'#dbeafe' },
+  f2: { name:'B廠', color:'#15803d', bg:'#dcfce7' },
+  f3: { name:'C廠', color:'#7e22ce', bg:'#f3e8ff' },
+};
+
+// ── 班別設定 ──
+const SHIFTS = {
+  dayb:    { name:'日B班', time:'07:00-19:00', color:'#f57c00', cls:'bg-dayb' },
+  nightb:  { name:'夜B班', time:'17:00-05:00', color:'#1976d2', cls:'bg-nightb' },
+  nighte:  { name:'夜E班', time:'19:00-07:00', color:'#7b1fa2', cls:'bg-nighte' },
+  off:     { name:'休假',  time:'',            color:'#388e3c', cls:'bg-off' },
+  annual:  { name:'特休',  time:'',            color:'#c62828', cls:'bg-annual' },
+  regular: { name:'例假',  time:'',            color:'#546e7a', cls:'bg-regular' },
+  holiday: { name:'節日',  time:'',            color:'#e91e63', cls:'bg-holiday' },
+  swap:    { name:'換休',  time:'',            color:'#00838f', cls:'bg-swap' },
+  sick:    { name:'病假',  time:'',            color:'#6d4c41', cls:'bg-sick' },
+};
+
+// ── 狀態 ──
+let schedules = {};
+let curOvFactory = 'f1';
+let curEdFactory = 'f1';
+let curExFactory = 'f1';
+let editPending  = null;
+let selShiftKey  = null;
+const today = new Date();
+
+// ══════════════════════
+//  登入
+// ══════════════════════
+function doAdminLogin() {
+  const u = document.getElementById('adminUser').value.trim();
+  const p = document.getElementById('adminPass').value.trim();
+  const err = document.getElementById('loginErr');
+  const ok = ADMIN_ACCOUNTS.find(a => a.user === u && a.pass === p);
+  if (!ok) return err.textContent = '帳號或密碼錯誤！';
+  err.textContent = '';
+  document.getElementById('login-page').style.display = 'none';
+  document.getElementById('admin-page').style.display = 'block';
+  document.getElementById('sbUser').textContent = `👤 ${u}`;
+  initSelects();
+  startListening();
+  showPage('overview');
+}
+document.getElementById('adminPass').addEventListener('keydown', e => { if(e.key==='Enter') doAdminLogin(); });
+
+function doLogout() {
+  if(!confirm('確定要登出嗎？')) return;
+  db.ref('schedules').off();
+  document.getElementById('admin-page').style.display = 'none';
+  document.getElementById('login-page').style.display = 'flex';
+  document.getElementById('adminPass').value = '';
+}
+
+// ══════════════════════
+//  Firebase 監聽
+// ══════════════════════
+function startListening() {
+  db.ref('schedules').on('value', snap => {
+    schedules = snap.val() || {};
+    refreshCurrentPage();
+  });
+}
+
+function refreshCurrentPage() {
+  const active = document.querySelector('.sb-item.active');
+  if (!active) return;
+  const id = active.id.replace('nav-','');
+  if (id === 'overview') loadOverview();
+  if (id === 'edit')     loadEdit();
+  if (id === 'export')   loadExport();
+  if (id === 'staff')    loadStaff();
+}
+
+// ══════════════════════
+//  年月選單初始化
+// ══════════════════════
+function initSelects() {
+  const y = today.getFullYear();
+  const selIds = ['ovYear','edYear','exYear','stYear'];
+  selIds.forEach(id => {
+    const el = document.getElementById(id);
+    el.innerHTML = '';
+    for(let i = y-1; i <= y+1; i++) {
+      const o = document.createElement('option');
+      o.value = i; o.textContent = i + '年';
+      if(i === y) o.selected = true;
+      el.appendChild(o);
+    }
+  });
+  const mIds = ['ovMonth','edMonth','exMonth','stMonth'];
+  mIds.forEach(id => {
+    const el = document.getElementById(id);
+    el.innerHTML = '';
+    for(let m = 1; m <= 12; m++) {
+      const o = document.createElement('option');
+      o.value = m; o.textContent = m + '月';
+      if(m === today.getMonth()+1) o.selected = true;
+      el.appendChild(o);
+    }
+  });
+}
+
+// ══════════════════════
+//  頁面切換
+// ══════════════════════
+function showPage(name) {
+  ['overview','edit','export','staff'].forEach(p => {
+    document.getElementById('page-'+p).style.display = p === name ? 'block' : 'none';
+    document.getElementById('nav-'+p).classList.toggle('active', p === name);
+  });
+  if(name==='overview') loadOverview();
+  if(name==='edit')     loadEdit();
+  if(name==='export')   loadExport();
+  if(name==='staff')    loadStaff();
+}
+
+function quickFactory(f) {
+  curOvFactory = f; curEdFactory = f; curExFactory = f;
+  showPage('overview');
+}
+
+// ══════════════════════
+//  取得人員清單
+// ══════════════════════
+function getStaffList(factory, year, month) {
+  const data = (schedules[factory] || {});
+  const prefix = `${year}_${month}_`;
+  const names = new Set();
+  Object.keys(data).forEach(k => {
+    if(k.startsWith(prefix)) {
+      const parts = k.split('_');
+      if(parts.length >= 3) names.add(parts[2]);
+    }
+  });
+  return [...names].sort();
+}
+
+function getDays(year, month) {
+  return new Date(year, month, 0).getDate();
+}
+
+// ══════════════════════
+//  班表表格產生（共用）
+// ══════════════════════
+function buildTable(factory, year, month, editable) {
+  const staffList = getStaffList(factory, year, month);
+  const days      = getDays(year, month);
+  const data      = schedules[factory] || {};
+
+  const table = document.createElement('table');
+
+  // Header row 1: 日期
+  const headRow = document.createElement('tr');
+  const nameTh = document.createElement('th');
+  nameTh.className = 'name-col';
+  nameTh.textContent = '姓名';
+  headRow.appendChild(nameTh);
+
+  for(let d = 1; d <= days; d++) {
+    const dow = new Date(year, month-1, d).getDay();
+    const isToday = today.getFullYear()===year && today.getMonth()+1===month && today.getDate()===d;
+    const th = document.createElement('th');
+    th.className = 'day-th' +
+      (dow===0?' is-sun':'') +
+      (dow===6?' is-sat':'') +
+      (isToday?' is-today':'');
+    th.innerHTML = `${d}<br><span style="font-weight:400">${'日一二三四五六'[dow]}</span>`;
+    headRow.appendChild(th);
+  }
+  table.appendChild(headRow);
+
+  // 資料列
+  if(staffList.length === 0) {
+    const tr = document.createElement('tr');
+    const td = document.createElement('td');
+    td.colSpan = days + 1;
+    td.style.cssText = 'padding:24px;color:#aaa;font-size:14px;';
+    td.textContent = '此廠本月尚無排班資料';
+    tr.appendChild(td);
+    table.appendChild(tr);
+    return table;
+  }
+
+  staffList.forEach(name => {
+    const tr = document.createElement('tr');
+    const nameTd = document.createElement('td');
+    nameTd.className = 'name-cell';
+    nameTd.textContent = name;
+    tr.appendChild(nameTd);
+
+    for(let d = 1; d <= days; d++) {
+      const cellId  = `${year}_${month}_${name}_${d}`;
+      const shiftKey = data[cellId] || '';
+      const td = document.createElement('td');
+      td.className = 'shift-cell';
+
+      if(shiftKey && SHIFTS[shiftKey]) {
+        const s = SHIFTS[shiftKey];
+        td.style.background = s.color + '22';
+        const inner = document.createElement('div');
+        inner.className = `sc-inner ${s.cls}`;
+        inner.innerHTML = `${s.name}${s.time ? `<div class="sc-time">${s.time}</div>` : ''}`;
+        td.appendChild(inner);
+      }
+
+      if(editable) {
+        td.onclick = () => openEditModal(factory, year, month, name, d, cellId, shiftKey);
+      }
+      tr.appendChild(td);
+    }
+    table.appendChild(tr);
+  });
+
+  return table;
+}
+
+// ══════════════════════
+//  總覽頁
+// ══════════════════════
+function loadOverview() {
+  const year  = parseInt(document.getElementById('ovYear').value);
+  const month = parseInt(document.getElementById('ovMonth').value);
+
+  // 統計卡
+  renderStatCards(year, month);
+
+  // 表格
+  switchFactory(curOvFactory);
+}
+
+function renderStatCards(year, month) {
+  const container = document.getElementById('statCards');
+  container.innerHTML = '';
+  let totalAll = 0;
+
+  Object.entries(FACTORIES).forEach(([fk, fv]) => {
+    const staff = getStaffList(fk, year, month);
+    const days  = getDays(year, month);
+    let filled  = 0;
+    const data  = schedules[fk] || {};
+    staff.forEach(name => {
+      for(let d=1;d<=days;d++) {
+        if(data[`${year}_${month}_${name}_${d}`]) filled++;
+      }
+    });
+    totalAll += filled;
+
+    const card = document.createElement('div');
+    card.className = 'stat-card';
+    card.innerHTML = `
+      <div class="stat-num" style="color:${fv.color}">${staff.length}</div>
+      <div class="stat-label">${fv.name} 人員數</div>
+      <div class="stat-badge" style="background:${fv.color}">${filled} 格已排</div>
+    `;
+    container.appendChild(card);
+  });
+
+  const total = document.createElement('div');
+  total.className = 'stat-card';
+  total.innerHTML = `
+    <div class="stat-num" style="color:#334155">${totalAll}</div>
+    <div class="stat-label">三廠總排班格數</div>
+    <div class="stat-badge" style="background:#334155">${year}年${month}月</div>
+  `;
+  container.appendChild(total);
+}
+
+function switchFactory(f) {
+  curOvFactory = f;
+  ['f1','f2','f3'].forEach(k => {
+    const tab = document.getElementById('tab-'+k);
+    tab.className = 'f-tab' + (k===f ? ' active-'+k : '');
+  });
+  const year  = parseInt(document.getElementById('ovYear').value);
+  const month = parseInt(document.getElementById('ovMonth').value);
+  document.getElementById('overviewTitle').textContent =
+    `${FACTORIES[f].name} 班表總覽`;
+  const wrap = document.getElementById('scheduleTable').parentElement;
+  const newTable = buildTable(f, year, month, false);
+  newTable.id = 'scheduleTable';
+  wrap.replaceChild(newTable, document.getElementById('scheduleTable'));
+}
+
+// ══════════════════════
+//  編輯頁
+// ══════════════════════
+function loadEdit() {
+  switchEditFactory(curEdFactory);
+}
+
+function switchEditFactory(f) {
+  curEdFactory = f;
+  ['f1','f2','f3'].forEach(k => {
+    const tab = document.getElementById('etab-'+k);
+    tab.className = 'f-tab' + (k===f ? ' active-'+k : '');
+  });
+  const year  = parseInt(document.getElementById('edYear').value);
+  const month = parseInt(document.getElementById('edMonth').value);
+  document.getElementById('editTitle').textContent = `${FACTORIES[f].name} 班表編輯`;
+  const wrap = document.getElementById('editTable').parentElement;
+  const newTable = buildTable(f, year, month, true);
+  newTable.id = 'editTable';
+  wrap.replaceChild(newTable, document.getElementById('editTable'));
+}
+
+// ── 編輯 Modal ──
+function openEditModal(factory, year, month, name, day, cellId, currentShift) {
+  editPending = { factory, cellId };
+  selShiftKey = currentShift || null;
+
+  const dow = '日一二三四五六'[new Date(year, month-1, day).getDay()];
+  document.getElementById('editModalSub').textContent =
+    `${FACTORIES[factory].name} · ${name} · ${year}/${month}/${day}（${dow}）`;
+
+  const grid = document.getElementById('shiftPickGrid');
+  grid.innerHTML = '';
+  Object.entries(SHIFTS).forEach(([key, s]) => {
+    const btn = document.createElement('button');
+    btn.className = 'sp-btn' + (key === currentShift ? ' selected' : '');
+    btn.style.background = s.color;
+    btn.innerHTML = s.name + (s.time ? `<br><span style="font-size:9px;opacity:.85">${s.time}</span>` : '');
+    btn.onclick = () => {
+      selShiftKey = key;
+      grid.querySelectorAll('.sp-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+    };
+    grid.appendChild(btn);
+  });
+
+  document.getElementById('editModal').classList.add('open');
+}
+
+function closeEditModal() {
+  document.getElementById('editModal').classList.remove('open');
+  editPending = null; selShiftKey = null;
+}
+
+function saveCell() {
+  if(!editPending || !selShiftKey) { alert('請選擇班別'); return; }
+  db.ref(`schedules/${editPending.factory}/${editPending.cellId}`).set(selShiftKey)
+    .then(() => { closeEditModal(); });
+}
+
+function clearCell() {
+  if(!editPending) return;
+  if(!confirm('確定要清除這格排班嗎？')) return;
+  db.ref(`schedules/${editPending.factory}/${editPending.cellId}`).set('')
+    .then(() => { closeEditModal(); });
+}
+
+// ══════════════════════
+//  匯出頁
+// ══════════════════════
+function loadExport() {
+  switchExFactory(curExFactory);
+}
+
+function switchExFactory(f) {
+  curExFactory = f;
+  ['f1','f2','f3','all'].forEach(k => {
+    const tab = document.getElementById('xtab-'+k);
+    if(!tab) return;
+    tab.className = 'f-tab' + (k===f ? ' active-'+(k==='all'?'f1':k) : '');
+  });
+  const year  = parseInt(document.getElementById('exYear').value);
+  const month = parseInt(document.getElementById('exMonth').value);
+
+  const wrap = document.getElementById('previewTable').parentElement;
+  let newTable;
+  if(f === 'all') {
+    newTable = buildAllTable(year, month);
+  } else {
+    newTable = buildTable(f, year, month, false);
+  }
+  newTable.id = 'previewTable';
+  wrap.replaceChild(newTable, document.getElementById('previewTable'));
+}
+
+function buildAllTable(year, month) {
+  const days = getDays(year, month);
+  const table = document.createElement('table');
+
+  // Header
+  const hrow = document.createElement('tr');
+  ['廠別','姓名',...Array.from({length:days},(_,i)=>i+1)].forEach((h,i) => {
+    const th = document.createElement('th');
+    th.textContent = h;
+    if(i>=2) {
+      const dow = new Date(year, month-1, h).getDay();
+      th.className = 'day-th'+(dow===0?' is-sun':dow===6?' is-sat':'');
+    }
+    hrow.appendChild(th);
+  });
+  table.appendChild(hrow);
+
+  Object.entries(FACTORIES).forEach(([fk, fv]) => {
+    const staff = getStaffList(fk, year, month);
+    const data  = schedules[fk] || {};
+    staff.forEach(name => {
+      const tr = document.createElement('tr');
+      const ftd = document.createElement('td');
+      ftd.style.cssText = `background:${fv.color};color:#fff;font-weight:900;font-size:12px;padding:6px;white-space:nowrap;`;
+      ftd.textContent = fv.name;
+      tr.appendChild(ftd);
+      const ntd = document.createElement('td');
+      ntd.className = 'name-cell';
+      ntd.textContent = name;
+      tr.appendChild(ntd);
+      for(let d=1;d<=days;d++) {
+        const k = data[`${year}_${month}_${name}_${d}`] || '';
+        const td = document.createElement('td');
+        td.className = 'shift-cell';
+        if(k && SHIFTS[k]) {
+          const s = SHIFTS[k];
+          td.style.background = s.color+'22';
+          const inner = document.createElement('div');
+          inner.className = `sc-inner ${s.cls}`;
+          inner.textContent = s.name;
+          td.appendChild(inner);
+        }
+        tr.appendChild(td);
+      }
+      table.appendChild(tr);
+    });
+  });
+
+  return table;
+}
+
+// ── CSV 匯出 ──
+function exportCSV() {
+  const year  = parseInt(document.getElementById('exYear').value);
+  const month = parseInt(document.getElementById('exMonth').value);
+  const days  = getDays(year, month);
+  const factories = curExFactory === 'all'
+    ? Object.keys(FACTORIES)
+    : [curExFactory];
+
+  let csv = '\uFEFF'; // BOM for Excel
+  if(curExFactory === 'all') csv += '廠別,';
+  csv += `姓名,${Array.from({length:days},(_,i)=>i+1).join(',')}\n`;
+
+  factories.forEach(fk => {
+    const staff = getStaffList(fk, year, month);
+    const data  = schedules[fk] || {};
+    staff.forEach(name => {
+      let row = curExFactory==='all' ? `${FACTORIES[fk].name},` : '';
+      row += name;
+      for(let d=1;d<=days;d++) {
+        const k = data[`${year}_${month}_${name}_${d}`] || '';
+        row += ',' + (k && SHIFTS[k] ? SHIFTS[k].name : '');
+      }
+      csv += row + '\n';
+    });
+  });
+
+  const fname = curExFactory==='all'
+    ? `三廠班表_${year}年${month}月.csv`
+    : `${FACTORIES[curExFactory].name}班表_${year}年${month}月.csv`;
+  downloadFile(csv, fname, 'text/csv;charset=utf-8');
+}
+
+// ── 統計匯出 ──
+function exportSummary() {
+  const year  = parseInt(document.getElementById('exYear').value);
+  const month = parseInt(document.getElementById('exMonth').value);
+  const days  = getDays(year, month);
+  const factories = curExFactory === 'all' ? Object.keys(FACTORIES) : [curExFactory];
+
+  let csv = '\uFEFF';
+  if(curExFactory==='all') csv += '廠別,';
+  csv += '姓名,' + Object.values(SHIFTS).map(s=>s.name).join(',') + '\n';
+
+  factories.forEach(fk => {
+    const staff = getStaffList(fk, year, month);
+    const data  = schedules[fk] || {};
+    staff.forEach(name => {
+      const counts = {};
+      Object.keys(SHIFTS).forEach(k => counts[k]=0);
+      for(let d=1;d<=days;d++) {
+        const k = data[`${year}_${month}_${name}_${d}`];
+        if(k && counts[k]!==undefined) counts[k]++;
+      }
+      let row = curExFactory==='all' ? `${FACTORIES[fk].name},` : '';
+      row += name + ',' + Object.keys(SHIFTS).map(k=>counts[k]).join(',');
+      csv += row + '\n';
+    });
+  });
+
+  downloadFile(csv, `班次統計_${year}年${month}月.csv`, 'text/csv;charset=utf-8');
+}
+
+// ── HTML 列印 ──
+function exportHTML() {
+  const year  = parseInt(document.getElementById('exYear').value);
+  const month = parseInt(document.getElementById('exMonth').value);
+  window.print();
+}
+
+function downloadFile(content, filename, type) {
+  const blob = new Blob([content], {type});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ══════════════════════
+//  人員管理頁
+// ══════════════════════
+function loadStaff() {
+  const year  = parseInt(document.getElementById('stYear').value);
+  const month = parseInt(document.getElementById('stMonth').value);
+  const container = document.getElementById('staffContent');
+  container.innerHTML = '';
+
+  Object.entries(FACTORIES).forEach(([fk, fv]) => {
+    const staff = getStaffList(fk, year, month);
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.style.marginBottom = '16px';
+
+    const header = document.createElement('div');
+    header.className = 'card-header';
+    header.innerHTML = `
+      <div class="card-title" style="color:${fv.color}">${fv.name} 人員（${staff.length}人）</div>
+    `;
+    card.appendChild(header);
+
+    const body = document.createElement('div');
+    body.className = 'card-body';
+
+    if(staff.length === 0) {
+      body.innerHTML = '<div style="color:#aaa;font-size:14px;">本月無排班記錄</div>';
+    } else {
+      const grid = document.createElement('div');
+      grid.className = 'staff-grid';
+      staff.forEach(name => {
+        const data  = schedules[fk] || {};
+        const days  = getDays(year, month);
+        let filled  = 0;
+        const counts = {};
+        Object.keys(SHIFTS).forEach(k => counts[k]=0);
+        for(let d=1;d<=days;d++) {
+          const k = data[`${year}_${month}_${name}_${d}`];
+          if(k) { filled++; if(counts[k]!==undefined) counts[k]++; }
+        }
+        const sc = document.createElement('div');
+        sc.className = 'staff-card';
+        sc.innerHTML = `
+          <div class="staff-name">👤 ${name}</div>
+          <div class="staff-id">已排 ${filled} 天 / ${days} 天</div>
+          <div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:4px;">
+            ${Object.entries(SHIFTS).filter(([k])=>counts[k]>0).map(([k,s])=>
+              `<span style="background:${s.color};color:#fff;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;">${s.name}×${counts[k]}</span>`
+            ).join('')}
+          </div>
+        `;
+        grid.appendChild(sc);
+      });
+      body.appendChild(grid);
+    }
+    card.appendChild(body);
+    container.appendChild(card);
+  });
+}
+
+// ══════════════════════
+//  監聽月份選單變化
+// ══════════════════════
+['stYear','stMonth'].forEach(id => {
+  document.getElementById(id).addEventListener('change', loadStaff);
+});
+['exYear','exMonth'].forEach(id => {
+  document.getElementById(id).addEventListener('change', loadExport);
+});
+</script>
+</body>
+</html>
