@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>三廠雲端班表系統</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="班表系統">
+  <meta name="theme-color" content="#1a2535">
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:     #f0f2f5;
+      --card:   #ffffff;
+      --border: #dde3ea;
+      --text:   #1a2535;
+      --sub:    #7a8499;
+
+      /* 廠別主色 */
+      --f1: #1565c0;   /* A廠 - 深藍 */
+      --f2: #2e7d32;   /* B廠 - 深綠 */
+      --f3: #6a1b9a;   /* C廠 - 深紫 */
+
+      /* 班別顏色 */
+      --dayb:    #f57c00;
+      --nightb:  #1976d2;
+      --nighte:  #7b1fa2;
+      --off:     #388e3c;
+      --annual:  #c62828;
+      --regular: #546e7a;
+      --holiday: #e91e63;
+      --swap:    #00838f;
+      --sick:    #6d4c41;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+    body { font-family:'Noto Sans TC',sans-serif; background:var(--bg); min-height:100vh; color:var(--text); }
+
+    /* ══ 登入頁 ══ */
+    #login-page {
+      min-height:100vh; display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      padding:32px 20px; gap:16px;
+    }
+    .login-logo { font-size:52px; margin-bottom:4px; }
+    .login-title { font-size:22px; font-weight:900; color:#1a2535; letter-spacing:2px; }
+    .login-sub { font-size:13px; color:var(--sub); }
+
+    /* 廠別選擇 */
+    .factory-select {
+      display:flex; gap:10px; width:100%; max-width:340px;
+    }
+    .factory-btn {
+      flex:1; padding:12px 6px; border-radius:12px; border:2px solid var(--border);
+      background:#fff; font-size:14px; font-weight:900; cursor:pointer;
+      font-family:inherit; color:var(--sub); transition:all .15s;
+      display:flex; flex-direction:column; align-items:center; gap:4px;
+    }
+    .factory-btn .f-icon { font-size:22px; }
+    .factory-btn.sel-f1 { border-color:var(--f1); background:#e3f2fd; color:var(--f1); }
+    .factory-btn.sel-f2 { border-color:var(--f2); background:#e8f5e9; color:var(--f2); }
+    .factory-btn.sel-f3 { border-color:var(--f3); background:#f3e5f5; color:var(--f3); }
+
+    .login-input {
+      width:100%; max-width:340px; padding:13px 16px;
+      border-radius:12px; border:2px solid var(--border);
+      font-size:15px; font-family:inherit; outline:none;
+      background:#fff; color:var(--text); transition:border .2s;
+    }
+    .login-input:focus { border-color:var(--accent-login,#1565c0); }
+    .login-btn {
+      width:100%; max-width:340px; padding:14px;
+      border:none; border-radius:12px;
+      font-size:16px; font-weight:900; cursor:pointer;
+      font-family:inherit; color:#fff; transition:opacity .15s;
+      background:var(--accent-login, #1565c0);
+    }
+    .login-btn:active { opacity:.8; }
+    .login-err { color:#c62828; font-size:13px; min-height:18px; }
+
+    /* ══ 主頁 ══ */
+    #main-page { display:none; max-width:480px; margin:0 auto; min-height:100vh; }
+
+    /* Top bar */
+    .top-bar {
+      color:#fff; padding:10px 14px;
+      padding-top:calc(10px + env(safe-area-inset-top));
+      display:flex; align-items:center; justify-content:space-between;
+      position:sticky; top:0; z-index:60;
+    }
+    .top-left { display:flex; flex-direction:column; gap:1px; }
+    .top-factory { font-size:11px; opacity:.75; font-weight:700; }
+    .top-user    { font-size:14px; font-weight:900; }
+    .top-right   { display:flex; gap:6px; }
+    .top-btn {
+      background:rgba(255,255,255,0.18); border:none; color:#fff;
+      padding:6px 12px; border-radius:8px; font-size:12px;
+      font-weight:700; cursor:pointer; font-family:inherit;
+    }
+    .top-btn:active { background:rgba(255,255,255,0.3); }
+    .top-btn.red { background:rgba(198,40,40,0.5); }
+
+    /* Cal header */
+    .cal-header {
+      color:#fff; padding:10px 16px;
+      display:flex; justify-content:space-between; align-items:center;
+    }
+    .month-btn {
+      background:rgba(255,255,255,0.18); border:none; color:#fff;
+      width:36px; height:36px; border-radius:10px; font-size:20px;
+      cursor:pointer; display:flex; align-items:center; justify-content:center;
+    }
+    .month-btn:active { background:rgba(255,255,255,0.3); }
+    .month-info { text-align:center; }
+    .month-info h2 { font-size:17px; font-weight:900; }
+    .month-info p  { font-size:12px; opacity:.75; margin-top:2px; }
+
+    /* 週標題 */
+    .weekdays {
+      display:grid; grid-template-columns:repeat(7,1fr);
+      border-bottom:1px solid var(--border); background:#f8f9fa;
+    }
+    .wd { text-align:center; padding:7px 0; font-size:11px; font-weight:900; color:var(--sub); }
+    .wd.sun { color:#c62828; }
+    .wd.sat { color:#1565c0; }
+
+    /* 月曆 */
+    .calendar { display:grid; grid-template-columns:repeat(7,1fr); gap:1px; background:var(--border); }
+    .day-cell {
+      background:#fff; min-height:78px; padding:4px 3px;
+      display:flex; flex-direction:column; cursor:pointer;
+      transition:background .1s; -webkit-user-select:none;
+    }
+    .day-cell:active { background:#e8f0fe; }
+    .day-cell.empty { background:var(--bg); cursor:default; }
+    .day-cell.today { box-shadow:inset 0 0 0 2px #f57c00; }
+
+    .day-num { font-size:12px; font-weight:900; text-align:right; padding-right:2px; }
+    .day-cell.is-sun .day-num { color:#c62828; }
+    .day-cell.is-sat .day-num { color:#1565c0; }
+
+    .shift-tag {
+      margin-top:auto; border-radius:5px; padding:3px 2px;
+      text-align:center; font-size:9px; font-weight:900;
+      color:#fff; line-height:1.3;
+    }
+    .shift-time { font-size:8px; opacity:.85; }
+
+    /* 班別顏色 */
+    .t-dayb    { background:var(--dayb); }
+    .t-nightb  { background:var(--nightb); }
+    .t-nighte  { background:var(--nighte); }
+    .t-off     { background:var(--off); }
+    .t-annual  { background:var(--annual); }
+    .t-regular { background:var(--regular); }
+    .t-holiday { background:var(--holiday); }
+    .t-swap    { background:var(--swap); }
+    .t-sick    { background:var(--sick); }
+
+    /* 統計列 */
+    .stats-bar {
+      background:#f8f9fa; border-top:1px solid var(--border);
+      padding:8px 10px; display:flex; flex-wrap:wrap; gap:5px;
+    }
+    .stat-chip {
+      padding:3px 10px; border-radius:20px;
+      font-size:11px; font-weight:700; color:#fff;
+    }
+
+    /* 底部面板 */
+    .bottom-panel {
+      position:fixed; bottom:0; left:0; right:0;
+      max-width:480px; margin:0 auto;
+      background:#fff; border-top:2px solid var(--border);
+      padding:10px 12px;
+      padding-bottom:calc(10px + env(safe-area-inset-bottom));
+      z-index:70; box-shadow:0 -4px 16px rgba(0,0,0,0.08);
+    }
+    .sel-bar {
+      display:flex; align-items:center; justify-content:space-between;
+      margin-bottom:8px;
+    }
+    .sel-label { font-size:12px; color:var(--sub); font-weight:700; }
+    .sel-badge { padding:4px 14px; border-radius:20px; font-size:12px; font-weight:900; color:#fff; }
+    .clear-btn {
+      padding:5px 12px; border-radius:8px; border:2px solid var(--border);
+      background:#fff; color:#999; font-size:12px; font-weight:700;
+      cursor:pointer; font-family:inherit;
+    }
+    .clear-btn.on { background:#c62828; color:#fff; border-color:#c62828; }
+
+    .shifts-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+    .shift-btn {
+      padding:9px 4px; border-radius:10px; border:none;
+      font-size:11px; font-weight:900; color:#fff;
+      cursor:pointer; font-family:inherit;
+      transition:transform .1s; line-height:1.3;
+    }
+    .shift-btn:active { transform:scale(.94); }
+    .sb-dayb    { background:var(--dayb); }
+    .sb-nightb  { background:var(--nightb); }
+    .sb-nighte  { background:var(--nighte); }
+    .sb-off     { background:var(--off); }
+    .sb-annual  { background:var(--annual); }
+    .sb-regular { background:var(--regular); }
+    .sb-holiday { background:var(--holiday); }
+    .sb-swap    { background:var(--swap); }
+    .sb-sick    { background:var(--sick); }
+
+    /* 確認 Modal */
+    .overlay {
+      position:fixed; inset:0; background:rgba(0,0,0,0.45);
+      display:none; align-items:center; justify-content:center;
+      z-index:200; padding:24px;
+    }
+    .overlay.open { display:flex; }
+    .modal-box {
+      background:#fff; border-radius:20px; padding:24px;
+      width:100%; max-width:300px; text-align:center;
+      animation:popIn .2s ease;
+    }
+    @keyframes popIn { from{transform:scale(.9);opacity:0} to{transform:scale(1);opacity:1} }
+    .modal-title { font-size:16px; font-weight:900; margin-bottom:4px; }
+    .modal-sub   { font-size:13px; color:var(--sub); margin-bottom:16px; }
+    .modal-badge { display:inline-block; padding:6px 20px; border-radius:20px; color:#fff; font-weight:900; font-size:14px; margin-bottom:16px; }
+    .modal-time  { font-size:12px; color:var(--sub); margin-top:-10px; margin-bottom:16px; }
+    .modal-btns  { display:flex; gap:8px; }
+    .modal-btn   { flex:1; padding:12px; border-radius:12px; border:none; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; }
+    .mb-cancel { background:#f3f4f6; color:#666; }
+    .mb-ok     { color:#fff; }
+
+    /* 統計頁 */
+    .stats-modal { max-width:360px; text-align:left; }
+    .stats-row {
+      display:flex; align-items:center; gap:10px;
+      padding:8px 0; border-bottom:1px solid #f0f0f0;
+    }
+    .stats-dot { width:12px; height:12px; border-radius:3px; flex-shrink:0; }
+    .stats-name { flex:1; font-size:14px; font-weight:700; }
+    .stats-time { font-size:11px; color:var(--sub); }
+    .stats-cnt  { font-size:18px; font-weight:900; }
+    .stats-total { margin-top:12px; padding-top:10px; border-top:2px solid var(--border); font-size:13px; color:var(--sub); font-weight:700; }
+
+    .cal-spacer { height:155px; }
+  </style>
+</head>
+<body>
+
+<!-- ══ 登入頁 ══ -->
+<div id="login-page">
+  <div class="login-logo">🏭</div>
+  <div class="login-title">三廠雲端班表</div>
+  <div class="login-sub">請選擇廠別並輸入資料登入</div>
+
+  <div class="factory-select">
+    <button class="factory-btn" id="fbtn-f1" onclick="selectFactory('f1')">
+      <span class="f-icon">🔵</span>A廠
+    </button>
+    <button class="factory-btn" id="fbtn-f2" onclick="selectFactory('f2')">
+      <span class="f-icon">🟢</span>B廠
+    </button>
+    <button class="factory-btn" id="fbtn-f3" onclick="selectFactory('f3')">
+      <span class="f-icon">🟣</span>C廠
+    </button>
+  </div>
+
+  <input class="login-input" id="loginName" placeholder="姓名" maxlength="10">
+  <input class="login-input" id="loginID"   placeholder="工號" maxlength="20">
+  <input class="login-input" id="loginPin"  placeholder="系統通行碼" type="password" maxlength="30">
+  <div class="login-err" id="loginErr"></div>
+  <button class="login-btn" id="loginBtn" onclick="doLogin()">進入班表</button>
+</div>
+
+<!-- ══ 主頁 ══ -->
+<div id="main-page">
+  <div class="top-bar" id="topBar">
+    <div class="top-left">
+      <div class="top-factory" id="topFactory"></div>
+      <div class="top-user"    id="topUser"></div>
+    </div>
+    <div class="top-right">
+      <button class="top-btn" onclick="openStats()">📊 統計</button>
+      <button class="top-btn red" onclick="doLogout()">登出</button>
+    </div>
+  </div>
+
+  <div class="cal-header" id="calHeader">
+    <button class="month-btn" onclick="changeMonth(-1)">‹</button>
+    <div class="month-info">
+      <h2 id="factoryLabel"></h2>
+      <p  id="monthLabel"></p>
+    </div>
+    <button class="month-btn" onclick="changeMonth(1)">›</button>
+  </div>
+
+  <div class="weekdays">
+    <div class="wd sun">日</div>
+    <div class="wd">一</div><div class="wd">二</div>
+    <div class="wd">三</div><div class="wd">四</div>
+    <div class="wd">五</div>
+    <div class="wd sat">六</div>
+  </div>
+
+  <div class="calendar" id="calendar"></div>
+  <div class="stats-bar" id="statsBar"></div>
+  <div class="cal-spacer"></div>
+
+  <!-- 底部操作 -->
+  <div class="bottom-panel">
+    <div class="sel-bar">
+      <div class="sel-label">目前選擇：</div>
+      <div id="selBadge" style="font-size:12px;color:#aaa;font-weight:700;">請先選擇班別</div>
+      <button class="clear-btn" id="clearBtn" onclick="toggleClear()">抹除</button>
+    </div>
+    <div class="shifts-grid">
+      <button class="shift-btn sb-dayb"    onclick="pickShift('dayb')">☀️ 日B班<br><span style="font-size:9px;opacity:.85">07:00-19:00</span></button>
+      <button class="shift-btn sb-nightb"  onclick="pickShift('nightb')">🌆 夜B班<br><span style="font-size:9px;opacity:.85">17:00-05:00</span></button>
+      <button class="shift-btn sb-nighte"  onclick="pickShift('nighte')">🌙 夜E班<br><span style="font-size:9px;opacity:.85">19:00-07:00</span></button>
+      <button class="shift-btn sb-off"     onclick="pickShift('off')">🏖️ 休假</button>
+      <button class="shift-btn sb-annual"  onclick="pickShift('annual')">🌴 特休</button>
+      <button class="shift-btn sb-regular" onclick="pickShift('regular')">📅 例假</button>
+      <button class="shift-btn sb-holiday" onclick="pickShift('holiday')">🎉 節日</button>
+      <button class="shift-btn sb-swap"    onclick="pickShift('swap')">🔄 換休</button>
+      <button class="shift-btn sb-sick"    onclick="pickShift('sick')">🤒 病假</button>
+    </div>
+  </div>
+</div>
+
+<!-- 確認 Modal -->
+<div class="overlay" id="confirmOverlay">
+  <div class="modal-box">
+    <div class="modal-title" id="confirmTitle">確認排班</div>
+    <div class="modal-sub"   id="confirmSub"></div>
+    <div class="modal-badge" id="confirmBadge"></div>
+    <div class="modal-time"  id="confirmTime"></div>
+    <div class="modal-btns">
+      <button class="modal-btn mb-cancel" onclick="closeConfirm()">取消</button>
+      <button class="modal-btn mb-ok" id="confirmOkBtn" onclick="doConfirm()">確認</button>
+    </div>
+  </div>
+</div>
+
+<!-- 統計 Modal -->
+<div class="overlay" id="statsOverlay">
+  <div class="modal-box stats-modal">
+    <div class="modal-title" id="statsTitle" style="text-align:center;margin-bottom:14px;"></div>
+    <div id="statsContent"></div>
+    <div class="stats-total" id="statsTotal"></div>
+    <div style="margin-top:14px;">
+      <button class="modal-btn mb-cancel" style="width:100%" onclick="closeStats()">關閉</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════
+//  Firebase 設定
+// ══════════════════════════════════════
+const firebaseConfig = {
+  apiKey:      "AIzaSyB2_tKKsVT4kdW7PPkJgI9O7S1YdCWor48",
+  databaseURL: "https://factor-security-d1965-default-rtdb.firebaseio.com",
+  projectId:   "factor-security-d1965",
+  appId:       "1:864846943143:web:4cfa18cd20d2f712225c82"
+};
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+// ── 廠別設定 ──
+const FACTORIES = {
+  f1: { name:'A廠', color:'#1565c0', bg:'#e3f2fd', pin:'factoryA2024' },
+  f2: { name:'B廠', color:'#2e7d32', bg:'#e8f5e9', pin:'factoryB2024' },
+  f3: { name:'C廠', color:'#6a1b9a', bg:'#f3e5f5', pin:'factoryC2024' },
+};
+
+// ── 班別設定 ──
+const SHIFTS = {
+  dayb:    { name:'日B班', time:'07:00-19:00', color:'#f57c00', cls:'t-dayb' },
+  nightb:  { name:'夜B班', time:'17:00-05:00', color:'#1976d2', cls:'t-nightb' },
+  nighte:  { name:'夜E班', time:'19:00-07:00', color:'#7b1fa2', cls:'t-nighte' },
+  off:     { name:'休假',  time:'',            color:'#388e3c', cls:'t-off' },
+  annual:  { name:'特休',  time:'',            color:'#c62828', cls:'t-annual' },
+  regular: { name:'例假',  time:'',            color:'#546e7a', cls:'t-regular' },
+  holiday: { name:'節日',  time:'',            color:'#e91e63', cls:'t-holiday' },
+  swap:    { name:'換休',  time:'',            color:'#00838f', cls:'t-swap' },
+  sick:    { name:'病假',  time:'',            color:'#6d4c41', cls:'t-sick' },
+};
+
+// ── 狀態 ──
+let user = { name:'', id:'', factory:'' };
+let curFactory = null;
+let curYear, curMonth;
+let schedules = {};
+let dbRef = null;
+let selShift = null;
+let isClear = false;
+let pendingCell = null;
+const today = new Date();
+
+// ══════════════════════
+//  廠別選擇
+// ══════════════════════
+function selectFactory(key) {
+  curFactory = key;
+  const f = FACTORIES[key];
+  ['f1','f2','f3'].forEach(k => {
+    document.getElementById('fbtn-' + k).className =
+      'factory-btn' + (k === key ? ' sel-' + k : '');
+  });
+  document.getElementById('loginBtn').style.background = f.color;
+  document.querySelectorAll('.login-input').forEach(el => {
+    el.style.setProperty('--accent-login', f.color);
+  });
+  document.getElementById('loginErr').textContent = '';
+}
+
+// ══════════════════════
+//  登入 / 登出
+// ══════════════════════
+function doLogin() {
+  const name = document.getElementById('loginName').value.trim();
+  const id   = document.getElementById('loginID').value.trim();
+  const pin  = document.getElementById('loginPin').value.trim();
+  const err  = document.getElementById('loginErr');
+
+  if (!curFactory)  return err.textContent = '請先選擇廠別！';
+  if (!name) return err.textContent = '請輸入姓名';
+  if (!id)   return err.textContent = '請輸入工號';
+  if (pin !== FACTORIES[curFactory].pin) return err.textContent = '通行碼錯誤！';
+
+  user = { name, id, factory: curFactory };
+  err.textContent = '';
+
+  const f = FACTORIES[curFactory];
+
+  // 套用廠別主色
+  document.getElementById('topBar').style.background    = f.color;
+  document.getElementById('calHeader').style.background = f.color;
+
+  document.getElementById('topFactory').textContent = `🏭 ${f.name}`;
+  document.getElementById('topUser').textContent    = `👤 ${name}　🔖 ${id}`;
+  document.getElementById('factoryLabel').textContent = `${f.name} 雲端班表`;
+
+  document.getElementById('login-page').style.display = 'none';
+  document.getElementById('main-page').style.display  = 'block';
+
+  curYear  = today.getFullYear();
+  curMonth = today.getMonth();
+  startListening();
+  renderCalendar();
+}
+
+document.getElementById('loginPin').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+
+function doLogout() {
+  if (!confirm('確定要登出嗎？')) return;
+  if (dbRef) { dbRef.off(); dbRef = null; }
+  schedules = {};
+  selShift = null; isClear = false;
+  document.getElementById('main-page').style.display  = 'none';
+  document.getElementById('login-page').style.display = 'flex';
+  document.getElementById('loginPin').value = '';
+  resetSelUI();
+}
+
+// ══════════════════════
+//  Firebase 監聽
+// ══════════════════════
+function startListening() {
+  if (dbRef) dbRef.off();
+  // 每個廠獨立節點，各看各的
+  dbRef = db.ref(`schedules/${user.factory}`);
+  dbRef.on('value', snap => {
+    schedules = snap.val() || {};
+    renderCalendar();
+  });
+}
+
+// ══════════════════════
+//  月份切換
+// ══════════════════════
+function changeMonth(d) {
+  curMonth += d;
+  if (curMonth > 11) { curMonth = 0; curYear++; }
+  if (curMonth < 0)  { curMonth = 11; curYear--; }
+  renderCalendar();
+}
+
+// ══════════════════════
+//  月曆渲染
+// ══════════════════════
+function renderCalendar() {
+  document.getElementById('monthLabel').textContent =
+    `${curYear} 年 ${curMonth + 1} 月`;
+
+  const cal = document.getElementById('calendar');
+  cal.innerHTML = '';
+
+  const firstDay    = new Date(curYear, curMonth, 1).getDay();
+  const daysInMonth = new Date(curYear, curMonth + 1, 0).getDate();
+  const isThisMonth = today.getFullYear() === curYear && today.getMonth() === curMonth;
+  const counts = {};
+  Object.keys(SHIFTS).forEach(k => counts[k] = 0);
+
+  for (let i = 0; i < firstDay; i++) {
+    const e = document.createElement('div');
+    e.className = 'day-cell empty';
+    cal.appendChild(e);
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dow    = new Date(curYear, curMonth, d).getDay();
+    const cellId = `${curYear}_${curMonth+1}_${user.name}_${d}`;
+    const shiftKey = schedules[cellId] || '';
+    const isToday  = isThisMonth && today.getDate() === d;
+
+    if (shiftKey && counts[shiftKey] !== undefined) counts[shiftKey]++;
+
+    const cell = document.createElement('div');
+    cell.className = 'day-cell' +
+      (dow === 0 ? ' is-sun' : '') +
+      (dow === 6 ? ' is-sat' : '') +
+      (isToday   ? ' today'  : '');
+    cell.onclick = () => handleClick(d, cellId, shiftKey);
+
+    const num = document.createElement('div');
+    num.className = 'day-num';
+    num.textContent = d;
+    cell.appendChild(num);
+
+    if (shiftKey && SHIFTS[shiftKey]) {
+      const s = SHIFTS[shiftKey];
+      const tag = document.createElement('div');
+      tag.className = `shift-tag ${s.cls}`;
+
+      const nm = document.createElement('div');
+      nm.textContent = s.name;
+      tag.appendChild(nm);
+
+      if (s.time) {
+        const tm = document.createElement('div');
+        tm.className = 'shift-time';
+        tm.textContent = s.time;
+        tag.appendChild(tm);
+      }
+      cell.appendChild(tag);
+    }
+
+    cal.appendChild(cell);
+  }
+
+  renderStatsBar(counts);
+}
+
+function renderStatsBar(counts) {
+  const bar = document.getElementById('statsBar');
+  bar.innerHTML = '';
+  Object.entries(SHIFTS).forEach(([k, s]) => {
+    if (!counts[k]) return;
+    const chip = document.createElement('div');
+    chip.className = 'stat-chip';
+    chip.style.background = s.color;
+    chip.textContent = `${s.name} ${counts[k]}天`;
+    bar.appendChild(chip);
+  });
+}
+
+// ══════════════════════
+//  格子點擊
+// ══════════════════════
+function handleClick(day, cellId, current) {
+  if (!selShift && !isClear) {
+    alert('請先選擇下方的班別！');
+    return;
+  }
+  if (isClear && !current) return;
+
+  pendingCell = { cellId };
+  const dow = ['日','一','二','三','四','五','六'][new Date(curYear, curMonth, day).getDay()];
+  const dateStr = `${curYear}/${curMonth+1}/${day}（${dow}）`;
+
+  if (isClear) {
+    document.getElementById('confirmTitle').textContent = '確認清除';
+    document.getElementById('confirmSub').textContent   = dateStr;
+    document.getElementById('confirmBadge').textContent = `清除「${SHIFTS[current]?.name || ''}」`;
+    document.getElementById('confirmBadge').style.background = '#c62828';
+    document.getElementById('confirmTime').textContent  = '';
+    document.getElementById('confirmOkBtn').style.background = '#c62828';
+  } else {
+    const s = SHIFTS[selShift];
+    document.getElementById('confirmTitle').textContent = '確認排班';
+    document.getElementById('confirmSub').textContent   = dateStr;
+    document.getElementById('confirmBadge').textContent = s.name;
+    document.getElementById('confirmBadge').style.background = s.color;
+    document.getElementById('confirmTime').textContent  = s.time ? `🕐 ${s.time}` : '';
+    document.getElementById('confirmOkBtn').style.background = s.color;
+  }
+
+  document.getElementById('confirmOverlay').classList.add('open');
+}
+
+function closeConfirm() {
+  document.getElementById('confirmOverlay').classList.remove('open');
+  pendingCell = null;
+}
+
+function doConfirm() {
+  if (!pendingCell) return;
+  const ref = db.ref(`schedules/${user.factory}/${pendingCell.cellId}`);
+  if (isClear) ref.set('');
+  else ref.set(selShift);
+  closeConfirm();
+}
+
+// ══════════════════════
+//  班別選擇
+// ══════════════════════
+function pickShift(key) {
+  selShift = key;
+  isClear  = false;
+  const s = SHIFTS[key];
+  const badge = document.getElementById('selBadge');
+  badge.textContent    = s.name + (s.time ? ` ${s.time}` : '');
+  badge.style.cssText  = `background:${s.color};color:#fff;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:900;`;
+  document.getElementById('clearBtn').classList.remove('on');
+}
+
+function toggleClear() {
+  isClear = !isClear;
+  if (isClear) {
+    selShift = null;
+    const badge = document.getElementById('selBadge');
+    badge.textContent   = '抹除模式';
+    badge.style.cssText = 'background:#c62828;color:#fff;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:900;';
+    document.getElementById('clearBtn').classList.add('on');
+  } else {
+    resetSelUI();
+  }
+}
+
+function resetSelUI() {
+  selShift = null; isClear = false;
+  const badge = document.getElementById('selBadge');
+  badge.textContent   = '請先選擇班別';
+  badge.style.cssText = 'font-size:12px;color:#aaa;font-weight:700;';
+  document.getElementById('clearBtn').classList.remove('on');
+}
+
+// ══════════════════════
+//  統計
+// ══════════════════════
+function openStats() {
+  const daysInMonth = new Date(curYear, curMonth + 1, 0).getDate();
+  const counts = {};
+  Object.keys(SHIFTS).forEach(k => counts[k] = 0);
+  let filled = 0;
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const k = schedules[`${curYear}_${curMonth+1}_${user.name}_${d}`];
+    if (k && counts[k] !== undefined) { counts[k]++; filled++; }
+  }
+
+  document.getElementById('statsTitle').textContent =
+    `${user.name} · ${curYear}年${curMonth+1}月`;
+
+  const content = document.getElementById('statsContent');
+  content.innerHTML = '';
+  Object.entries(SHIFTS).forEach(([key, s]) => {
+    if (!counts[key]) return;
+    const row = document.createElement('div');
+    row.className = 'stats-row';
+    row.innerHTML = `
+      <div class="stats-dot" style="background:${s.color}"></div>
+      <div class="stats-name">${s.name}</div>
+      <div class="stats-time">${s.time || ''}</div>
+      <div class="stats-cnt" style="color:${s.color}">${counts[key]}天</div>
+    `;
+    content.appendChild(row);
+  });
+
+  document.getElementById('statsTotal').textContent =
+    `已排 ${filled} 天　未排 ${daysInMonth - filled} 天`;
+  document.getElementById('statsOverlay').classList.add('open');
+}
+
+function closeStats() {
+  document.getElementById('statsOverlay').classList.remove('open');
+}
+</script>
+</body>
+</html>
