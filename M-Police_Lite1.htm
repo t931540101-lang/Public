@@ -128,7 +128,7 @@
 </div>
 
 <script>
-    // 登入邏輯
+    // 1. 登入邏輯
     function login() {
         const id = document.getElementById('login_id').value;
         const mode = document.getElementById('patrol_val').value;
@@ -145,36 +145,7 @@
         document.getElementById('main-page').classList.add('fade-in');
     }
 
-    // 查詢邏輯
-    function doQuery() {
-        const target = document.getElementById('query_input').value;
-        const resBox = document.getElementById('query_res');
-        
-        if(!target) return;
-
-        resBox.innerHTML = "系統檢索中... <br>連線伺服器：DB_CENTRAL_01";
-        
-        setTimeout(() => {
-            resBox.innerHTML = `
-                <b style="color:var(--police-blue)">查詢結果：${target}</b><br>
-                --------------------------<br>
-                ● 戶籍資料：正常 (已核對)<br>
-                ● 刑事紀錄：無異常紀錄<br>
-                ● 通緝狀態：<span style="color:green; font-weight:bold;">非通緝對象</span><br>
-                ● 失竊車輛：<span style="color:green; font-weight:bold;">否</span><br>
-                --------------------------<br>
-                <small>最後更新時間：${new Date().toLocaleString()}</small>
-            `;
-        }, 800);
-    }
-
-    // 自動填入上次帳號
-    window.onload = () => {
-        if(localStorage.getItem('saved_id')) {
-            document.getElementById('login_id').value = localStorage.getItem('saved_id');
-        }
-    };
-// 查詢邏輯 (對接後端真實資料)
+    // 2. 查詢邏輯 (對接後端真實資料)
     async function doQuery() {
         const target = document.getElementById('query_input').value;
         const resBox = document.getElementById('query_res');
@@ -187,7 +158,7 @@
         resBox.innerHTML = "🛰️ 正在連線黑曜石基地...<br>同步 AWS 東京伺服器中";
         
         try {
-            // 注意：這裡的網址必須對應你後端跑的 Port (目前是 3000)
+            // 發送請求到後端 Node.js
             const response = await fetch('http://localhost:3000/api/query', {
                 method: 'POST',
                 headers: {
@@ -224,3 +195,11 @@
             resBox.innerHTML = `<b style="color:red">連線失敗</b><br>請確認後端戰術伺服器 (Port 3000) 是否已啟動。`;
         }
     }
+
+    // 3. 自動填入上次帳號
+    window.onload = () => {
+        if(localStorage.getItem('saved_id')) {
+            document.getElementById('login_id').value = localStorage.getItem('saved_id');
+        }
+    };
+</script>
