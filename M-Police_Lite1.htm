@@ -3,62 +3,178 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>M-Police 整合查詢系統 V1.5</title>
+    <title>M-Police 整合查詢系統 V1.4</title>
     <style>
-        :root { --police-blue: #1565C0; --bg-light: #F0F4F8; --card-bg: #FFFFFF; }
+        :root {
+            --police-blue: #1565C0; /* 現役版深鈷藍 */
+            --bg-light: #F0F4F8;
+            --card-bg: #FFFFFF;
+            --text-main: #2C3E50;
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Microsoft JhengHei", sans-serif; }
-        body { background-color: var(--bg-light); color: #2C3E50; }
-        #login-page, #main-page { padding: 25px; height: 100vh; }
-        .btn-main { width: 100%; padding: 16px; background: var(--police-blue); color: white; border: none; border-radius: 8px; font-weight: bold; margin-top: 20px; }
-        .result-box { margin-top: 20px; padding: 15px; background: #E3F2FD; border-radius: 8px; border: 1px dashed var(--police-blue); min-height: 150px; }
-        input { width: 100%; padding: 14px; border: 2px solid #D7DBDD; border-radius: 8px; margin-bottom: 10px; }
+        body { background-color: var(--bg-light); color: var(--text-main); overflow-x: hidden; }
+
+        /* --- 登入頁面 --- */
+        #login-page { display: flex; flex-direction: column; align-items: center; padding: 40px 25px; height: 100vh; }
+        .shield-logo { font-size: 50px; color: var(--police-blue); margin-bottom: 10px; }
+        .title-group { text-align: center; margin-bottom: 40px; }
+        .sub-title { font-size: 14px; letter-spacing: 4px; color: #7F8C8D; font-weight: bold; }
+        .main-title { font-size: 26px; font-weight: 900; color: #34495E; }
+
+        .form-group { width: 100%; margin-bottom: 15px; }
+        label { display: block; font-size: 13px; color: var(--police-blue); font-weight: bold; margin-bottom: 5px; }
+        input, select { 
+            width: 100%; padding: 14px; border: 2px solid #D7DBDD; border-radius: 8px; 
+            font-size: 16px; background: white; outline: none; transition: 0.3s;
+        }
+        input:focus { border-color: var(--police-blue); }
+
+        .btn-main { 
+            width: 100%; padding: 16px; background: var(--police-blue); color: white; 
+            border: none; border-radius: 8px; font-size: 18px; font-weight: bold; margin-top: 20px;
+        }
+
+        /* --- 查詢主頁面 (隱藏) --- */
+        #main-page { display: none; padding-bottom: 80px; }
+        .app-bar { 
+            background: var(--police-blue); color: white; padding: 15px; 
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .user-info-card { 
+            background: white; margin: 15px; padding: 15px; border-radius: 10px;
+            border-left: 5px solid var(--police-blue); box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .search-section { padding: 0 15px; }
+        .result-box { 
+            margin: 15px; padding: 15px; background: #E3F2FD; border-radius: 8px;
+            min-height: 150px; font-size: 15px; line-height: 1.6; border: 1px dashed var(--police-blue);
+        }
+
+        /* 快速功能按鈕 */
+        .quick-actions { 
+            display: flex; justify-content: space-around; padding: 20px 10px; 
+            background: white; border-top: 1px solid #ddd; position: fixed; bottom: 0; width: 100%;
+        }
+        .action-item { text-align: center; font-size: 11px; font-weight: bold; color: var(--police-blue); }
+        .action-icon { 
+            width: 45px; height: 45px; background: var(--police-blue); color: white; 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+            font-size: 20px; margin-bottom: 5px; box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+        }
+
+        /* 動畫 */
         .fade-in { animation: fadeIn 0.5s ease-in; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
-<div id="login-page">
-    <h2 style="text-align:center">🛡️ M-Police 雲端登入</h2>
-    <input type="text" id="login_id" placeholder="請輸入警員編號">
+<div id="login-page" class="fade-in">
+    <div class="shield-logo">🛡️</div>
+    <div class="title-group">
+        <div class="sub-title">內政部警政署</div>
+        <div class="main-title">M-Police 整合查詢</div>
+    </div>
+
+    <div class="form-group">
+        <label>載具帳號 (ID)</label>
+        <input type="text" id="login_id" placeholder="請輸入帳號">
+    </div>
+    <div class="form-group">
+        <label>認證密碼 (PW)</label>
+        <input type="password" id="login_pw" placeholder="請輸入密碼">
+    </div>
+    <div class="form-group">
+        <label>勤務類別</label>
+        <select id="patrol_val">
+            <option>巡邏</option><option>臨檢</option><option>處事</option>
+        </select>
+    </div>
+
     <button class="btn-main" onclick="login()">登入系統</button>
 </div>
 
-<div id="main-page" style="display:none">
-    <h3>🔍 雲端整合查詢</h3>
-    <input type="text" id="query_input" placeholder="輸入工號 (例如: S007)">
-    <button class="btn-main" onclick="doQuery()">立即查詢</button>
-    <div class="result-box" id="query_res">等待指令...</div>
+<div id="main-page">
+    <div class="app-bar">
+        <span>M-Police 整合查詢</span>
+        <span onclick="location.reload()" style="font-size: 12px; border: 1px solid white; padding: 2px 8px; border-radius: 4px;">登出</span>
+    </div>
+
+    <div class="user-info-card">
+        <div style="font-weight: bold; color: var(--police-blue);">使用者：XX分局 小黑警員</div>
+        <div style="font-size: 12px; color: #666; margin-top: 5px;">
+            模式：<span id="disp-mode">巡邏</span> | 載具：汽車 | 同步：剛剛
+        </div>
+    </div>
+
+    <div class="search-section">
+        <input type="text" id="query_input" placeholder="輸入身分證 / 車牌 / 姓名">
+        <button class="btn-main" style="margin-top: 10px;" onclick="doQuery()">立即查詢 (Query)</button>
+    </div>
+
+    <div class="result-box" id="query_res">
+        等待系統指令...<br>請輸入目標資訊進行動態比對。
+    </div>
+
+    <div class="quick-actions">
+        <div class="action-item"><div class="action-icon">👤</div>人臉比對</div>
+        <div class="action-item"><div class="action-icon">🚗</div>車輛查詢</div>
+        <div class="action-item"><div class="action-icon">🚨</div>現場通報</div>
+    </div>
 </div>
 
 <script>
-    // ⚠️ 小黑哥，這裡請換成你電腦目前的 IPv4 IP
-    const SERVER_IP = '192.168.1.XX'; 
-    const API_URL = `http://${SERVER_IP}:3000/api/query`;
-
+    // 登入邏輯
     function login() {
+        const id = document.getElementById('login_id').value;
+        const mode = document.getElementById('patrol_val').value;
+        
+        if(!id) { alert("請輸入帳號"); return; }
+        
+        // 記憶設定
+        localStorage.setItem('saved_id', id);
+        document.getElementById('disp-mode').innerText = mode;
+
+        // 切換頁面
         document.getElementById('login-page').style.display = 'none';
         document.getElementById('main-page').style.display = 'block';
+        document.getElementById('main-page').classList.add('fade-in');
     }
 
-    async function doQuery() {
+    // 查詢邏輯
+    function doQuery() {
         const target = document.getElementById('query_input').value;
         const resBox = document.getElementById('query_res');
+        
         if(!target) return;
-        resBox.innerHTML = "📡 連線東京雲端中...";
-        try {
-            const response = await fetch(`${API_URL}?id=${target}`);
-            const data = await response.json();
-            if (data.success) {
-                const p = data.data;
-                resBox.innerHTML = `<b>查詢結果：${p.name}</b><br>部門：${p.department}<br>車牌：${p.plate}<br>備註：${p.note}`;
-            } else {
-                resBox.innerHTML = "<b style='color:red'>查無此人</b>";
-            }
-        } catch (e) {
-            resBox.innerHTML = "<b style='color:red'>連線失敗</b><br>請確認電腦 Server 是否開啟";
-        }
+
+        resBox.innerHTML = "系統檢索中... <br>連線伺服器：DB_CENTRAL_01";
+        
+        setTimeout(() => {
+            resBox.innerHTML = `
+                <b style="color:var(--police-blue)">查詢結果：${target}</b><br>
+                --------------------------<br>
+                ● 戶籍資料：正常 (已核對)<br>
+                ● 刑事紀錄：無異常紀錄<br>
+                ● 通緝狀態：<span style="color:green; font-weight:bold;">非通緝對象</span><br>
+                ● 失竊車輛：<span style="color:green; font-weight:bold;">否</span><br>
+                --------------------------<br>
+                <small>最後更新時間：${new Date().toLocaleString()}</small>
+            `;
+        }, 800);
     }
+
+    // 自動填入上次帳號
+    window.onload = () => {
+        if(localStorage.getItem('saved_id')) {
+            document.getElementById('login_id').value = localStorage.getItem('saved_id');
+        }
+    };
 </script>
+
 </body>
 </html>
