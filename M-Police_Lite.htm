@@ -1,142 +1,827 @@
 <!DOCTYPE html>
+
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>M-Police 整合查詢系統</title>
-    <style>
-        :root {
-            --police-blue: #1565C0;
-            --bg-light: #F0F4F8;
-            --input-border: #BDC3C7;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>M-Police 整合查詢系統</title>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<style>
+:root {
+  --blue:   #1565C0;
+  --blue2:  #1976D2;
+  --dark:   #0D2137;
+  --bg:     #EEF2F7;
+  --card:   #ffffff;
+  --border: #D0D9E4;
+  --text:   #1C2B3A;
+  --sub:    #6B7E92;
+  --green:  #1B8A4E;
+  --red:    #C0392B;
+  --amber:  #D4820A;
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body { font-family:"Microsoft JhengHei","Noto Sans TC",sans-serif; background:var(--bg); color:var(--text); }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "Microsoft JhengHei", sans-serif; }
-        body { background-color: var(--bg-light); color: #2C3E50; display: flex; justify-content: center; height: 100vh; }
-        
-        .container { width: 100%; max-width: 400px; padding: 30px 25px; display: flex; flex-direction: column; align-items: center; }
+/* ══ 頁面系統 ══ */
+.page { display:none; min-height:100vh; }
+.page.active { display:flex; flex-direction:column; }
 
-        /* 頂部 Logo 區 */
-        .logo-area { text-align: center; margin-bottom: 40px; }
-        .shield-icon { font-size: 60px; color: var(--police-blue); margin-bottom: 10px; }
-        .sub-title { font-size: 14px; letter-spacing: 3px; color: #7F8C8D; font-weight: bold; }
-        .main-title { font-size: 24px; font-weight: 900; color: #34495E; margin-top: 5px; }
+/* ══════════════════════
+頁面一：登入
+══════════════════════ */
+#page-login {
+background: linear-gradient(160deg, #0D2137 0%, #1565C0 100%);
+align-items:center; justify-content:center;
+padding:30px 24px; position:relative; overflow:hidden;
+}
+#page-login::before {
+content:‘🛡️’; position:absolute; font-size:320px;
+opacity:.04; right:-60px; bottom:-40px; line-height:1;
+}
+#page-login::after {
+content:’’; position:absolute;
+width:300px; height:300px; border-radius:50%;
+border:1px solid rgba(255,255,255,0.06);
+top:-80px; left:-80px;
+}
 
-        /* 輸入與選單區 */
-        .form-group { width: 100%; margin-bottom: 18px; }
-        label { display: block; font-size: 13px; color: var(--police-blue); font-weight: bold; margin-bottom: 5px; margin-left: 2px; }
-        input, select { 
-            width: 100%; padding: 12px; border: 1px solid var(--input-border); 
-            border-radius: 6px; font-size: 16px; background: white; outline: none;
-        }
-        input:focus { border-color: var(--police-blue); box-shadow: 0 0 5px rgba(21, 101, 192, 0.2); }
+.login-card {
+background:rgba(255,255,255,0.07);
+border:1px solid rgba(255,255,255,0.12);
+border-radius:24px; padding:32px 28px;
+width:100%; max-width:380px;
+backdrop-filter:blur(20px);
+position:relative; z-index:1;
+}
 
-        /* 按鈕區 */
-        .btn-row { display: flex; width: 100%; gap: 10px; margin-top: 25px; }
-        .btn { 
-            flex: 2; padding: 14px; border: none; border-radius: 6px; 
-            font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.2s;
-        }
-        .btn-login { background-color: var(--police-blue); color: white; }
-        .btn-clear { flex: 1; background-color: #95A5A6; color: white; }
-        .btn-sync { 
-            width: 100%; margin-top: 15px; background: transparent; 
-            border: 2px solid var(--police-blue); color: var(--police-blue); 
-            padding: 10px; font-size: 15px; border-radius: 6px;
-        }
-        .btn:active { transform: scale(0.98); opacity: 0.9; }
+.login-header { text-align:center; margin-bottom:28px; }
+.lh-badge {
+display:inline-flex; align-items:center; gap:6px;
+background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2);
+color:rgba(255,255,255,0.7); padding:4px 14px; border-radius:20px;
+font-size:11px; font-weight:700; letter-spacing:2px; margin-bottom:16px;
+}
+.lh-icon  { font-size:52px; margin-bottom:10px; filter:drop-shadow(0 4px 12px rgba(0,0,0,0.3)); }
+.lh-title { font-size:22px; font-weight:900; color:#fff; letter-spacing:2px; }
+.lh-sub   { font-size:12px; color:rgba(255,255,255,0.5); margin-top:6px; letter-spacing:1px; }
 
-        /* 提示框 */
-        #toast {
-            position: fixed; bottom: 50px; background: rgba(0,0,0,0.7); 
-            color: white; padding: 10px 20px; border-radius: 20px; font-size: 14px;
-            display: none; z-index: 100;
-        }
-    </style>
+.lf-group { margin-bottom:14px; }
+.lf-label {
+font-size:10px; font-weight:900; color:rgba(255,255,255,0.5);
+letter-spacing:2px; margin-bottom:6px; display:block;
+}
+.lf-input {
+width:100%; padding:13px 16px; border-radius:10px;
+border:1.5px solid rgba(255,255,255,0.15);
+background:rgba(255,255,255,0.08); color:#fff;
+font-size:15px; font-family:inherit; outline:none;
+transition:border .2s;
+}
+.lf-input::placeholder { color:rgba(255,255,255,0.3); }
+.lf-input:focus { border-color:rgba(255,255,255,0.5); background:rgba(255,255,255,0.12); }
+
+.lf-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+
+.login-btn {
+width:100%; padding:14px; border-radius:12px; border:none;
+background:linear-gradient(135deg,#2196F3,#1565C0);
+color:#fff; font-size:16px; font-weight:900; cursor:pointer;
+font-family:inherit; margin-top:6px; letter-spacing:2px;
+box-shadow:0 4px 20px rgba(21,101,192,0.5);
+transition:all .15s;
+}
+.login-btn:active { transform:scale(.98); opacity:.9; }
+.login-err { font-size:12px; color:#ff6b6b; text-align:center; min-height:18px; margin-top:8px; font-weight:700; }
+
+.login-footer { text-align:center; margin-top:20px; }
+.lf-version { font-size:10px; color:rgba(255,255,255,0.25); letter-spacing:1px; }
+
+/* ══════════════════════
+頁面二：查詢
+══════════════════════ */
+#page-query { background:var(–bg); }
+
+.top-bar {
+background:var(–dark); color:#fff; padding:14px 18px;
+padding-top:calc(14px + env(safe-area-inset-top));
+display:flex; align-items:center; justify-content:space-between;
+box-shadow:0 2px 12px rgba(0,0,0,0.2); position:sticky; top:0; z-index:100;
+}
+.tb-left { display:flex; align-items:center; gap:10px; }
+.tb-shield { font-size:22px; }
+.tb-title { font-size:15px; font-weight:900; letter-spacing:1px; }
+.tb-sub   { font-size:10px; opacity:.5; margin-top:1px; }
+.tb-right { display:flex; gap:8px; align-items:center; }
+.tb-user  { font-size:11px; background:rgba(255,255,255,0.1); padding:4px 12px; border-radius:20px; }
+.tb-logout { background:none; border:1px solid rgba(255,255,255,0.2); color:#fff; padding:5px 12px; border-radius:8px; font-size:11px; font-weight:700; cursor:pointer; font-family:inherit; }
+
+.query-hero {
+background:linear-gradient(135deg,var(–dark),var(–blue));
+padding:20px 18px; color:#fff;
+}
+.qh-label  { font-size:10px; opacity:.6; letter-spacing:2px; font-weight:700; margin-bottom:6px; }
+.qh-title  { font-size:18px; font-weight:900; margin-bottom:14px; }
+
+.search-box {
+background:rgba(255,255,255,0.1); border:1.5px solid rgba(255,255,255,0.2);
+border-radius:12px; display:flex; align-items:center; gap:10px; padding:0 14px;
+}
+.sb-icon { font-size:18px; opacity:.7; }
+.search-input {
+flex:1; background:none; border:none; padding:13px 0;
+color:#fff; font-size:15px; font-family:inherit; outline:none;
+}
+.search-input::placeholder { color:rgba(255,255,255,0.4); }
+.sb-clear { background:none; border:none; color:rgba(255,255,255,0.5); font-size:18px; cursor:pointer; padding:4px; }
+
+.filter-row { display:flex; gap:8px; margin-top:12px; overflow-x:auto; padding-bottom:2px; }
+.filter-row::-webkit-scrollbar { display:none; }
+.filter-chip {
+padding:5px 14px; border-radius:20px; font-size:11px; font-weight:700;
+border:1.5px solid rgba(255,255,255,0.25); color:rgba(255,255,255,0.7);
+background:rgba(255,255,255,0.1); cursor:pointer; white-space:nowrap;
+transition:all .15s; font-family:inherit;
+}
+.filter-chip.active { background:#fff; color:var(–blue); border-color:#fff; }
+
+.result-area { padding:12px 16px; flex:1; }
+.ra-header {
+display:flex; align-items:center; justify-content:space-between;
+padding:4px 0 10px;
+}
+.ra-count { font-size:12px; color:var(–sub); font-weight:700; }
+.ra-sort  { font-size:11px; color:var(–blue); font-weight:700; background:none; border:none; cursor:pointer; font-family:inherit; }
+
+/* 人員卡片 */
+.staff-card {
+background:#fff; border-radius:14px; border:1.5px solid var(–border);
+padding:14px 16px; margin-bottom:10px; cursor:pointer;
+display:flex; align-items:center; gap:14px;
+box-shadow:0 2px 8px rgba(0,0,0,0.04); transition:all .15s;
+}
+.staff-card:active { border-color:var(–blue); transform:scale(.99); }
+
+.sc-avatar {
+width:48px; height:48px; border-radius:14px; flex-shrink:0;
+background:linear-gradient(135deg,var(–dark),var(–blue));
+display:flex; align-items:center; justify-content:center;
+font-size:20px; color:#fff; font-weight:900;
+}
+.sc-info { flex:1; min-width:0; }
+.sc-name  { font-size:16px; font-weight:900; margin-bottom:3px; }
+.sc-meta  { font-size:12px; color:var(–sub); margin-bottom:6px; }
+.sc-tags  { display:flex; flex-wrap:wrap; gap:5px; }
+.sc-tag   {
+padding:2px 8px; border-radius:6px; font-size:10px; font-weight:700;
+background:#EEF2F7; color:var(–sub); border:1px solid var(–border);
+}
+.sc-tag.blue  { background:#E3F2FD; color:var(–blue); border-color:#BBDEFB; }
+.sc-tag.green { background:#E8F5E9; color:var(–green); border-color:#C8E6C9; }
+.sc-arrow { color:#ccc; font-size:20px; flex-shrink:0; }
+
+/* 班表狀態 */
+.shift-badge {
+padding:3px 10px; border-radius:6px; font-size:11px; font-weight:900;
+display:inline-block;
+}
+.sb-day   { background:#DBEAFE; color:#1D4ED8; }
+.sb-night { background:#EDE9FE; color:#5B21B6; }
+.sb-off   { background:#FEE2E2; color:#991B1B; }
+.sb-none  { background:#F3F4F6; color:#9CA3AF; }
+
+/* 空白狀態 */
+.empty-state {
+text-align:center; padding:60px 20px; color:var(–sub);
+}
+.es-icon { font-size:52px; margin-bottom:12px; }
+.es-text { font-size:16px; font-weight:900; margin-bottom:6px; }
+.es-sub  { font-size:13px; }
+
+/* ══════════════════════
+頁面三：人員詳細
+══════════════════════ */
+#page-detail { background:var(–bg); }
+
+.detail-header {
+background:var(–dark); color:#fff; padding:14px 18px;
+padding-top:calc(14px + env(safe-area-inset-top));
+display:flex; align-items:center; gap:12px;
+box-shadow:0 2px 12px rgba(0,0,0,0.2);
+position:sticky; top:0; z-index:100;
+}
+.dh-back {
+width:36px; height:36px; border-radius:10px; background:rgba(255,255,255,0.1);
+border:none; color:#fff; font-size:22px; cursor:pointer; display:flex;
+align-items:center; justify-content:center; flex-shrink:0; font-family:inherit;
+}
+.dh-title { font-size:16px; font-weight:900; }
+
+.detail-hero {
+background:linear-gradient(135deg,var(–dark),var(–blue2));
+padding:24px 20px; color:#fff; display:flex; align-items:center; gap:18px;
+}
+.dh-avatar {
+width:80px; height:80px; border-radius:22px; flex-shrink:0;
+background:rgba(255,255,255,0.15); border:2px solid rgba(255,255,255,0.3);
+display:flex; align-items:center; justify-content:center;
+font-size:36px; font-weight:900; color:#fff;
+}
+.dh-name    { font-size:24px; font-weight:900; margin-bottom:4px; }
+.dh-id      { font-size:13px; opacity:.7; margin-bottom:10px; letter-spacing:1px; }
+.dh-badges  { display:flex; flex-wrap:wrap; gap:6px; }
+.dh-badge   { padding:4px 12px; border-radius:20px; font-size:11px; font-weight:700; background:rgba(255,255,255,0.2); }
+
+/* 資訊卡片 */
+.info-card {
+background:#fff; border-radius:16px; border:1px solid var(–border);
+margin:10px 16px; overflow:hidden;
+box-shadow:0 1px 4px rgba(0,0,0,0.05);
+}
+.ic-title {
+padding:11px 16px; border-bottom:1px solid var(–border);
+font-size:11px; font-weight:900; color:var(–sub); letter-spacing:1.5px;
+background:#FAFBFC;
+}
+.ic-row {
+padding:12px 16px; border-bottom:1px solid var(–border);
+display:flex; align-items:center; justify-content:space-between; gap:10px;
+}
+.ic-row:last-child { border-bottom:none; }
+.ic-key { font-size:13px; color:var(–sub); flex-shrink:0; }
+.ic-val { font-size:14px; font-weight:700; text-align:right; word-break:break-all; }
+.ic-val.blue  { color:var(–blue); }
+.ic-val.green { color:var(–green); }
+.ic-val.red   { color:var(–red); }
+.ic-val.amber { color:var(–amber); }
+
+/* 本月班表 */
+.schedule-card {
+background:#fff; border-radius:16px; border:1px solid var(–border);
+margin:10px 16px 20px; overflow:hidden;
+box-shadow:0 1px 4px rgba(0,0,0,0.05);
+}
+.schedule-grid {
+display:grid; grid-template-columns:repeat(7,1fr); gap:1px;
+background:var(–border); padding:12px; gap:4px;
+}
+.sg-cell {
+aspect-ratio:1; border-radius:8px; display:flex;
+flex-direction:column; align-items:center; justify-content:center;
+font-size:9px; font-weight:700; background:#F8FAFC; color:#bbb;
+}
+.sg-cell.has-shift { cursor:default; }
+.sg-cell .sg-d  { font-size:10px; font-weight:900; }
+.sg-cell .sg-s  { font-size:8px; margin-top:1px; }
+.sg-day-shift   { background:#DBEAFE; color:#1D4ED8; }
+.sg-night-shift { background:#EDE9FE; color:#5B21B6; }
+.sg-off-shift   { background:#FEE2E2; color:#991B1B; }
+.sg-today       { ring:2px solid var(–blue); box-shadow:0 0 0 2px var(–blue); }
+
+/* 操作按鈕 */
+.action-bar {
+padding:0 16px 30px; display:flex; gap:10px;
+}
+.ab-btn {
+flex:1; padding:13px; border-radius:12px; border:none;
+font-size:13px; font-weight:700; cursor:pointer; font-family:inherit;
+}
+.ab-primary { background:var(–blue); color:#fff; }
+.ab-secondary { background:var(–bg); color:var(–text); border:1.5px solid var(–border); }
+
+/* Toast */
+.toast {
+position:fixed; bottom:calc(30px + env(safe-area-inset-bottom));
+left:50%; transform:translateX(-50%) translateY(10px);
+background:var(–dark); color:#fff; padding:10px 22px;
+border-radius:24px; font-size:13px; font-weight:700;
+z-index:999; opacity:0; transition:all .25s; white-space:nowrap;
+pointer-events:none; box-shadow:0 4px 20px rgba(0,0,0,0.3);
+}
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* Loading */
+.loading-overlay {
+position:fixed; inset:0; background:rgba(13,33,55,0.8);
+display:none; align-items:center; justify-content:center;
+z-index:500; flex-direction:column; gap:14px;
+}
+.loading-overlay.show { display:flex; }
+.lo-spinner {
+width:44px; height:44px; border:3px solid rgba(255,255,255,0.2);
+border-top-color:#fff; border-radius:50%; animation:spin .8s linear infinite;
+}
+.lo-text { color:#fff; font-size:13px; font-weight:700; letter-spacing:1px; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* 動畫 */
+@keyframes fadeUp {
+from { opacity:0; transform:translateY(12px); }
+to   { opacity:1; transform:translateY(0); }
+}
+.anim { animation:fadeUp .3s ease both; }
+</style>
+
 </head>
 <body>
 
-<div class="container">
-    <div class="logo-area">
-        <div class="shield-icon">🛡️</div>
-        <div class="sub-title">內政部警政署</div>
-        <div class="main-title">M-Police 整合查詢</div>
+<!-- ══ 頁面一：登入 ══ -->
+
+<div id="page-login" class="page active">
+  <div class="login-card">
+    <div class="login-header">
+      <div class="lh-badge">🔒 SECURE ACCESS</div>
+      <div class="lh-icon">🛡️</div>
+      <div class="lh-title">M-POLICE</div>
+      <div class="lh-sub">整合查詢系統 · INTEGRATED QUERY SYSTEM</div>
     </div>
 
-    <div class="form-group">
-        <label>載具帳號 (ID)</label>
-        <input type="text" id="user_id" placeholder="請輸入帳號">
-    </div>
-
-    <div class="form-group">
-        <label>認證密碼 (PW)</label>
-        <input type="password" id="user_pw" placeholder="請輸入密碼">
-    </div>
-
-    <div class="form-group">
-        <label>勤務類別</label>
-        <select id="patrol_type">
-            <option>巡邏</option>
-            <option>臨檢</option>
-            <option>處事</option>
-            <option>其他</option>
-        </select>
-    </div>
-
-    <div class="form-group">
-        <label>交通載具</label>
-        <select id="vehicle_type">
-            <option>汽車</option>
-            <option>機車</option>
-            <option>徒步</option>
-        </select>
-    </div>
-
-    <div class="btn-row">
-        <button class="btn btn-login" onclick="handleAction('驗證憑證中...')">登入系統</button>
-        <button class="btn btn-clear" onclick="clearForm()">清除</button>
-    </div>
-
-    <button class="btn-sync" onclick="handleAction('正在同步通緝/失竊資料庫...')">🔄 離線資料同步 (Offline Sync)</button>
+```
+<div class="lf-group">
+  <label class="lf-label">載具帳號 OPERATOR ID</label>
+  <input class="lf-input" id="loginId" placeholder="請輸入帳號" autocomplete="username">
+</div>
+<div class="lf-group">
+  <label class="lf-label">認證密碼 PASSWORD</label>
+  <input class="lf-input" type="password" id="loginPw" placeholder="請輸入密碼" autocomplete="current-password">
+</div>
+<div class="lf-row">
+  <div class="lf-group">
+    <label class="lf-label">勤務類別</label>
+    <select class="lf-input" id="patrolType" style="color:#fff">
+      <option>巡邏</option><option>臨檢</option>
+      <option>處事</option><option>其他</option>
+    </select>
+  </div>
+  <div class="lf-group">
+    <label class="lf-label">交通載具</label>
+    <select class="lf-input" id="vehicleType" style="color:#fff">
+      <option>汽車</option><option>機車</option><option>徒步</option>
+    </select>
+  </div>
 </div>
 
-<div id="toast"></div>
+<button class="login-btn" onclick="doLogin()">登入系統</button>
+<div class="login-err" id="loginErr"></div>
+
+<div class="login-footer">
+  <div class="lf-version">M-POLICE v3.0 · 台灣精銳保全管理</div>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- ══ 頁面二：查詢 ══ -->
+
+<div id="page-query" class="page">
+  <div class="top-bar">
+    <div class="tb-left">
+      <div class="tb-shield">🛡️</div>
+      <div>
+        <div class="tb-title">M-POLICE 查詢</div>
+        <div class="tb-sub" id="tbDuty">巡邏 · 汽車</div>
+      </div>
+    </div>
+    <div class="tb-right">
+      <div class="tb-user" id="tbUser">-</div>
+      <button class="tb-logout" onclick="doLogout()">登出</button>
+    </div>
+  </div>
+
+  <div class="query-hero">
+    <div class="qh-label">PERSONNEL SEARCH</div>
+    <div class="qh-title">人員資料查詢</div>
+    <div class="search-box">
+      <span class="sb-icon">🔍</span>
+      <input class="search-input" id="searchInput"
+        placeholder="輸入姓名、工號或車牌..."
+        oninput="handleSearch(this.value)">
+      <button class="sb-clear" onclick="clearSearch()" id="clearBtn" style="display:none">✕</button>
+    </div>
+    <div class="filter-row">
+      <button class="filter-chip active" onclick="setFilter(this,'all')">全部</button>
+      <button class="filter-chip" onclick="setFilter(this,'A')">A廠</button>
+      <button class="filter-chip" onclick="setFilter(this,'B')">B廠</button>
+      <button class="filter-chip" onclick="setFilter(this,'C')">C廠</button>
+      <button class="filter-chip" onclick="setFilter(this,'on-duty')">🟢 上班中</button>
+    </div>
+  </div>
+
+  <div class="result-area">
+    <div class="ra-header">
+      <div class="ra-count" id="resultCount">載入中...</div>
+    </div>
+    <div id="resultList">
+      <div class="empty-state">
+        <div class="es-icon">🔄</div>
+        <div class="es-text">資料載入中</div>
+        <div class="es-sub">請稍候...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 頁面三：詳細資料 ══ -->
+
+<div id="page-detail" class="page">
+  <div class="detail-header">
+    <button class="dh-back" onclick="showPage('query')">‹</button>
+    <div class="dh-title">人員詳細資料</div>
+  </div>
+  <div id="detailContent"></div>
+</div>
+
+<!-- Loading -->
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="lo-spinner"></div>
+  <div class="lo-text">驗證憑證中...</div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script>
-    // 1. 自動讀取上次的設定 (Local Storage)
-    window.onload = () => {
-        if(localStorage.getItem('m_id')) document.getElementById('user_id').value = localStorage.getItem('m_id');
-        if(localStorage.getItem('m_patrol')) document.getElementById('patrol_type').value = localStorage.getItem('m_patrol');
-        if(localStorage.getItem('m_vehicle')) document.getElementById('vehicle_type').value = localStorage.getItem('m_vehicle');
-    };
+// ══════════════════════════════
+//  Firebase 設定
+// ══════════════════════════════
+const firebaseConfig = {
+  apiKey: "AIzaSyB2_tKKsVT4kdW7PPkJgI9O7S1YdCWor48",
+  databaseURL: "https://factor-security-d1965-default-rtdb.firebaseio.com",
+  projectId: "factor-security-d1965",
+  appId: "1:864846943143:web:4cfa18cd20d2f712225c82"
+};
+if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+const db   = firebase.database();
+const auth = firebase.auth();
 
-    // 2. 模擬操作與存檔
-    function handleAction(msg) {
-        // 儲存當前設定，下次不用重選
-        localStorage.setItem('m_id', document.getElementById('user_id').value);
-        localStorage.setItem('m_patrol', document.getElementById('patrol_type').value);
-        localStorage.setItem('m_vehicle', document.getElementById('vehicle_type').value);
-        
-        showToast(msg);
-        
-        // 模擬跳轉 (如果是要做整套，這裡可以跳轉到你的地圖頁面)
-        if(msg.includes('驗證')) {
-            setTimeout(() => showToast("身份驗證成功，系統已就緒"), 1500);
-        }
+// ══════════════════════════════
+//  帳號設定（可自行新增）
+// ══════════════════════════════
+const ACCOUNTS = {
+  "admin":   "taiwan2024",
+  "officer": "police2024",
+  "manager": "elite2024"
+};
+
+// ══════════════════════════════
+//  全域狀態
+// ══════════════════════════════
+let allStaff     = [];
+let scheduleData = {};
+let currentFilter = 'all';
+let currentUser   = '';
+let currentDuty   = '';
+
+const today    = new Date();
+const todayStr = today.toISOString().split('T')[0];
+const curYear  = today.getFullYear();
+const curMonth = today.getMonth() + 1;
+const curDay   = today.getDate();
+const weekNames = ['日','一','二','三','四','五','六'];
+
+// ══════════════════════════════
+//  登入
+// ══════════════════════════════
+window.onload = () => {
+  // 記住上次設定
+  const savedId      = localStorage.getItem('mp_id');
+  const savedPatrol  = localStorage.getItem('mp_patrol');
+  const savedVehicle = localStorage.getItem('mp_vehicle');
+  if (savedId)      document.getElementById('loginId').value      = savedId;
+  if (savedPatrol)  document.getElementById('patrolType').value   = savedPatrol;
+  if (savedVehicle) document.getElementById('vehicleType').value  = savedVehicle;
+};
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    if (document.getElementById('page-login').classList.contains('active')) doLogin();
+  }
+});
+
+function doLogin() {
+  const id      = document.getElementById('loginId').value.trim();
+  const pw      = document.getElementById('loginPw').value.trim();
+  const patrol  = document.getElementById('patrolType').value;
+  const vehicle = document.getElementById('vehicleType').value;
+  const err     = document.getElementById('loginErr');
+
+  if (!id || !pw) { err.textContent = '請填寫帳號與密碼'; return; }
+  if (!ACCOUNTS[id] || ACCOUNTS[id] !== pw) {
+    err.textContent = '帳號或密碼錯誤，請重試';
+    return;
+  }
+
+  // 儲存偏好
+  localStorage.setItem('mp_id', id);
+  localStorage.setItem('mp_patrol', patrol);
+  localStorage.setItem('mp_vehicle', vehicle);
+
+  currentUser = id;
+  currentDuty = `${patrol} · ${vehicle}`;
+  err.textContent = '';
+
+  showLoading('驗證憑證中...');
+
+  auth.signInAnonymously().then(() => {
+    document.getElementById('tbUser').textContent  = id;
+    document.getElementById('tbDuty').textContent  = currentDuty;
+    hideLoading();
+    showPage('query');
+    loadData();
+  }).catch(() => {
+    hideLoading();
+    showPage('query');
+    loadData();
+  });
+}
+
+function doLogout() {
+  auth.signOut();
+  allStaff     = [];
+  scheduleData = {};
+  showPage('login');
+  document.getElementById('loginPw').value = '';
+  showToast('已登出系統');
+}
+
+// ══════════════════════════════
+//  資料載入
+// ══════════════════════════════
+function loadData() {
+  showLoading('載入人員資料...');
+
+  // 同時載入人員 + 班表
+  Promise.all([
+    db.ref('staff').once('value'),
+    db.ref('guardSchedules').once('value')
+  ]).then(([staffSnap, schedSnap]) => {
+    const staffRaw = staffSnap.val() || {};
+    scheduleData   = schedSnap.val() || {};
+
+    allStaff = Object.entries(staffRaw).map(([key, val]) => ({ key, ...val }));
+
+    // 如果 Firebase 沒有資料，用預設測試資料
+    if (allStaff.length === 0) {
+      allStaff = [
+        { key:'s1', name:'盧家慶', id:'S001', factory:'A', unit:'總務', plate:'ABC-1234' },
+        { key:'s2', name:'何鴻隆', id:'S002', factory:'A', unit:'總務', plate:'DEF-5678' },
+        { key:'s3', name:'蔡易倫', id:'S003', factory:'B', unit:'警衛', plate:'GHI-9012' },
+        { key:'s4', name:'邱鴻鈞', id:'S004', factory:'B', unit:'警衛', plate:'JKL-3456' },
+        { key:'s5', name:'柳旭洲', id:'S005', factory:'C', unit:'總務', plate:'MNO-7890' },
+        { key:'s6', name:'魏榮志', id:'S006', factory:'C', unit:'警衛', plate:'PQR-1234' },
+      ];
     }
 
-    function clearForm() {
-        document.getElementById('user_id').value = "";
-        document.getElementById('user_pw').value = "";
-        showToast("欄位已清除");
-    }
+    hideLoading();
+    renderResults(allStaff);
+  }).catch(() => {
+    hideLoading();
+    showToast('❌ 資料載入失敗，請確認網路');
+  });
+}
 
-    function showToast(msg) {
-        const t = document.getElementById('toast');
-        t.innerText = msg;
-        t.style.display = 'block';
-        setTimeout(() => t.style.display = 'none', 2000);
-    }
+// ══════════════════════════════
+//  查詢與過濾
+// ══════════════════════════════
+let searchTimer;
+function handleSearch(val) {
+  document.getElementById('clearBtn').style.display = val ? 'block' : 'none';
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => applyFilter(), 200);
+}
+
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('clearBtn').style.display = 'none';
+  applyFilter();
+}
+
+function setFilter(btn, filter) {
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  currentFilter = filter;
+  applyFilter();
+}
+
+function applyFilter() {
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  let results = allStaff;
+
+  // 關鍵字搜尋
+  if (q) {
+    results = results.filter(s =>
+      (s.name  || '').toLowerCase().includes(q) ||
+      (s.id    || '').toLowerCase().includes(q) ||
+      (s.plate || '').toLowerCase().includes(q) ||
+      (s.unit  || '').toLowerCase().includes(q)
+    );
+  }
+
+  // 廠區過濾
+  if (currentFilter !== 'all' && currentFilter !== 'on-duty') {
+    results = results.filter(s => (s.factory || '') === currentFilter);
+  }
+
+  // 上班中過濾
+  if (currentFilter === 'on-duty') {
+    results = results.filter(s => {
+      const shift = getTodayShift(s.name);
+      return shift.includes('日') || shift.includes('夜');
+    });
+  }
+
+  renderResults(results, q);
+}
+
+// ══════════════════════════════
+//  渲染結果列表
+// ══════════════════════════════
+function renderResults(list, keyword = '') {
+  const container = document.getElementById('resultList');
+  const countEl   = document.getElementById('resultCount');
+
+  countEl.textContent = `共 ${list.length} 筆結果`;
+
+  if (!list.length) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="es-icon">🔍</div>
+        <div class="es-text">查無資料</div>
+        <div class="es-sub">請確認搜尋條件是否正確</div>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = list.map((s, i) => {
+    const shift    = getTodayShift(s.name);
+    const shiftBadge = renderShiftBadge(shift);
+    const initials   = (s.name || '?').charAt(0);
+    const nameHtml   = keyword ? highlight(s.name||'', keyword) : esc(s.name||'');
+    const plateHtml  = keyword ? highlight(s.plate||'', keyword) : esc(s.plate||'');
+
+    return `
+      <div class="staff-card anim" style="animation-delay:${i*0.04}s" onclick="openDetail('${s.key}')">
+        <div class="sc-avatar">${initials}</div>
+        <div class="sc-info">
+          <div class="sc-name">${nameHtml}</div>
+          <div class="sc-meta">工號 ${esc(s.id||'-')} · ${esc(s.factory||'')}廠 ${esc(s.unit||'')}</div>
+          <div class="sc-tags">
+            ${s.plate ? `<span class="sc-tag blue">🚗 ${plateHtml}</span>` : ''}
+            ${shiftBadge}
+          </div>
+        </div>
+        <div class="sc-arrow">›</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderShiftBadge(shift) {
+  if (!shift) return `<span class="shift-badge sb-none">未排班</span>`;
+  if (shift.includes('日')) return `<span class="shift-badge sb-day">🌤 ${esc(shift)}</span>`;
+  if (shift.includes('夜')) return `<span class="shift-badge sb-night">🌙 ${esc(shift)}</span>`;
+  if (shift.includes('休') || shift.includes('例')) return `<span class="shift-badge sb-off">休假</span>`;
+  return `<span class="shift-badge sb-none">${esc(shift)}</span>`;
+}
+
+// ══════════════════════════════
+//  詳細頁
+// ══════════════════════════════
+function openDetail(key) {
+  const s = allStaff.find(x => x.key === key);
+  if (!s) return;
+
+  const shift     = getTodayShift(s.name);
+  const shiftBadge = renderShiftBadge(shift);
+  const daysInMonth = new Date(curYear, curMonth, 0).getDate();
+
+  // 本月班表格子
+  let gridCells = '';
+  // 第一天是星期幾？先補空格
+  const firstDow = new Date(curYear, curMonth - 1, 1).getDay();
+  for (let i = 0; i < firstDow; i++) gridCells += '<div class="sg-cell"></div>';
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const id  = `${curYear}_${curMonth}_${s.name}_${d}`;
+    const val = scheduleData[id] || '';
+    const isToday = d === curDay;
+    let cls = 'sg-cell';
+    if (val.includes('日')) cls += ' has-shift sg-day-shift';
+    else if (val.includes('夜')) cls += ' has-shift sg-night-shift';
+    else if (val.includes('休') || val.includes('例')) cls += ' has-shift sg-off-shift';
+    if (isToday) cls += ' sg-today';
+
+    const shortVal = val ? val.substring(0,1) : '';
+    gridCells += `<div class="${cls}"><div class="sg-d">${d}</div>${shortVal ? `<div class="sg-s">${esc(shortVal)}</div>` : ''}</div>`;
+  }
+
+  document.getElementById('detailContent').innerHTML = `
+    <div class="detail-hero">
+      <div class="dh-avatar">${esc((s.name||'?').charAt(0))}</div>
+      <div>
+        <div class="dh-name">${esc(s.name||'-')}</div>
+        <div class="dh-id">工號 ${esc(s.id||'-')}</div>
+        <div class="dh-badges">
+          <div class="dh-badge">${esc(s.factory||'')}廠 · ${esc(s.unit||'')}</div>
+          <div class="dh-badge">${shift ? shift : '今日未排班'}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-card">
+      <div class="ic-title">👤 基本資料</div>
+      <div class="ic-row"><span class="ic-key">姓名</span><span class="ic-val">${esc(s.name||'-')}</span></div>
+      <div class="ic-row"><span class="ic-key">工號</span><span class="ic-val blue">${esc(s.id||'-')}</span></div>
+      <div class="ic-row"><span class="ic-key">廠區</span><span class="ic-val">${esc(s.factory||'-')}廠</span></div>
+      <div class="ic-row"><span class="ic-key">單位</span><span class="ic-val">${esc(s.unit||'-')}</span></div>
+      <div class="ic-row"><span class="ic-key">車牌號碼</span><span class="ic-val blue">${esc(s.plate||'未登記')}</span></div>
+    </div>
+
+    <div class="info-card">
+      <div class="ic-title">📅 今日勤務狀態</div>
+      <div class="ic-row">
+        <span class="ic-key">今日班別</span>
+        <span class="ic-val">${shiftBadge}</span>
+      </div>
+      <div class="ic-row">
+        <span class="ic-key">查詢時間</span>
+        <span class="ic-val">${todayStr} ${new Date().toTimeString().slice(0,5)}</span>
+      </div>
+      <div class="ic-row">
+        <span class="ic-key">查詢者</span>
+        <span class="ic-val">${esc(currentUser)}</span>
+      </div>
+    </div>
+
+    <div class="schedule-card">
+      <div class="ic-title" style="padding:11px 16px;border-bottom:1px solid var(--border);background:#FAFBFC;font-size:11px;font-weight:900;color:var(--sub);letter-spacing:1.5px">
+        📆 ${curYear}年${curMonth}月班表
+      </div>
+      <div style="padding:6px 8px 4px;display:grid;grid-template-columns:repeat(7,1fr);text-align:center">
+        ${['日','一','二','三','四','五','六'].map((d,i) =>
+          `<div style="font-size:9px;font-weight:900;color:${i===0?'#DC2626':i===6?'#1D4ED8':'#9CA3AF'};padding:4px 0">${d}</div>`
+        ).join('')}
+      </div>
+      <div class="schedule-grid">${gridCells}</div>
+      <div style="display:flex;gap:12px;padding:10px 16px;border-top:1px solid var(--border)">
+        <span style="font-size:10px;color:var(--sub)"><span style="display:inline-block;width:10px;height:10px;background:#DBEAFE;border-radius:3px;margin-right:4px"></span>日班</span>
+        <span style="font-size:10px;color:var(--sub)"><span style="display:inline-block;width:10px;height:10px;background:#EDE9FE;border-radius:3px;margin-right:4px"></span>夜班</span>
+        <span style="font-size:10px;color:var(--sub)"><span style="display:inline-block;width:10px;height:10px;background:#FEE2E2;border-radius:3px;margin-right:4px"></span>休假</span>
+      </div>
+    </div>
+
+    <div class="action-bar">
+      <button class="ab-btn ab-secondary" onclick="showPage('query')">‹ 返回查詢</button>
+      <button class="ab-btn ab-primary" onclick="showToast('✅ 已記錄查詢紀錄')">📋 記錄查詢</button>
+    </div>
+  `;
+
+  showPage('detail');
+}
+
+// ══════════════════════════════
+//  工具函式
+// ══════════════════════════════
+function getTodayShift(name) {
+  const id = `${curYear}_${curMonth}_${name}_${curDay}`;
+  return scheduleData[id] || '';
+}
+
+function highlight(str, keyword) {
+  if (!keyword || !str) return esc(str);
+  const regex = new RegExp(`(${keyword.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
+  return esc(str).replace(regex, '<mark style="background:#FEF08A;border-radius:2px;padding:0 1px">$1</mark>');
+}
+
+function esc(str) {
+  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function showLoading(msg) {
+  document.querySelector('.lo-text').textContent = msg || '載入中...';
+  document.getElementById('loadingOverlay').classList.add('show');
+}
+function hideLoading() {
+  document.getElementById('loadingOverlay').classList.remove('show');
+}
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
 </script>
 
 </body>
