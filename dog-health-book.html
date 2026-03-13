@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>毛孩健康手冊</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#ffffff">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary:  #2d6a4f;
+  --primary2: #40916c;
+  --accent:   #f4a261;
+  --bg:       #f8faf9;
+  --card:     #ffffff;
+  --border:   #e0ece7;
+  --text:     #1b2d25;
+  --sub:      #6b8f7e;
+  --light:    #f0f7f4;
+  --danger:   #e63946;
+  --warn:     #f4a261;
+  --info:     #457b9d;
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body { font-family:'Noto Sans TC',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+
+/* ══ 頁面系統 ══ */
+.page { display:none; min-height:100vh; padding-bottom:80px; }
+.page.active { display:block; }
+
+/* ══ Header ══ */
+.app-header {
+background:#fff; border-bottom:1px solid var(–border);
+padding:12px 18px; padding-top:calc(12px + env(safe-area-inset-top));
+position:sticky; top:0; z-index:100;
+box-shadow:0 1px 8px rgba(0,0,0,0.06);
+}
+.header-row { display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.h-back {
+width:36px; height:36px; border-radius:10px; background:var(–light);
+border:none; font-size:20px; cursor:pointer; display:flex;
+align-items:center; justify-content:center; color:var(–text); flex-shrink:0;
+}
+.h-title  { font-size:16px; font-weight:900; color:var(–text); }
+.h-sub    { font-size:11px; color:var(–sub); margin-top:2px; }
+.h-action {
+background:var(–primary); color:#fff; border:none;
+padding:7px 14px; border-radius:10px; font-size:12px; font-weight:700;
+cursor:pointer; font-family:inherit; white-space:nowrap;
+}
+.h-action:active { opacity:.85; }
+
+/* ══ 首頁 ══ */
+.home-hero {
+background:linear-gradient(135deg, var(–primary) 0%, var(–primary2) 100%);
+padding:24px 18px 20px; color:#fff; position:relative; overflow:hidden;
+}
+.home-hero::after {
+content:‘🐾’; position:absolute; right:-20px; bottom:-20px;
+font-size:120px; opacity:.08; line-height:1;
+}
+.hh-title   { font-size:22px; font-weight:900; letter-spacing:1px; margin-bottom:4px; }
+.hh-sub     { font-size:13px; opacity:.8; margin-bottom:16px; }
+.hh-stats   { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+.hhs-item   { background:rgba(255,255,255,0.15); border-radius:12px; padding:12px 8px; text-align:center; }
+.hhs-num    { font-size:24px; font-weight:900; }
+.hhs-lbl    { font-size:10px; opacity:.8; margin-top:2px; }
+
+/* 今日提醒 */
+.reminder-banner {
+margin:14px 16px; background:#fff; border-radius:14px;
+border:1.5px solid var(–accent); overflow:hidden;
+box-shadow:0 2px 8px rgba(244,162,97,0.15);
+}
+.rb-header {
+background:linear-gradient(135deg,#f4a261,#e76f51);
+padding:10px 14px; display:flex; align-items:center; gap:8px; color:#fff;
+}
+.rb-title { font-size:13px; font-weight:900; }
+.rb-body  { padding:10px 14px; }
+.rb-item  {
+display:flex; align-items:center; gap:10px; padding:6px 0;
+border-bottom:1px solid var(–border); font-size:13px;
+}
+.rb-item:last-child { border-bottom:none; }
+.rb-dot   { width:8px; height:8px; border-radius:50%; background:var(–accent); flex-shrink:0; }
+.rb-empty { font-size:13px; color:var(–sub); text-align:center; padding:8px 0; }
+
+/* 狗狗列表 */
+.sec-title {
+font-size:11px; font-weight:900; color:var(–sub);
+letter-spacing:2px; padding:14px 18px 8px;
+}
+.dog-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:0 16px; }
+.dog-card {
+background:#fff; border-radius:16px; border:1.5px solid var(–border);
+overflow:hidden; cursor:pointer; transition:all .15s;
+box-shadow:0 2px 8px rgba(0,0,0,0.05);
+}
+.dog-card:active { border-color:var(–primary); transform:scale(.97); }
+.dc-avatar {
+width:100%; aspect-ratio:1; background:var(–light);
+display:flex; align-items:center; justify-content:center;
+font-size:48px; position:relative; overflow:hidden;
+}
+.dc-avatar img { width:100%; height:100%; object-fit:cover; }
+.dc-gender-badge {
+position:absolute; top:8px; right:8px;
+width:24px; height:24px; border-radius:8px;
+background:rgba(255,255,255,0.9); display:flex;
+align-items:center; justify-content:center; font-size:12px;
+}
+.dc-info  { padding:10px 12px 12px; }
+.dc-name  { font-size:15px; font-weight:900; margin-bottom:3px; }
+.dc-breed { font-size:11px; color:var(–sub); margin-bottom:6px; }
+.dc-tags  { display:flex; flex-wrap:wrap; gap:4px; }
+.dc-tag   {
+padding:2px 8px; border-radius:6px; font-size:10px; font-weight:700;
+background:var(–light); color:var(–primary); border:1px solid var(–border);
+}
+.dc-tag.warn { background:#fff7ed; color:#c2410c; border-color:#fed7aa; }
+
+/* 新增狗狗按鈕 */
+.add-dog-card {
+background:#fff; border-radius:16px; border:2px dashed var(–border);
+display:flex; flex-direction:column; align-items:center; justify-content:center;
+aspect-ratio:1; cursor:pointer; transition:all .15s; color:var(–sub);
+font-size:13px; font-weight:700; gap:8px;
+}
+.add-dog-card:active { border-color:var(–primary); color:var(–primary); }
+
+/* ══ 狗狗詳細頁 ══ */
+.dog-hero {
+background:linear-gradient(135deg,var(–primary),var(–primary2));
+padding:20px 18px; color:#fff; display:flex; align-items:center; gap:16px;
+}
+.dh-avatar {
+width:72px; height:72px; border-radius:20px; flex-shrink:0;
+background:rgba(255,255,255,0.2); border:2px solid rgba(255,255,255,0.4);
+display:flex; align-items:center; justify-content:center; font-size:32px;
+overflow:hidden;
+}
+.dh-avatar img { width:100%; height:100%; object-fit:cover; border-radius:18px; }
+.dh-name  { font-size:22px; font-weight:900; margin-bottom:4px; }
+.dh-breed { font-size:13px; opacity:.8; margin-bottom:8px; }
+.dh-badges{ display:flex; flex-wrap:wrap; gap:6px; }
+.dh-badge {
+padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700;
+background:rgba(255,255,255,0.2);
+}
+
+/* 功能 Tab */
+.tab-bar {
+background:#fff; display:flex; border-bottom:1px solid var(–border);
+position:sticky; top:57px; z-index:90; overflow-x:auto;
+-webkit-overflow-scrolling:touch;
+}
+.tab-bar::-webkit-scrollbar { display:none; }
+.tab-item {
+flex:1; min-width:72px; padding:11px 8px; text-align:center;
+font-size:12px; font-weight:700; color:var(–sub); cursor:pointer;
+border-bottom:2.5px solid transparent; white-space:nowrap;
+background:none; border-top:none; border-left:none; border-right:none;
+font-family:inherit; transition:all .15s;
+}
+.tab-item.active { color:var(–primary); border-bottom-color:var(–primary); }
+
+.tab-content { display:none; }
+.tab-content.active { display:block; }
+
+/* 資訊區塊 */
+.info-section {
+background:#fff; margin:10px 16px; border-radius:14px;
+border:1px solid var(–border); overflow:hidden;
+}
+.is-title {
+padding:11px 16px; border-bottom:1px solid var(–border);
+font-size:11px; font-weight:900; color:var(–sub); letter-spacing:1.5px;
+display:flex; align-items:center; justify-content:space-between;
+}
+.is-add-btn {
+background:var(–primary); color:#fff; border:none;
+padding:4px 12px; border-radius:8px; font-size:11px; font-weight:700;
+cursor:pointer; font-family:inherit;
+}
+.is-row {
+padding:11px 16px; border-bottom:1px solid var(–border);
+display:flex; align-items:center; justify-content:space-between;
+}
+.is-row:last-child { border-bottom:none; }
+.is-key { font-size:13px; color:var(–sub); }
+.is-val { font-size:13px; font-weight:700; }
+.is-val.ok   { color:var(–primary2); }
+.is-val.warn { color:var(–warn); }
+.is-val.bad  { color:var(–danger); }
+
+/* 記錄卡片 */
+.record-card {
+margin:8px 16px; background:#fff; border-radius:12px;
+border:1px solid var(–border); overflow:hidden;
+box-shadow:0 1px 4px rgba(0,0,0,0.04);
+}
+.rc-header {
+padding:10px 14px; border-bottom:1px solid var(–border);
+display:flex; align-items:center; justify-content:space-between;
+}
+.rc-date  { font-size:12px; color:var(–sub); font-weight:700; }
+.rc-type  {
+padding:3px 10px; border-radius:20px; font-size:11px;
+font-weight:700; color:#fff;
+}
+.rt-vacc  { background:var(–info); }
+.rt-drug  { background:var(–primary2); }
+.rt-weight{ background:var(–accent); color:#fff; }
+.rt-visit { background:#7c3aed; }
+
+.rc-body  { padding:10px 14px; }
+.rc-main  { font-size:14px; font-weight:900; margin-bottom:4px; }
+.rc-sub   { font-size:12px; color:var(–sub); line-height:1.6; }
+.rc-next  { font-size:11px; color:var(–primary2); font-weight:700; margin-top:6px; }
+.rc-del   {
+background:none; border:none; color:#ccc; font-size:16px;
+cursor:pointer; padding:2px 6px;
+}
+.rc-del:active { color:var(–danger); }
+
+/* 體重圖表 */
+.weight-chart {
+margin:8px 16px; background:#fff; border-radius:14px;
+border:1px solid var(–border); padding:16px;
+}
+.wc-title { font-size:13px; font-weight:900; margin-bottom:12px; color:var(–text); }
+.wc-bars  { display:flex; align-items:flex-end; gap:6px; height:80px; }
+.wc-bar-wrap { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; }
+.wc-bar {
+width:100%; border-radius:6px 6px 0 0;
+background:linear-gradient(180deg,var(–primary2),var(–primary));
+min-height:4px; transition:height .3s;
+}
+.wc-val { font-size:9px; color:var(–sub); font-weight:700; }
+.wc-date{ font-size:8px; color:#aaa; }
+
+/* ══ 表單 Modal ══ */
+.overlay {
+position:fixed; inset:0; background:rgba(0,0,0,0.4);
+display:none; align-items:flex-end; z-index:200;
+}
+.overlay.open { display:flex; }
+.modal-sheet {
+background:#fff; width:100%; max-height:92vh; overflow-y:auto;
+border-radius:24px 24px 0 0;
+padding-bottom:calc(16px + env(safe-area-inset-bottom));
+animation:slideUp .25s ease;
+}
+@keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+.modal-handle { width:40px; height:4px; background:var(–border); border-radius:2px; margin:12px auto 0; }
+.modal-title  { font-size:17px; font-weight:900; padding:14px 20px 10px; }
+.modal-body   { padding:0 20px 12px; }
+.modal-footer { padding:4px 20px 8px; display:flex; gap:8px; }
+.m-btn { flex:1; padding:13px; border-radius:12px; border:none; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; }
+.mb-cancel { background:var(–bg); color:var(–text); }
+.mb-ok     { background:var(–primary); color:#fff; }
+
+.f-group  { display:flex; flex-direction:column; gap:5px; margin-bottom:12px; }
+.f-label  { font-size:11px; font-weight:700; color:var(–sub); letter-spacing:1px; }
+.f-req    { color:var(–danger); }
+.f-input, .f-select, .f-textarea {
+padding:11px 14px; border-radius:10px; border:2px solid var(–border);
+font-size:14px; font-family:inherit; outline:none; background:#fff;
+color:var(–text); transition:border .2s; width:100%;
+}
+.f-input:focus, .f-select:focus, .f-textarea:focus { border-color:var(–primary2); }
+.f-textarea { resize:none; min-height:72px; }
+.f-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.f-hint { font-size:11px; color:#aaa; }
+
+/* 底部導航 */
+.bottom-nav {
+position:fixed; bottom:0; left:0; right:0; background:#fff;
+border-top:1px solid var(–border); display:grid; grid-template-columns:repeat(3,1fr);
+padding-bottom:env(safe-area-inset-bottom); z-index:100;
+box-shadow:0 -2px 10px rgba(0,0,0,0.06);
+}
+.nav-item {
+display:flex; flex-direction:column; align-items:center; padding:8px 4px;
+cursor:pointer; color:#bbb; font-size:10px; font-weight:700; gap:3px;
+background:none; border:none; font-family:inherit; transition:color .15s;
+position:relative;
+}
+.nav-item.active { color:var(–primary); }
+.nav-item.active::after {
+content:’’; position:absolute; top:0; left:25%; right:25%;
+height:2px; background:var(–primary); border-radius:0 0 2px 2px;
+}
+.nav-icon { font-size:22px; }
+
+/* Toast */
+.toast {
+position:fixed; top:calc(env(safe-area-inset-top) + 65px);
+left:50%; transform:translateX(-50%) translateY(-10px);
+background:var(–text); color:#fff; padding:10px 20px;
+border-radius:24px; font-size:13px; font-weight:700;
+z-index:999; opacity:0; transition:all .25s; white-space:nowrap;
+pointer-events:none; box-shadow:0 4px 16px rgba(0,0,0,0.2);
+}
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* 空白狀態 */
+.empty-state {
+text-align:center; padding:40px 20px; color:var(–sub);
+}
+.es-icon  { font-size:48px; margin-bottom:10px; }
+.es-text  { font-size:14px; font-weight:700; margin-bottom:6px; }
+.es-sub   { font-size:12px; }
+
+/* 動畫 */
+@keyframes fadeUp {
+from { opacity:0; transform:translateY(12px); }
+to   { opacity:1; transform:translateY(0); }
+}
+.anim { animation:fadeUp .3s ease both; }
+</style>
+
+</head>
+<body>
+
+<!-- ══ 首頁 ══ -->
+
+<div id="page-home" class="page active">
+  <div class="app-header">
+    <div class="header-row">
+      <div>
+        <div class="h-title">🐾 毛孩健康手冊</div>
+      </div>
+      <button class="h-action" onclick="openModal('addDogModal')">＋ 新增毛孩</button>
+    </div>
+  </div>
+
+  <div class="home-hero">
+    <div class="hh-title">我的毛孩們</div>
+    <div class="hh-sub">隨時掌握每隻狗狗的健康狀況</div>
+    <div class="hh-stats">
+      <div class="hhs-item">
+        <div class="hhs-num" id="statDogs">0</div>
+        <div class="hhs-lbl">毛孩數量</div>
+      </div>
+      <div class="hhs-item">
+        <div class="hhs-num" id="statReminders">0</div>
+        <div class="hhs-lbl">本月提醒</div>
+      </div>
+      <div class="hhs-item">
+        <div class="hhs-num" id="statRecords">0</div>
+        <div class="hhs-lbl">健康記錄</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 今日提醒 -->
+
+  <div class="reminder-banner" id="reminderBanner" style="display:none">
+    <div class="rb-header">
+      <span>🔔</span>
+      <div class="rb-title">即將到期的提醒</div>
+    </div>
+    <div class="rb-body" id="reminderList"></div>
+  </div>
+
+  <div class="sec-title">所有毛孩</div>
+  <div class="dog-grid" id="dogGrid">
+    <div class="add-dog-card" onclick="openModal('addDogModal')">
+      <span style="font-size:32px">➕</span>
+      <span>新增毛孩</span>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 狗狗詳細頁 ══ -->
+
+<div id="page-dog" class="page">
+  <div class="app-header">
+    <div class="header-row">
+      <button class="h-back" onclick="showPage('home')">‹</button>
+      <div>
+        <div class="h-title" id="dogPageTitle">毛孩資料</div>
+      </div>
+      <button class="h-action" onclick="editCurrentDog()">編輯</button>
+    </div>
+  </div>
+
+  <div id="dogHeroArea"></div>
+
+  <div class="tab-bar">
+    <button class="tab-item active" onclick="switchTab(this,'tab-info')">📋 基本</button>
+    <button class="tab-item" onclick="switchTab(this,'tab-vaccine')">💉 疫苗</button>
+    <button class="tab-item" onclick="switchTab(this,'tab-drug')">💊 用藥</button>
+    <button class="tab-item" onclick="switchTab(this,'tab-weight')">⚖️ 體重</button>
+    <button class="tab-item" onclick="switchTab(this,'tab-visit')">📅 回診</button>
+  </div>
+
+  <!-- 基本資料 Tab -->
+
+  <div id="tab-info" class="tab-content active">
+    <div id="dogInfoContent"></div>
+  </div>
+
+  <!-- 疫苗 Tab -->
+
+  <div id="tab-vaccine" class="tab-content">
+    <div class="info-section" style="margin-top:10px">
+      <div class="is-title">
+        💉 疫苗記錄
+        <button class="is-add-btn" onclick="openModal('addVaccineModal')">＋ 新增</button>
+      </div>
+    </div>
+    <div id="vaccineList"></div>
+  </div>
+
+  <!-- 用藥 Tab -->
+
+  <div id="tab-drug" class="tab-content">
+    <div class="info-section" style="margin-top:10px">
+      <div class="is-title">
+        💊 用藥紀錄
+        <button class="is-add-btn" onclick="openModal('addDrugModal')">＋ 新增</button>
+      </div>
+    </div>
+    <div id="drugList"></div>
+  </div>
+
+  <!-- 體重 Tab -->
+
+  <div id="tab-weight" class="tab-content">
+    <div class="info-section" style="margin-top:10px">
+      <div class="is-title">
+        ⚖️ 體重記錄
+        <button class="is-add-btn" onclick="openModal('addWeightModal')">＋ 新增</button>
+      </div>
+    </div>
+    <div id="weightChart"></div>
+    <div id="weightList"></div>
+  </div>
+
+  <!-- 回診 Tab -->
+
+  <div id="tab-visit" class="tab-content">
+    <div class="info-section" style="margin-top:10px">
+      <div class="is-title">
+        📅 回診提醒
+        <button class="is-add-btn" onclick="openModal('addVisitModal')">＋ 新增</button>
+      </div>
+    </div>
+    <div id="visitList"></div>
+  </div>
+</div>
+
+<!-- ══ 底部導航 ══ -->
+
+<div class="bottom-nav">
+  <button class="nav-item active" id="nav-home" onclick="showPage('home')">
+    <span class="nav-icon">🏠</span>首頁
+  </button>
+  <button class="nav-item" id="nav-search" onclick="showPage('home')">
+    <span class="nav-icon">🔍</span>查詢
+  </button>
+  <button class="nav-item" id="nav-add" onclick="openModal('addDogModal')">
+    <span class="nav-icon">➕</span>新增
+  </button>
+</div>
+
+<!-- ══ 新增狗狗 Modal ══ -->
+
+<div class="overlay" id="addDogModal" onclick="closeOverlay(event,'addDogModal')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🐾 新增毛孩</div>
+    <div class="modal-body">
+      <div class="f-group">
+        <div class="f-label">名字 <span class="f-req">*</span></div>
+        <input class="f-input" id="dName" placeholder="請輸入狗狗名字">
+      </div>
+      <div class="f-row">
+        <div class="f-group">
+          <div class="f-label">品種</div>
+          <input class="f-input" id="dBreed" placeholder="例如：拉布拉多">
+        </div>
+        <div class="f-group">
+          <div class="f-label">性別</div>
+          <select class="f-select" id="dGender">
+            <option value="公">♂ 公</option>
+            <option value="母">♀ 母</option>
+          </select>
+        </div>
+      </div>
+      <div class="f-row">
+        <div class="f-group">
+          <div class="f-label">出生日期</div>
+          <input class="f-input" type="date" id="dBirth">
+        </div>
+        <div class="f-group">
+          <div class="f-label">體重 (kg)</div>
+          <input class="f-input" type="number" id="dWeight" placeholder="例如：25.3" step="0.1">
+        </div>
+      </div>
+      <div class="f-group">
+        <div class="f-label">晶片號碼</div>
+        <input class="f-input" id="dChip" placeholder="選填">
+      </div>
+      <div class="f-group">
+        <div class="f-label">過敏或注意事項</div>
+        <textarea class="f-textarea" id="dNote" placeholder="過敏藥物、特殊狀況..."></textarea>
+      </div>
+      <div class="f-group">
+        <div class="f-label">表情符號（代替照片）</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px">
+          <input class="f-input" id="dEmoji" placeholder="例如：🐕 🐶 🦮" style="flex:1">
+        </div>
+        <div class="f-hint">可輸入任何 Emoji 當頭像</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="m-btn mb-cancel" onclick="closeModalById('addDogModal')">取消</button>
+      <button class="m-btn mb-ok" onclick="saveDog()">儲存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 新增疫苗 Modal ══ -->
+
+<div class="overlay" id="addVaccineModal" onclick="closeOverlay(event,'addVaccineModal')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">💉 新增疫苗記錄</div>
+    <div class="modal-body">
+      <div class="f-group">
+        <div class="f-label">疫苗名稱 <span class="f-req">*</span></div>
+        <select class="f-select" id="vName">
+          <option>狂犬病疫苗</option>
+          <option>五合一疫苗</option>
+          <option>七合一疫苗</option>
+          <option>萊姆病疫苗</option>
+          <option>犬舍咳疫苗</option>
+          <option>自訂</option>
+        </select>
+      </div>
+      <div class="f-group" id="vCustomGroup" style="display:none">
+        <div class="f-label">自訂疫苗名稱</div>
+        <input class="f-input" id="vCustom" placeholder="請輸入疫苗名稱">
+      </div>
+      <div class="f-row">
+        <div class="f-group">
+          <div class="f-label">施打日期 <span class="f-req">*</span></div>
+          <input class="f-input" type="date" id="vDate">
+        </div>
+        <div class="f-group">
+          <div class="f-label">下次施打日期</div>
+          <input class="f-input" type="date" id="vNext">
+        </div>
+      </div>
+      <div class="f-group">
+        <div class="f-label">施打地點</div>
+        <input class="f-input" id="vPlace" placeholder="例如：愛心動物醫院">
+      </div>
+      <div class="f-group">
+        <div class="f-label">備註</div>
+        <textarea class="f-textarea" id="vNote" placeholder="副作用、注意事項..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="m-btn mb-cancel" onclick="closeModalById('addVaccineModal')">取消</button>
+      <button class="m-btn mb-ok" onclick="saveVaccine()">儲存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 新增用藥 Modal ══ -->
+
+<div class="overlay" id="addDrugModal" onclick="closeOverlay(event,'addDrugModal')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">💊 新增用藥紀錄</div>
+    <div class="modal-body">
+      <div class="f-group">
+        <div class="f-label">藥品名稱 <span class="f-req">*</span></div>
+        <input class="f-input" id="mName" placeholder="例如：心絲蟲預防藥">
+      </div>
+      <div class="f-row">
+        <div class="f-group">
+          <div class="f-label">用藥日期 <span class="f-req">*</span></div>
+          <input class="f-input" type="date" id="mDate">
+        </div>
+        <div class="f-group">
+          <div class="f-label">下次用藥日期</div>
+          <input class="f-input" type="date" id="mNext">
+        </div>
+      </div>
+      <div class="f-row">
+        <div class="f-group">
+          <div class="f-label">劑量</div>
+          <input class="f-input" id="mDose" placeholder="例如：1錠">
+        </div>
+        <div class="f-group">
+          <div class="f-label">用藥方式</div>
+          <select class="f-select" id="mMethod">
+            <option>口服</option><option>注射</option>
+            <option>外用</option><option>點眼</option><option>其他</option>
+          </select>
+        </div>
+      </div>
+      <div class="f-group">
+        <div class="f-label">備註</div>
+        <textarea class="f-textarea" id="mNote" placeholder="用藥原因、注意事項..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="m-btn mb-cancel" onclick="closeModalById('addDrugModal')">取消</button>
+      <button class="m-btn mb-ok" onclick="saveDrug()">儲存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 新增體重 Modal ══ -->
+
+<div class="overlay" id="addWeightModal" onclick="closeOverlay(event,'addWeightModal')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">⚖️ 新增體重記錄</div>
+    <div class="modal-body">
+      <div class="f-row">
+        <div class="f-group">
+          <div class="f-label">量測日期 <span class="f-req">*</span></div>
+          <input class="f-input" type="date" id="wDate">
+        </div>
+        <div class="f-group">
+          <div class="f-label">體重 (kg) <span class="f-req">*</span></div>
+          <input class="f-input" type="number" id="wKg" placeholder="例如：25.3" step="0.1">
+        </div>
+      </div>
+      <div class="f-group">
+        <div class="f-label">備註</div>
+        <input class="f-input" id="wNote" placeholder="例如：就診時量測">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="m-btn mb-cancel" onclick="closeModalById('addWeightModal')">取消</button>
+      <button class="m-btn mb-ok" onclick="saveWeight()">儲存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ 新增回診 Modal ══ -->
+
+<div class="overlay" id="addVisitModal" onclick="closeOverlay(event,'addVisitModal')">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📅 新增回診提醒</div>
+    <div class="modal-body">
+      <div class="f-group">
+        <div class="f-label">回診原因 <span class="f-req">*</span></div>
+        <input class="f-input" id="viReason" placeholder="例如：追蹤用藥效果">
+      </div>
+      <div class="f-row">
+        <div class="f-group">
+          <div class="f-label">回診日期 <span class="f-req">*</span></div>
+          <input class="f-input" type="date" id="viDate">
+        </div>
+        <div class="f-group">
+          <div class="f-label">動物醫院</div>
+          <input class="f-input" id="viHospital" placeholder="醫院名稱">
+        </div>
+      </div>
+      <div class="f-group">
+        <div class="f-label">備註</div>
+        <textarea class="f-textarea" id="viNote" placeholder="注意事項、要問醫師的問題..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="m-btn mb-cancel" onclick="closeModalById('addVisitModal')">取消</button>
+      <button class="m-btn mb-ok" onclick="saveVisit()">儲存</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════
+//  資料管理（localStorage）
+// ══════════════════════════════
+function loadData()     { return JSON.parse(localStorage.getItem('dogHealth') || '{"dogs":{}}'); }
+function saveData(data) { localStorage.setItem('dogHealth', JSON.stringify(data)); }
+function uid()          { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+
+const today = new Date().toISOString().split('T')[0];
+let currentDogId = null;
+
+// ══════════════════════════════
+//  疫苗選項切換
+// ══════════════════════════════
+document.getElementById('vName').addEventListener('change', function() {
+  document.getElementById('vCustomGroup').style.display = this.value === '自訂' ? 'block' : 'none';
+});
+
+// ══════════════════════════════
+//  首頁渲染
+// ══════════════════════════════
+function renderHome() {
+  const data = loadData();
+  const dogs = data.dogs || {};
+  const dogKeys = Object.keys(dogs);
+
+  document.getElementById('statDogs').textContent = dogKeys.length;
+
+  // 統計所有記錄數
+  let totalRecords = 0;
+  let reminders = [];
+  const soon = new Date(); soon.setDate(soon.getDate() + 30);
+  const soonStr = soon.toISOString().split('T')[0];
+
+  dogKeys.forEach(id => {
+    const d = dogs[id];
+    totalRecords += Object.keys(d.vaccines||{}).length;
+    totalRecords += Object.keys(d.drugs||{}).length;
+    totalRecords += Object.keys(d.weights||{}).length;
+    totalRecords += Object.keys(d.visits||{}).length;
+
+    // 收集30天內到期提醒
+    Object.values(d.vaccines||{}).forEach(v => {
+      if (v.next && v.next >= today && v.next <= soonStr)
+        reminders.push({ dog: d.name, text: `疫苗：${v.name}`, date: v.next });
+    });
+    Object.values(d.drugs||{}).forEach(m => {
+      if (m.next && m.next >= today && m.next <= soonStr)
+        reminders.push({ dog: d.name, text: `用藥：${m.name}`, date: m.next });
+    });
+    Object.values(d.visits||{}).forEach(vi => {
+      if (vi.date && vi.date >= today && vi.date <= soonStr)
+        reminders.push({ dog: d.name, text: `回診：${vi.reason}`, date: vi.date });
+    });
+  });
+
+  document.getElementById('statRecords').textContent = totalRecords;
+  document.getElementById('statReminders').textContent = reminders.length;
+
+  // 顯示提醒
+  const banner = document.getElementById('reminderBanner');
+  const rList  = document.getElementById('reminderList');
+  if (reminders.length) {
+    banner.style.display = 'block';
+    reminders.sort((a,b) => a.date.localeCompare(b.date));
+    rList.innerHTML = reminders.slice(0,5).map(r => `
+      <div class="rb-item">
+        <div class="rb-dot"></div>
+        <div style="flex:1">
+          <span style="font-weight:700">${esc(r.dog)}</span>
+          <span style="color:var(--sub)"> · ${esc(r.text)}</span>
+        </div>
+        <span style="font-size:11px;color:var(--accent);font-weight:700">${r.date}</span>
+      </div>
+    `).join('');
+  } else {
+    banner.style.display = 'none';
+  }
+
+  // 渲染狗狗卡片
+  const grid = document.getElementById('dogGrid');
+  grid.innerHTML = '';
+
+  dogKeys.forEach(id => {
+    const d = dogs[id];
+    const age = d.birth ? calcAge(d.birth) : '';
+    const lastWeight = getLastWeight(d);
+    const card = document.createElement('div');
+    card.className = 'dog-card anim';
+    card.onclick = () => openDogDetail(id);
+
+    const hasReminder = reminders.some(r => r.dog === d.name);
+    card.innerHTML = `
+      <div class="dc-avatar">
+        ${d.emoji ? `<span style="font-size:52px">${esc(d.emoji)}</span>` : '🐕'}
+        <div class="dc-gender-badge">${d.gender === '母' ? '♀' : '♂'}</div>
+      </div>
+      <div class="dc-info">
+        <div class="dc-name">${esc(d.name)}</div>
+        <div class="dc-breed">${esc(d.breed||'未填品種')}${age ? ' · ' + age : ''}</div>
+        <div class="dc-tags">
+          ${lastWeight ? `<span class="dc-tag">⚖️ ${lastWeight}kg</span>` : ''}
+          ${hasReminder ? `<span class="dc-tag warn">🔔 提醒</span>` : ''}
+        </div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+
+  // 新增按鈕
+  const addBtn = document.createElement('div');
+  addBtn.className = 'add-dog-card';
+  addBtn.onclick = () => openModal('addDogModal');
+  addBtn.innerHTML = '<span style="font-size:32px">➕</span><span>新增毛孩</span>';
+  grid.appendChild(addBtn);
+}
+
+function getLastWeight(dog) {
+  const weights = Object.values(dog.weights || {});
+  if (!weights.length) return null;
+  return weights.sort((a,b) => b.date.localeCompare(a.date))[0].kg;
+}
+
+// ══════════════════════════════
+//  狗狗詳細頁
+// ══════════════════════════════
+function openDogDetail(id) {
+  currentDogId = id;
+  const data = loadData();
+  const dog  = data.dogs[id];
+  if (!dog) return;
+
+  document.getElementById('dogPageTitle').textContent = dog.name;
+
+  // Hero
+  const age = dog.birth ? calcAge(dog.birth) : '未知';
+  const lastW = getLastWeight(dog);
+  document.getElementById('dogHeroArea').innerHTML = `
+    <div class="dog-hero">
+      <div class="dh-avatar">
+        ${dog.emoji ? `<span style="font-size:32px">${esc(dog.emoji)}</span>` : '🐕'}
+      </div>
+      <div>
+        <div class="dh-name">${esc(dog.name)}</div>
+        <div class="dh-breed">${esc(dog.breed||'')} · ${dog.gender === '母' ? '♀ 母' : '♂ 公'}</div>
+        <div class="dh-badges">
+          <div class="dh-badge">年齡 ${age}</div>
+          ${lastW ? `<div class="dh-badge">⚖️ ${lastW} kg</div>` : ''}
+          ${dog.chip ? `<div class="dh-badge">晶片 ${esc(dog.chip)}</div>` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+
+  // 基本資料
+  document.getElementById('dogInfoContent').innerHTML = `
+    <div class="info-section" style="margin-top:10px">
+      <div class="is-title">🐾 基本資料</div>
+      <div class="is-row"><span class="is-key">品種</span><span class="is-val">${esc(dog.breed||'未填')}</span></div>
+      <div class="is-row"><span class="is-key">性別</span><span class="is-val">${dog.gender === '母' ? '♀ 母' : '♂ 公'}</span></div>
+      <div class="is-row"><span class="is-key">出生日期</span><span class="is-val">${dog.birth||'未填'}</span></div>
+      <div class="is-row"><span class="is-key">年齡</span><span class="is-val">${age}</span></div>
+      <div class="is-row"><span class="is-key">晶片號碼</span><span class="is-val">${esc(dog.chip||'未登記')}</span></div>
+      ${dog.note ? `<div class="is-row"><span class="is-key">注意事項</span><span class="is-val warn">⚠️ ${esc(dog.note)}</span></div>` : ''}
+    </div>
+    <div style="padding:16px;display:flex;gap:8px">
+      <button class="m-btn mb-ok" onclick="openModal('addVaccineModal')">💉 新增疫苗</button>
+      <button class="m-btn" style="background:var(--light);color:var(--text)" onclick="openModal('addVisitModal')">📅 新增回診</button>
+    </div>
+    <div style="padding:0 16px 16px">
+      <button class="m-btn" style="background:#fee2e2;color:var(--danger);width:100%" onclick="deleteDog('${id}')">🗑️ 刪除此毛孩</button>
+    </div>
+  `;
+
+  renderVaccines(dog);
+  renderDrugs(dog);
+  renderWeights(dog);
+  renderVisits(dog);
+
+  // 重置 Tab
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelector('.tab-item').classList.add('active');
+  document.getElementById('tab-info').classList.add('active');
+
+  showPage('dog');
+}
+
+function renderVaccines(dog) {
+  const list = document.getElementById('vaccineList');
+  const items = Object.entries(dog.vaccines || {}).sort((a,b) => b[1].date.localeCompare(a[1].date));
+  if (!items.length) {
+    list.innerHTML = '<div class="empty-state"><div class="es-icon">💉</div><div class="es-text">尚無疫苗記錄</div><div class="es-sub">點擊上方＋新增</div></div>';
+    return;
+  }
+  list.innerHTML = items.map(([key, v]) => `
+    <div class="record-card">
+      <div class="rc-header">
+        <div class="rc-date">📅 ${v.date}</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span class="rc-type rt-vacc">疫苗</span>
+          <button class="rc-del" onclick="deleteRecord('vaccines','${key}')">✕</button>
+        </div>
+      </div>
+      <div class="rc-body">
+        <div class="rc-main">💉 ${esc(v.name)}</div>
+        ${v.place ? `<div class="rc-sub">📍 ${esc(v.place)}</div>` : ''}
+        ${v.note  ? `<div class="rc-sub">${esc(v.note)}</div>` : ''}
+        ${v.next  ? `<div class="rc-next">🔔 下次：${v.next}</div>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderDrugs(dog) {
+  const list = document.getElementById('drugList');
+  const items = Object.entries(dog.drugs || {}).sort((a,b) => b[1].date.localeCompare(a[1].date));
+  if (!items.length) {
+    list.innerHTML = '<div class="empty-state"><div class="es-icon">💊</div><div class="es-text">尚無用藥記錄</div><div class="es-sub">點擊上方＋新增</div></div>';
+    return;
+  }
+  list.innerHTML = items.map(([key, m]) => `
+    <div class="record-card">
+      <div class="rc-header">
+        <div class="rc-date">📅 ${m.date}</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span class="rc-type rt-drug">用藥</span>
+          <button class="rc-del" onclick="deleteRecord('drugs','${key}')">✕</button>
+        </div>
+      </div>
+      <div class="rc-body">
+        <div class="rc-main">💊 ${esc(m.name)}</div>
+        <div class="rc-sub">${m.dose ? '劑量：' + esc(m.dose) + ' · ' : ''}${esc(m.method||'')}</div>
+        ${m.note ? `<div class="rc-sub">${esc(m.note)}</div>` : ''}
+        ${m.next ? `<div class="rc-next">🔔 下次：${m.next}</div>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderWeights(dog) {
+  const chartEl = document.getElementById('weightChart');
+  const listEl  = document.getElementById('weightList');
+  const items   = Object.entries(dog.weights || {}).sort((a,b) => a[1].date.localeCompare(b[1].date));
+
+  if (!items.length) {
+    chartEl.innerHTML = '';
+    listEl.innerHTML  = '<div class="empty-state"><div class="es-icon">⚖️</div><div class="es-text">尚無體重記錄</div><div class="es-sub">點擊上方＋新增</div></div>';
+    return;
+  }
+
+  // 圖表（最近8筆）
+  const recent = items.slice(-8);
+  const maxKg  = Math.max(...recent.map(([,w]) => parseFloat(w.kg)));
+  chartEl.innerHTML = `
+    <div class="weight-chart">
+      <div class="wc-title">⚖️ 體重趨勢</div>
+      <div class="wc-bars">
+        ${recent.map(([,w]) => {
+          const pct = (parseFloat(w.kg) / maxKg * 100).toFixed(0);
+          return `<div class="wc-bar-wrap">
+            <div class="wc-val">${w.kg}</div>
+            <div class="wc-bar" style="height:${pct}%"></div>
+            <div class="wc-date">${w.date.slice(5)}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  `;
+
+  // 列表
+  listEl.innerHTML = items.reverse().map(([key, w]) => `
+    <div class="record-card">
+      <div class="rc-header">
+        <div class="rc-date">📅 ${w.date}</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span class="rc-type rt-weight">體重</span>
+          <button class="rc-del" onclick="deleteRecord('weights','${key}')">✕</button>
+        </div>
+      </div>
+      <div class="rc-body">
+        <div class="rc-main">⚖️ ${w.kg} kg</div>
+        ${w.note ? `<div class="rc-sub">${esc(w.note)}</div>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderVisits(dog) {
+  const list  = document.getElementById('visitList');
+  const items = Object.entries(dog.visits || {}).sort((a,b) => b[1].date.localeCompare(a[1].date));
+  if (!items.length) {
+    list.innerHTML = '<div class="empty-state"><div class="es-icon">📅</div><div class="es-text">尚無回診提醒</div><div class="es-sub">點擊上方＋新增</div></div>';
+    return;
+  }
+  list.innerHTML = items.map(([key, vi]) => {
+    const isPast = vi.date < today;
+    return `
+      <div class="record-card">
+        <div class="rc-header">
+          <div class="rc-date" style="color:${isPast?'#aaa':'inherit'}">📅 ${vi.date} ${isPast?'(已過)':''}</div>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span class="rc-type rt-visit">回診</span>
+            <button class="rc-del" onclick="deleteRecord('visits','${key}')">✕</button>
+          </div>
+        </div>
+        <div class="rc-body">
+          <div class="rc-main">${esc(vi.reason)}</div>
+          ${vi.hospital ? `<div class="rc-sub">🏥 ${esc(vi.hospital)}</div>` : ''}
+          ${vi.note     ? `<div class="rc-sub">${esc(vi.note)}</div>` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ══════════════════════════════
+//  CRUD 操作
+// ══════════════════════════════
+function saveDog() {
+  const name = document.getElementById('dName').value.trim();
+  if (!name) return showToast('請填寫狗狗名字');
+  const data = loadData();
+  const id   = uid();
+  data.dogs[id] = {
+    name, id,
+    breed:  document.getElementById('dBreed').value.trim(),
+    gender: document.getElementById('dGender').value,
+    birth:  document.getElementById('dBirth').value,
+    weight: document.getElementById('dWeight').value,
+    chip:   document.getElementById('dChip').value.trim(),
+    note:   document.getElementById('dNote').value.trim(),
+    emoji:  document.getElementById('dEmoji').value.trim() || '🐕',
+    vaccines:{}, drugs:{}, weights:{}, visits:{},
+    createdAt: Date.now()
+  };
+  saveData(data);
+  closeModalById('addDogModal');
+  clearModal('addDogModal');
+  showToast('✅ 毛孩資料已新增');
+  renderHome();
+}
+
+function editCurrentDog() {
+  if (!currentDogId) return;
+  const data = loadData();
+  const dog  = data.dogs[currentDogId];
+  if (!dog) return;
+  document.getElementById('dName').value   = dog.name;
+  document.getElementById('dBreed').value  = dog.breed  || '';
+  document.getElementById('dGender').value = dog.gender || '公';
+  document.getElementById('dBirth').value  = dog.birth  || '';
+  document.getElementById('dWeight').value = dog.weight || '';
+  document.getElementById('dChip').value   = dog.chip   || '';
+  document.getElementById('dNote').value   = dog.note   || '';
+  document.getElementById('dEmoji').value  = dog.emoji  || '';
+  openModal('addDogModal');
+
+  // 覆蓋儲存行為
+  document.querySelector('#addDogModal .mb-ok').onclick = () => {
+    dog.name   = document.getElementById('dName').value.trim();
+    dog.breed  = document.getElementById('dBreed').value.trim();
+    dog.gender = document.getElementById('dGender').value;
+    dog.birth  = document.getElementById('dBirth').value;
+    dog.weight = document.getElementById('dWeight').value;
+    dog.chip   = document.getElementById('dChip').value.trim();
+    dog.note   = document.getElementById('dNote').value.trim();
+    dog.emoji  = document.getElementById('dEmoji').value.trim() || '🐕';
+    saveData(data);
+    closeModalById('addDogModal');
+    showToast('✅ 資料已更新');
+    openDogDetail(currentDogId);
+    document.querySelector('#addDogModal .mb-ok').onclick = saveDog;
+  };
+}
+
+function deleteDog(id) {
+  if (!confirm('確定要刪除這隻毛孩的所有資料嗎？')) return;
+  const data = loadData();
+  delete data.dogs[id];
+  saveData(data);
+  showToast('已刪除');
+  showPage('home');
+  renderHome();
+}
+
+function saveVaccine() {
+  const nameEl = document.getElementById('vName');
+  const name   = nameEl.value === '自訂' ? document.getElementById('vCustom').value.trim() : nameEl.value;
+  const date   = document.getElementById('vDate').value;
+  if (!name || !date) return showToast('請填寫必填欄位');
+  const data = loadData();
+  const dog  = data.dogs[currentDogId];
+  if (!dog.vaccines) dog.vaccines = {};
+  dog.vaccines[uid()] = {
+    name, date,
+    next:  document.getElementById('vNext').value,
+    place: document.getElementById('vPlace').value.trim(),
+    note:  document.getElementById('vNote').value.trim()
+  };
+  saveData(data);
+  closeModalById('addVaccineModal');
+  clearModal('addVaccineModal');
+  showToast('✅ 疫苗記錄已新增');
+  renderVaccines(dog);
+  renderHome();
+}
+
+function saveDrug() {
+  const name = document.getElementById('mName').value.trim();
+  const date = document.getElementById('mDate').value;
+  if (!name || !date) return showToast('請填寫必填欄位');
+  const data = loadData();
+  const dog  = data.dogs[currentDogId];
+  if (!dog.drugs) dog.drugs = {};
+  dog.drugs[uid()] = {
+    name, date,
+    next:   document.getElementById('mNext').value,
+    dose:   document.getElementById('mDose').value.trim(),
+    method: document.getElementById('mMethod').value,
+    note:   document.getElementById('mNote').value.trim()
+  };
+  saveData(data);
+  closeModalById('addDrugModal');
+  clearModal('addDrugModal');
+  showToast('✅ 用藥記錄已新增');
+  renderDrugs(dog);
+  renderHome();
+}
+
+function saveWeight() {
+  const date = document.getElementById('wDate').value;
+  const kg   = document.getElementById('wKg').value;
+  if (!date || !kg) return showToast('請填寫必填欄位');
+  const data = loadData();
+  const dog  = data.dogs[currentDogId];
+  if (!dog.weights) dog.weights = {};
+  dog.weights[uid()] = {
+    date, kg: parseFloat(kg),
+    note: document.getElementById('wNote').value.trim()
+  };
+  saveData(data);
+  closeModalById('addWeightModal');
+  clearModal('addWeightModal');
+  showToast('✅ 體重記錄已新增');
+  renderWeights(dog);
+  renderHome();
+}
+
+function saveVisit() {
+  const reason = document.getElementById('viReason').value.trim();
+  const date   = document.getElementById('viDate').value;
+  if (!reason || !date) return showToast('請填寫必填欄位');
+  const data = loadData();
+  const dog  = data.dogs[currentDogId];
+  if (!dog.visits) dog.visits = {};
+  dog.visits[uid()] = {
+    reason, date,
+    hospital: document.getElementById('viHospital').value.trim(),
+    note:     document.getElementById('viNote').value.trim()
+  };
+  saveData(data);
+  closeModalById('addVisitModal');
+  clearModal('addVisitModal');
+  showToast('✅ 回診提醒已新增');
+  renderVisits(dog);
+  renderHome();
+}
+
+function deleteRecord(type, key) {
+  if (!confirm('確定要刪除這筆記錄嗎？')) return;
+  const data = loadData();
+  const dog  = data.dogs[currentDogId];
+  if (dog && dog[type]) delete dog[type][key];
+  saveData(data);
+  showToast('已刪除');
+  if (type === 'vaccines') renderVaccines(dog);
+  if (type === 'drugs')    renderDrugs(dog);
+  if (type === 'weights')  renderWeights(dog);
+  if (type === 'visits')   renderVisits(dog);
+  renderHome();
+}
+
+// ══════════════════════════════
+//  工具函式
+// ══════════════════════════════
+function calcAge(birth) {
+  if (!birth) return '未知';
+  const b    = new Date(birth);
+  const now  = new Date();
+  const diff = now - b;
+  const years  = Math.floor(diff / (365.25 * 24 * 3600 * 1000));
+  const months = Math.floor((diff % (365.25 * 24 * 3600 * 1000)) / (30.44 * 24 * 3600 * 1000));
+  return years > 0 ? `${years}歲${months}個月` : `${months}個月`;
+}
+
+function esc(str) {
+  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ══ 頁面切換 ══
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  window.scrollTo(0,0);
+  if (name === 'home') renderHome();
+}
+
+// ══ Tab 切換 ══
+function switchTab(btn, tabId) {
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(tabId).classList.add('active');
+}
+
+// ══ Modal ══
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModalById(id) { document.getElementById(id).classList.remove('open'); }
+function closeOverlay(e, id) { if(e.target === document.getElementById(id)) closeModalById(id); }
+function clearModal(id) {
+  document.querySelectorAll(`#${id} input, #${id} textarea`).forEach(el => el.value = '');
+  document.querySelectorAll(`#${id} select`).forEach(el => el.selectedIndex = 0);
+  document.getElementById('vCustomGroup') && (document.getElementById('vCustomGroup').style.display = 'none');
+}
+
+// ══ Toast ══
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+// ══ 設定今日日期預設值 ══
+document.getElementById('vDate').value  = today;
+document.getElementById('mDate').value  = today;
+document.getElementById('wDate').value  = today;
+
+// ══ 啟動 ══
+renderHome();
+</script>
+
+</body>
+</html>
