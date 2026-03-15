@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>M-Police 整合查詢系統 V1.5</title>
+    <title>M-Security整合查詢系統 V1.5</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -129,8 +129,8 @@
 <div id="login-page" class="fade-in">
     <div class="shield-logo">🛡️</div>
     <div class="title-group">
-        <div class="sub-title">內政部警政署</div>
-        <div class="main-title">M-Police 整合查詢</div>
+        <div class="sub-title">台灣精銳警衛室</div>
+        <div class="main-title">M-Secuity 整合查詢</div>
     </div>
 
 ```
@@ -145,7 +145,7 @@
 <div class="form-group">
     <label>勤務類別</label>
     <select id="patrol_val">
-        <option>巡邏</option><option>臨檢</option><option>處事</option>
+        <option>日班</option><option>中班</option><option>夜班</option>
     </select>
 </div>
 
@@ -159,7 +159,7 @@
 
 <div id="main-page">
     <div class="app-bar">
-        <span>🛡️ M-Police 整合查詢</span>
+        <span>🛡️ M-Security 整合查詢</span>
         <span onclick="doLogout()" style="font-size: 12px; border: 1px solid white; padding: 2px 8px; border-radius: 4px; cursor:pointer;">登出</span>
     </div>
 
@@ -167,7 +167,7 @@
 <div class="user-info-card">
     <div style="font-weight: bold; color: var(--police-blue);">使用者：<span id="disp-user">-</span></div>
     <div style="font-size: 12px; color: #666; margin-top: 5px;">
-        模式：<span id="disp-mode">巡邏</span> ｜ 資料庫：<span style="color:green;font-weight:bold">🟢 Firebase 雲端</span>
+        模式：<span id="disp-mode">日班</span> ｜ 資料庫：<span style="color:green;font-weight:bold">🟢 Firebase 雲端</span>
     </div>
 </div>
 
