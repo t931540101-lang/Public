@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>黑曜石計畫 - 項目投標決策單</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #e74c3c;
+            --bg: #f4f7f6;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--primary);
+            margin: 0;
+            padding: 15px;
+            line-height: 1.6;
+        }
+        h2 {
+            text-align: center;
+            border-bottom: 2px solid var(--primary);
+            padding-bottom: 10px;
+            font-size: 1.2rem;
+        }
+        .card {
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin: 10px 0 5px;
+            font-size: 0.9rem;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .save-btn { background: var(--primary); color: white; }
+        .clear-btn { background: #95a5a6; color: white; }
+        .history {
+            margin-top: 20px;
+            font-size: 0.85rem;
+            background: #eee;
+            padding: 10px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>🏛️ 金宸資本 - 項目投資決策頁</h2>
+    
+    <div class="card">
+        <label>1. 項目名稱 (對象)</label>
+        <input type="text" id="projName" placeholder="例如：社區甘仔店、黑曜石計畫">
+
+        <label>2. 投資金額 (預計投入)</label>
+        <input type="number" id="projAmount" placeholder="$ 投入多少錢？">
+
+        <label>3. 核心價值 (為什麼會賺？)</label>
+        <textarea id="projValue" rows="3" placeholder="它的護城河在哪裡？技術還是地段？"></textarea>
+
+        <label>4. 風險評估 (可能會賠的原因)</label>
+        <textarea id="projRisk" rows="3" placeholder="競爭對手、老闆人品、市場變化..."></textarea>
+
+        <label>5. 預期回報率 (ROI)</label>
+        <select id="projRoi">
+            <option value="穩健型 (1-2倍)">穩健型 (1-2倍)</option>
+            <option value="成長型 (3-5倍)">成長型 (3-5倍)</option>
+            <option value="獨角獸 (10倍以上)">獨角獸 (10倍以上)</option>
+        </select>
+
+        <div class="btn-group">
+            <button class="save-btn" onclick="saveData()">提交投資案</button>
+            <button class="clear-btn" onclick="clearData()">撤銷</button>
+        </div>
+    </div>
+
+    <div id="historyList" class="history">
+        <strong>🗄️ 存檔資料：</strong>
+        <div id="displayArea">尚未有提案紀錄</div>
+    </div>
+
+    <script>
+        function saveData() {
+            const data = {
+                name: document.getElementById('projName').value,
+                amount: document.getElementById('projAmount').value,
+                value: document.getElementById('projValue').value,
+                risk: document.getElementById('projRisk').value,
+                roi: document.getElementById('projRoi').value,
+                date: new Date().toLocaleString()
+            };
+            
+            if(!data.name) { alert('請輸入項目名稱'); return; }
+
+            localStorage.setItem('blackstone_invest_' + Date.now(), JSON.stringify(data));
+            alert('案子已備份至手機存檔！');
+            loadHistory();
+        }
+
+        function loadHistory() {
+            const display = document.getElementById('displayArea');
+            display.innerHTML = '';
+            let hasData = false;
+
+            for (let i = 0; i < localStorage.length; i++) {
+                let key = localStorage.key(i);
+                if (key.startsWith('blackstone_invest_')) {
+                    const item = JSON.parse(localStorage.getItem(key));
+                    display.innerHTML += `<p>📌 <strong>${item.name}</strong> (${item.date})<br>金額：$${item.amount} / 回報：${item.roi}</p><hr>`;
+                    hasData = true;
+                }
+            }
+            if(!hasData) display.innerHTML = '尚未有提案紀錄';
+        }
+
+        function clearData() {
+            if(confirm('確定要刪除所有投資紀錄嗎？')) {
+                const keys = [];
+                for(let i=0; i<localStorage.length; i++) {
+                    if(localStorage.key(i).startsWith('blackstone_invest_')) keys.push(localStorage.key(i));
+                }
+                keys.forEach(k => localStorage.removeItem(k));
+                loadHistory();
+            }
+        }
+
+        window.onload = loadHistory;
+    </script>
+</body>
+</html>
