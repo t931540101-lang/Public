@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>黑曜石計畫 - 物價戰情室</title>
+    <style>
+        :root {
+            --bg: #121212;
+            --card: #1e1e1e;
+            --accent: #00e5ff;
+            --text: #e0e0e0;
+            --up: #ff5252;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .container {
+            width: 100%;
+            max-width: 400px;
+        }
+        h2 { color: var(--accent); text-align: center; border-bottom: 1px solid var(--accent); padding-bottom: 10px; }
+        .card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        input {
+            background: #333;
+            border: 1px solid #444;
+            color: white;
+            padding: 8px;
+            border-radius: 5px;
+            width: 80px;
+            text-align: center;
+        }
+        .btn {
+            background: var(--accent);
+            color: black;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            width: 100%;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .info-text {
+            font-size: 0.85rem;
+            color: #888;
+            margin-top: 5px;
+        }
+        .trend-up { color: var(--up); font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Obsidian Project: Market Monitor</h2>
+    
+    <div class="card">
+        <div class="item-row">
+            <span>🛢️ 布蘭特原油 (USD)</span>
+            <input type="number" id="oil_price" placeholder="110">
+        </div>
+        <div class="item-row">
+            <span>🧪 塑膠原料 (PE/PP)</span>
+            <input type="number" id="plastic_index" placeholder="1.45">
+        </div>
+        <div class="item-row">
+            <span>💾 記憶體 (DDR4/5)</span>
+            <input type="number" id="ram_price" placeholder="2500">
+        </div>
+        <p class="info-text">※ 提示：戰爭期間石油破 120 USD 即為高度警戒。</p>
+        <button class="btn" onclick="saveData()">💾 存檔至 LocalStorage</button>
+    </div>
+
+    <div class="card">
+        <h3>歷史紀錄摘要</h3>
+        <div id="history_list" style="font-size: 0.9rem;">
+            尚無紀錄...
+        </div>
+        <button class="btn" style="background:#555; color:white;" onclick="clearData()">🗑️ 清空數據</button>
+    </div>
+</div>
+
+<script>
+    function saveData() {
+        const data = {
+            oil: document.getElementById('oil_price').value,
+            plastic: document.getElementById('plastic_index').value,
+            ram: document.getElementById('ram_price').value,
+            time: new Date().toLocaleString()
+        };
+        
+        let logs = JSON.parse(localStorage.getItem('obsidian_market')) || [];
+        logs.unshift(data);
+        if(logs.length > 5) logs.pop(); // 只留最近5筆紀錄
+        
+        localStorage.setItem('obsidian_market', JSON.stringify(logs));
+        renderHistory();
+        alert('小黑哥，數據已同步至黑曜石核心！');
+    }
+
+    function renderHistory() {
+        const logs = JSON.parse(localStorage.getItem('obsidian_market')) || [];
+        const container = document.getElementById('history_list');
+        if(logs.length === 0) return;
+        
+        container.innerHTML = logs.map(log => `
+            <div style="border-bottom: 1px solid #333; padding: 5px 0;">
+                <span style="font-size: 0.7rem; color: #666;">${log.time}</span><br>
+                🛢️ $${log.oil} | 🧪 $${log.plastic} | 💾 $${log.ram}
+            </div>
+        `).join('');
+    }
+
+    function clearData() {
+        if(confirm('確定要清除所有市場數據嗎？')) {
+            localStorage.removeItem('obsidian_market');
+            location.reload();
+        }
+    }
+
+    // 初始化讀取
+    renderHistory();
+</script>
+
+</body>
+</html>
