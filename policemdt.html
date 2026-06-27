@@ -3,330 +3,297 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CIA CENTRAL INTELLIGENCE TERMINAL - OFFICIAL</title>
+<title>CIA GLOBAL TARGETING SYSTEM</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
-    background-color: #03070e; 
-    color: #9cb1e6; 
-    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-    font-size: 18px; 
+    background-color: #020611;
+    color: #50b3ff;
+    font-family: 'Segoe UI', -apple-system, sans-serif;
+    font-size: 16px;
     height: 100vh;
     width: 100vw;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    padding: 10px;
+    padding: 8px;
 }
 
-/* ==========================================
-   頂部官方系統列 (修正折行、置入官方徽章視覺)
-   ========================================== */
+/* 頂部系統列 */
 .header {
-    background: linear-gradient(180deg, #091324 0%, #050b15 100%);
+    background: rgba(10, 25, 50, 0.8);
     padding: 10px 15px;
-    border: 2px solid #1c3d70;
-    border-radius: 6px;
+    border: 1px solid #1a3e72;
+    border-radius: 4px;
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    margin-bottom: 10px;
-    box-shadow: 0 0 15px rgba(28, 61, 112, 0.4);
-    position: relative;
-}
-/* 模擬官方圓形徽章視覺 */
-.official-seal {
-    width: 32px;
-    height: 32px;
-    border: 2px dashed #00ebff;
-    border-radius: 50%;
-    margin-right: 12px;
-    display: inline-flex;
     align-items: center;
-    justify-content: center;
-    font-size: 0.6rem;
+    margin-bottom: 8px;
     font-weight: bold;
-    color: #00ebff;
-    flex-shrink: 0;
+    box-shadow: 0 0 10px rgba(0, 235, 255, 0.1);
 }
-.title-container {
-    display: flex;
-    align-items: center;
-    flex: 1;
-    overflow: hidden;
-}
-.header-title {
-    color: #ffffff;
-    font-size: 1.15rem; /* 稍微縮小字體防止折行 */
-    font-weight: 700;
-    letter-spacing: 1px;
-    white-space: nowrap;
-}
-.header-subtitle {
-    color: #5c74a8;
-    font-size: 0.85rem;
-    margin-left: 10px;
-    border-left: 1px solid #1c3d70;
-    padding-left: 10px;
-    white-space: nowrap;
-}
-.header-right {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    flex-shrink: 0;
-}
-.classification { 
-    color: #ff3b30; 
-    font-size: 0.85rem; 
-    font-weight: bold;
-    border: 2px solid #ff3b30; 
-    padding: 2px 10px; 
-    border-radius: 4px; 
-    background-color: rgba(255, 59, 48, 0.1);
-    letter-spacing: 1px;
-}
-#clock {
-    font-family: 'Courier New', monospace;
-    color: #00ebff;
-    font-size: 1.3rem;
-    font-weight: bold;
-}
+.header span { color: #ffffff; letter-spacing: 2px; font-size: 1.1rem; }
+.header .status { color: #00ff66; animation: blink 1.5s infinite; }
 
-/* ==========================================
-   主版面配置
-   ========================================== */
+/* 三欄式主架構 */
 .main-content {
     flex: 1;
     display: flex;
-    gap: 12px;
-    height: calc(100vh - 165px);
-}
-.left-panel, .right-panel {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-.widget {
-    background-color: #060e1a;
-    border: 2px solid #142a4a;
-    border-radius: 8px;
-    padding: 15px;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-.widget-title {
-    color: #00ebff; 
-    font-size: 1.1rem;
-    font-weight: bold;
-    margin-bottom: 12px;
-    border-bottom: 2px solid #142a4a;
-    padding-bottom: 6px;
-    letter-spacing: 1px;
-    display: flex;
-    justify-content: space-between;
-}
-.widget-title-en {
-    color: #435b87;
-    font-size: 0.85rem;
+    gap: 8px;
+    height: calc(100vh - 150px);
 }
 
-/* 數據欄位 */
-.data-box {
+.panel {
+    background: rgba(5, 15, 30, 0.9);
+    border: 1px solid #15325c;
+    border-radius: 6px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 左：照片閃爍比對區 */
+.left-panel { flex: 1.2; }
+.photo-scan-container {
+    flex: 1;
+    border: 1px solid #ff3b30;
+    background: rgba(255, 59, 48, 0.05);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
     margin-bottom: 10px;
 }
-.data-box label {
-    color: #5c74a8;
-    font-size: 0.85rem;
-    display: block;
-    text-transform: uppercase;
+.scan-line {
+    position: absolute;
+    width: 100%;
+    height: 4px;
+    background: #ff3b30;
+    box-shadow: 0 0 10px #ff3b30;
+    top: 0;
+    animation: scanMove 3s linear infinite;
+    z-shrink: 2;
 }
-.data-box value {
-    font-size: 1.6rem;
+#target-photo {
+    width: 80%;
+    height: 65%;
+    object-fit: cover;
+    border: 2px solid #ff3b30;
+    filter: sepia(100%) hue-rotate(190deg) saturate(200%);
+}
+.match-status {
+    margin-top: 10px;
     font-weight: bold;
-    color: #ffffff;
+    font-size: 1.3rem;
+    color: #ff3b30;
+    text-align: center;
 }
-.alert-high { color: #ff453a !important; text-shadow: 0 0 8px rgba(255,69,58,0.4); }
 
-/* 情報日誌區 */
-.list-container {
+/* 中：科幻地球與連線 */
+.center-panel { 
+    flex: 1.8; 
+    position: relative;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+/* 科技風地球球體(CSS 模擬) */
+.globe-container {
+    width: 240px;
+    height: 240px;
+    position: relative;
+    border-radius: 50%;
+    box-shadow: inset 0 0 40px rgba(0, 235, 255, 0.3), 0 0 20px rgba(0, 140, 255, 0.2);
+    border: 1px solid rgba(0, 235, 255, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+/* 模擬雷達掃描與經緯分線 */
+.globe-grid {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 2px dashed rgba(0, 235, 255, 0.2);
+    animation: rotateGlobe 8s linear infinite;
+}
+.globe-grid::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 50%;
+    top: 25%;
+    border-top: 1px solid rgba(0, 235, 255, 0.3);
+    border-bottom: 1px solid rgba(0, 235, 255, 0.3);
+}
+.radar-ping {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #ff3b30;
+    border-radius: 50%;
+    box-shadow: 0 0 15px #ff3b30;
+}
+/* 模擬經緯度數據串跳動 */
+.coords-overlay {
+    position: absolute;
+    bottom: 10px;
+    font-family: monospace;
+    font-size: 1.2rem;
+    color: #00ffea;
+    text-shadow: 0 0 5px rgba(0,235,255,0.5);
+}
+
+/* 右：聯合作戰日誌 */
+.right-panel { flex: 1.2; }
+.widget-title {
+    color: #00ebff;
+    font-size: 1rem;
+    font-weight: bold;
+    border-bottom: 1px solid #15325c;
+    padding-bottom: 4px;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+}
+.log-container {
     flex: 1;
     overflow-y: auto;
-    font-size: 1rem;
-    line-height: 1.5;
-    font-family: 'Courier New', Courier, monospace;
+    font-family: monospace;
+    font-size: 0.85rem;
+    line-height: 1.4;
 }
-.list-item {
-    margin-bottom: 6px;
-    border-bottom: 1px solid #0b1626;
-    padding-bottom: 4px;
-}
-.list-item-time { color: #435b87; margin-right: 10px; }
+.log-item { margin-bottom: 5px; color: #7fa5d9; border-bottom: 1px solid rgba(21,50,92,0.3); padding-bottom: 2px; }
 
 /* 底部按鈕 */
-.footer {
-    height: 70px;
-    margin-top: 10px;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-}
+.footer { height: 60px; margin-top: 8px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
 button {
-    background: linear-gradient(180deg, #0c182d 0%, #060e1a 100%);
-    color: #9cb1e6;
-    border: 2px solid #1c3d70;
-    border-radius: 8px;
-    font-size: 1.25rem;
-    font-weight: bold;
-    font-family: inherit;
-    cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    background: #09172e; color: #50b3ff; border: 1px solid #1a3e72; border-radius: 4px;
+    font-size: 1.1rem; font-weight: bold; cursor: pointer;
 }
-button:active {
-    background: #00ebff;
-    color: #03070e;
-    border-color: #00ebff;
-}
+button:active { background: #00ebff; color: #000; }
+
+/* 動態特效 */
+@keyframes scanMove { 0% { top: 0%; } 50% { top: 100%; } 100% { top: 0%; } }
+@keyframes rotateGlobe { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 </style>
 </head>
 <body>
 
-<!-- 頂部官方系統列 -->
 <div class="header">
-    <div class="title-container">
-        <div class="official-seal">CIA</div>
-        <div class="header-title">CENTRAL INTELLIGENCE AGENCY</div>
-        <div class="header-subtitle">中央情報局核心網絡終端</div>
-    </div>
-    <div class="header-right">
-        <div class="classification">TOP SECRET // SCI</div>
-        <div id="clock">21:39:17</div>
-    </div>
+    <span>CIA SATELLITE SURVEILLANCE // 全球衛星監控</span>
+    <div class="status">● 網絡同步中 (GRID LINKED)</div>
+    <div id="clock" style="font-family: monospace; color: #00ebff;">21:52:39</div>
 </div>
 
 <div class="main-content">
-    <!-- 左側面板 -->
-    <div class="left-panel">
-        <div class="widget">
-            <div class="widget-title">
-                <span>📁 調查卷宗: 黑曜石計畫</span>
-                <span class="widget-title-en">CASE PROFILE</span>
-            </div>
-            <div class="data-box">
-                <label>調查對象 (TARGET)</label>
-                <value>未知高階架構師</value>
-            </div>
-            <div class="data-box">
-                <label>威脅評級 (THREAT LEVEL)</label>
-                <value class="alert-high">CRITICAL / CRIT-01</value>
-            </div>
-            <div class="data-box">
-                <label>監控據點位置 (TRANSCEIVER LOCATION)</label>
-                <value id="cia-coords">TAICHUNG SECTOR / 24.1477° N, 120.6735° E</value>
-            </div>
+    <!-- 左欄：照片即時識別 -->
+    <div class="panel left-panel">
+        <div class="widget-title">👤 FACIAL RECOGNITION (面部比對)</div>
+        <div class="photo-scan-container">
+            <div class="scan-line"></div>
+            <!-- 使用隨機人像 API 模擬特工資料庫比對 -->
+            <img id="target-photo" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop" alt="Target">
+            <div class="match-status" id="match-pct">分析中: 87.4%</div>
         </div>
-        
-        <div class="widget">
-            <div class="widget-title">
-                <span>📡 即時攔截日誌</span>
-                <span class="widget-title-en">LIVE INTERCEPT LOG</span>
-            </div>
-            <div class="list-container" id="logList">
-                <div class="list-item"><span class="list-item-time">[21:39:15]</span> PING RECEIVED FROM UNDERGROUND SERVER.</div>
-                <div class="list-item"><span class="list-item-time">[21:39:11]</span> CLEANING TRACKS IN LOCAL ROUTER...</div>
-                <div class="list-item"><span class="list-item-time">[21:39:07]</span> WARNING: UNAUTHORIZED PORT ACCESS DETECTED.</div>
-            </div>
+        <div style="font-size: 0.9rem;">
+            <p>目前鎖定代號：<span style="color:#fff;">架構師 (Architect)</span></p>
+            <p>威脅級別：<span style="color:#ff3b30; font-weight:bold;">級別一 (CRIT-01)</span></p>
         </div>
     </div>
-    
-    <!-- 右側面板 -->
-    <div class="right-panel">
-        <div class="widget">
-            <div class="widget-title">
-                <span>⚡ 行動代號詳情</span>
-                <span class="widget-title-en">OPERATION DETAILS</span>
-            </div>
-            <div class="data-box">
-                <label>當前行動代號 (OPERATION CODE)</label>
-                <value style="color: #00ebff;">BLACK OBSIDIAN GATE</value>
-            </div>
-            <div class="data-box">
-                <label>聯合作戰架構夥伴 (AGENTS)</label>
-                <value>AGENT-JAY / ASSISTANT-ROU</value>
-            </div>
+
+    <!-- 中欄：地球儀與經緯連線 -->
+    <div class="panel center-panel">
+        <div class="widget-title" style="position:absolute; top:12px; left:12px;">🌍 VECTOR MAP & COORDINATES</div>
+        
+        <div class="globe-container">
+            <div class="globe-grid"></div>
+            <!-- 模擬經緯線交叉點 -->
+            <div class="radar-ping" style="top: 40%; left: 60%;"></div>
+            <div class="radar-ping" style="top: 70%; left: 30%; animation: blink 0.8s infinite;"></div>
         </div>
         
-        <div class="widget">
-            <div class="widget-title">
-                <span>🌍 全球情報節點</span>
-                <span class="widget-title-en">GLOBAL AGENCY NETWORK</span>
-            </div>
-            <div class="list-container">
-                <div class="list-item" style="color: #00ebff;">[HQ] LANGLY, VA - ONLINE</div>
-                <div class="list-item">[NODE-01] TAICHUNG HUB - ACTIVE</div>
-                <div class="list-item">[NODE-02] TPE STATION - STANDBY</div>
-                <div class="list-item">[SYS] WIN10-22H2 INTERFACE SECURED</div>
-            </div>
+        <div class="coords-overlay" id="live-coords">
+            SYS: 24.1477° N / 120.6736° E
+        </div>
+    </div>
+
+    <!-- 右欄：數據串流 -->
+    <div class="panel right-panel">
+        <div class="widget-title">📡 LIVE INTERCEPT (通訊攔截)</div>
+        <div class="log-container" id="log-box">
+            <div class="log-item">[SYS] 正在從黑曜石閘門提取封包...</div>
+            <div class="log-item">[GEO] 鎖定台中市北區訊號源。</div>
+            <div class="log-item">[INTEL] 攔截到加密連線協議。</div>
         </div>
     </div>
 </div>
 
-<!-- 底部諜報按鈕 -->
 <div class="footer">
-    <button onclick="alert('解密金鑰已就緒，封包攔截中...')">解密封包</button>
-    <button onclick="alert('衛星已重新定向，鎖定亞洲板塊...')">衛星追蹤</button>
-    <button onclick="saveToStorage()">同步存檔</button>
+    <button onclick="changeTarget()">手動換追蹤目標</button>
+    <button onclick="alert('衛星已重新定軌，微調偏角中...')">重新校準</button>
+    <button onclick="saveCache()">安全存檔</button>
     <button onclick="toggleFullScreen()">全螢幕模式</button>
 </div>
 
 <script>
-    function updateClock() {
+    // 模擬動態照片跳動清單 (使用公開免費人像圖片)
+    const photoPool = [
+        "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=300&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&auto=format&fit=crop"
+    ];
+    
+    function changeTarget() {
+        const img = document.getElementById('target-photo');
+        const randPhoto = photoPool[Math.floor(Math.random() * photoPool.length)];
+        img.src = randPhoto;
+        document.getElementById('match-pct').textContent = `比對成功: ${(90 + Math.random()*9).toFixed(1)}%`;
+    }
+
+    function updateSystem() {
+        // 更新時鐘
         const date = new Date();
         document.getElementById('clock').textContent = `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
-    }
-    
-    function simulateIntel() {
-        const lat = (24.1477 + (Math.random() - 0.5) * 0.0003).toFixed(4);
-        const lon = (120.6735 + (Math.random() - 0.5) * 0.0003).toFixed(4);
-        document.getElementById('cia-coords').textContent = `TAICHUNG SECTOR / ${lat}° N, ${lon}° E`;
         
+        // 經緯度微飄
+        const lat = (24.1477 + (Math.random() - 0.5) * 0.005).toFixed(4);
+        const lon = (120.6736 + (Math.random() - 0.5) * 0.005).toFixed(4);
+        document.getElementById('live-coords').textContent = `SYS: ${lat}° N / ${lon}° E`;
+
+        // 隨機照片高頻閃爍比對
+        if (Math.random() < 0.4) {
+            changeTarget();
+        }
+
+        // 隨機日誌
         if (Math.random() < 0.3) {
-            const logList = document.getElementById('logList');
-            const time = `[${String(new Date().getHours()).padStart(2, '0')}:${String(new Date().getMinutes()).padStart(2, '0')}:${String(new Date().getSeconds()).padStart(2, '0')}]`;
-            const intelMsgs = [
-                'PING RECEIVED FROM UNDERGROUND SERVER.',
-                'ENCRYPTED PACKET INBOUND FROM SECTOR 4.',
-                'WARNING: UNAUTHORIZED PORT ACCESS DETECTED.',
-                'UPDATING ARCHITECT DATA PATTERNS.'
-            ];
-            const msg = intelMsgs[Math.floor(Math.random() * intelMsgs.length)];
-            logList.insertAdjacentHTML('afterbegin', `<div class="list-item"><span class="list-item-time">${time}</span> ${msg}</div>`);
-            if (logList.childElementCount > 6) logList.lastElementChild.remove();
+            const box = document.getElementById('log-box');
+            const time = `[${date.toLocaleTimeString()}]`;
+            const msgs = ['PACKET CAPTURED.', 'SIGNAL STRENGTH: OPTIMAL.', 'FACIAL SCANNING...', 'DOWNLINK SECURED.'];
+            box.insertAdjacentHTML('afterbegin', `<div class="log-item">${time} ${msgs[Math.floor(Math.random()*msgs.length)]}</div>`);
+            if (box.childElementCount > 8) box.lastElementChild.remove();
         }
     }
 
-    function saveToStorage() {
-        localStorage.setItem('cia_terminal_status', 'ACTIVE_SECURE');
-        alert('情報日誌與本地快取已強制安全同步。');
+    function saveCache() {
+        localStorage.setItem('cia_satellite_lock', 'TRUE');
+        alert('特工追蹤快取已同步至 LocalStorage。');
     }
 
     function toggleFullScreen() {
         if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen().catch(err => {
-                alert(`無法切換全螢幕: ${err.message}`);
-            });
+            document.documentElement.requestFullscreen();
         } else {
             document.exitFullscreen();
         }
     }
-    
-    setInterval(updateClock, 1000);
-    setInterval(simulateIntel, 2000);
-    updateClock();
-    simulateIntel();
-</script>
 
+    setInterval(updateSystem, 1500);
+</script>
 </body>
 </html>
