@@ -3,146 +3,217 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CIA CENTRAL INTELLIGENCE TERMINAL</title>
+<title>CIA CENTRAL INTELLIGENCE TERMINAL - OFFICIAL</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
-    background-color: #050b14; /* 諜報冷深藍 */
-    color: #8fa0dd; /* 特工情報藍 */
-    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; 
-    font-size: 20px; /* 超大基礎字體 */
+    background-color: #03070e; 
+    color: #9cb1e6; 
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+    font-size: 18px; 
     height: 100vh;
     width: 100vw;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    padding: 8px;
+    padding: 10px;
 }
 
-/* 頂部 CIA 聯邦系統列 */
+/* ==========================================
+   頂部官方系統列 (修正折行、置入官方徽章視覺)
+   ========================================== */
 .header {
-    background-color: #0b1528;
-    padding: 12px 20px;
-    border: 2px solid #1c355e;
+    background: linear-gradient(180deg, #091324 0%, #050b15 100%);
+    padding: 10px 15px;
+    border: 2px solid #1c3d70;
     border-radius: 6px;
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    font-weight: bold;
-    font-size: 1.4rem; 
     margin-bottom: 10px;
-    box-shadow: 0 0 15px rgba(143, 160, 221, 0.1);
+    box-shadow: 0 0 15px rgba(28, 61, 112, 0.4);
+    position: relative;
 }
-.header span { color: #d1d9ff; letter-spacing: 1px; }
-.header .classification { color: #ff3b30; font-size: 1.1rem; border: 1px solid #ff3b30; padding: 2px 8px; border-radius: 4px; }
+/* 模擬官方圓形徽章視覺 */
+.official-seal {
+    width: 32px;
+    height: 32px;
+    border: 2px dashed #00ebff;
+    border-radius: 50%;
+    margin-right: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.6rem;
+    font-weight: bold;
+    color: #00ebff;
+    flex-shrink: 0;
+}
+.title-container {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    overflow: hidden;
+}
+.header-title {
+    color: #ffffff;
+    font-size: 1.15rem; /* 稍微縮小字體防止折行 */
+    font-weight: 700;
+    letter-spacing: 1px;
+    white-space: nowrap;
+}
+.header-subtitle {
+    color: #5c74a8;
+    font-size: 0.85rem;
+    margin-left: 10px;
+    border-left: 1px solid #1c3d70;
+    padding-left: 10px;
+    white-space: nowrap;
+}
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-shrink: 0;
+}
+.classification { 
+    color: #ff3b30; 
+    font-size: 0.85rem; 
+    font-weight: bold;
+    border: 2px solid #ff3b30; 
+    padding: 2px 10px; 
+    border-radius: 4px; 
+    background-color: rgba(255, 59, 48, 0.1);
+    letter-spacing: 1px;
+}
+#clock {
+    font-family: 'Courier New', monospace;
+    color: #00ebff;
+    font-size: 1.3rem;
+    font-weight: bold;
+}
 
-/* 橫向主區塊 */
+/* ==========================================
+   主版面配置
+   ========================================== */
 .main-content {
     flex: 1;
     display: flex;
     gap: 12px;
     height: calc(100vh - 165px);
 }
-
 .left-panel, .right-panel {
     flex: 1;
     display: flex;
     flex-direction: column;
     gap: 12px;
 }
-
-/* 戰術控制箱 */
 .widget {
-    background-color: #07101e;
-    border: 2px solid #142644;
+    background-color: #060e1a;
+    border: 2px solid #142a4a;
     border-radius: 8px;
     padding: 15px;
     flex: 1;
     display: flex;
     flex-direction: column;
 }
-
 .widget-title {
-    color: #00ebff; /* 高亮科技青 */
-    font-size: 1.15rem;
+    color: #00ebff; 
+    font-size: 1.1rem;
     font-weight: bold;
     margin-bottom: 12px;
-    border-bottom: 2px solid #142644;
+    border-bottom: 2px solid #142a4a;
     padding-bottom: 6px;
     letter-spacing: 1px;
+    display: flex;
+    justify-content: space-between;
+}
+.widget-title-en {
+    color: #435b87;
+    font-size: 0.85rem;
 }
 
-/* 調查檔案數據 */
+/* 數據欄位 */
 .data-box {
     margin-bottom: 10px;
 }
 .data-box label {
-    color: #5c6f9e;
-    font-size: 0.9rem;
+    color: #5c74a8;
+    font-size: 0.85rem;
     display: block;
-    margin-bottom: 2px;
+    text-transform: uppercase;
 }
 .data-box value {
     font-size: 1.6rem;
     font-weight: bold;
     color: #ffffff;
 }
-.alert-high { color: #ff453a !important; text-shadow: 0 0 10px rgba(255,69,58,0.5); }
+.alert-high { color: #ff453a !important; text-shadow: 0 0 8px rgba(255,69,58,0.4); }
 
-/* 情報日誌滾動區 */
+/* 情報日誌區 */
 .list-container {
     flex: 1;
     overflow-y: auto;
-    font-size: 1.05rem;
+    font-size: 1rem;
     line-height: 1.5;
     font-family: 'Courier New', Courier, monospace;
 }
 .list-item {
     margin-bottom: 6px;
-    border-bottom: 1px solid #0f1f38;
+    border-bottom: 1px solid #0b1626;
     padding-bottom: 4px;
 }
-.list-item-time { color: #445684; margin-right: 10px; }
+.list-item-time { color: #435b87; margin-right: 10px; }
 
-/* 底部功能鈕 */
+/* 底部按鈕 */
 .footer {
-    height: 75px;
+    height: 70px;
     margin-top: 10px;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 12px;
 }
 button {
-    background-color: #0b1528;
-    color: #8fa0dd;
-    border: 2px solid #1c355e;
+    background: linear-gradient(180deg, #0c182d 0%, #060e1a 100%);
+    color: #9cb1e6;
+    border: 2px solid #1c3d70;
     border-radius: 8px;
-    font-size: 1.3rem;
+    font-size: 1.25rem;
     font-weight: bold;
     font-family: inherit;
     cursor: pointer;
-    transition: all 0.2s;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
 button:active {
-    background-color: #00ebff;
-    color: #050b14;
+    background: #00ebff;
+    color: #03070e;
     border-color: #00ebff;
 }
 </style>
 </head>
 <body>
 
-<!-- 頂部密級狀態列 -->
+<!-- 頂部官方系統列 -->
 <div class="header">
-    <span>CENTRAL INTELLIGENCE AGENCY // 核心終端</span>
-    <div class="classification">TOP SECRET / SCI</div>
-    <div id="clock">00:00:00</div>
+    <div class="title-container">
+        <div class="official-seal">CIA</div>
+        <div class="header-title">CENTRAL INTELLIGENCE AGENCY</div>
+        <div class="header-subtitle">中央情報局核心網絡終端</div>
+    </div>
+    <div class="header-right">
+        <div class="classification">TOP SECRET // SCI</div>
+        <div id="clock">21:39:17</div>
+    </div>
 </div>
 
 <div class="main-content">
-    <!-- 左側面板：案件對象 & 衛星定位 -->
+    <!-- 左側面板 -->
     <div class="left-panel">
         <div class="widget">
-            <div class="widget-title">📁 CASE PROFILE: 黑曜石計畫</div>
+            <div class="widget-title">
+                <span>📁 調查卷宗: 黑曜石計畫</span>
+                <span class="widget-title-en">CASE PROFILE</span>
+            </div>
             <div class="data-box">
                 <label>調查對象 (TARGET)</label>
                 <value>未知高階架構師</value>
@@ -152,25 +223,31 @@ button:active {
                 <value class="alert-high">CRITICAL / CRIT-01</value>
             </div>
             <div class="data-box">
-                <label>監控據點位置 (TRANSCEIVER)</label>
-                <value id="cia-coords">TAICHUNG SECTOR / 24.1477° N, 120.6736° E</value>
+                <label>監控據點位置 (TRANSCEIVER LOCATION)</label>
+                <value id="cia-coords">TAICHUNG SECTOR / 24.1477° N, 120.6735° E</value>
             </div>
         </div>
         
         <div class="widget">
-            <div class="widget-title">📡 LIVE INTERCEPT LOG (即時攔截日誌)</div>
+            <div class="widget-title">
+                <span>📡 即時攔截日誌</span>
+                <span class="widget-title-en">LIVE INTERCEPT LOG</span>
+            </div>
             <div class="list-container" id="logList">
-                <div class="list-item"><span class="list-item-time">[SYSTEM]</span> SECURE COMSEC CHANNEL LINKED.</div>
-                <div class="list-item"><span class="list-item-time">[INTERCEPT]</span> BACKDOOR INITIATED ON TARGET SERVER.</div>
-                <div class="list-item"><span class="list-item-time">[STATUS]</span> INTEL SYNC COMPLETED WITH LANGLY.</div>
+                <div class="list-item"><span class="list-item-time">[21:39:15]</span> PING RECEIVED FROM UNDERGROUND SERVER.</div>
+                <div class="list-item"><span class="list-item-time">[21:39:11]</span> CLEANING TRACKS IN LOCAL ROUTER...</div>
+                <div class="list-item"><span class="list-item-time">[21:39:07]</span> WARNING: UNAUTHORIZED PORT ACCESS DETECTED.</div>
             </div>
         </div>
     </div>
     
-    <!-- 右側面板：全球節點 & 行動代號 -->
+    <!-- 右側面板 -->
     <div class="right-panel">
         <div class="widget">
-            <div class="widget-title">⚡ OPERATION DETAILS (行動詳情)</div>
+            <div class="widget-title">
+                <span>⚡ 行動代號詳情</span>
+                <span class="widget-title-en">OPERATION DETAILS</span>
+            </div>
             <div class="data-box">
                 <label>當前行動代號 (OPERATION CODE)</label>
                 <value style="color: #00ebff;">BLACK OBSIDIAN GATE</value>
@@ -182,7 +259,10 @@ button:active {
         </div>
         
         <div class="widget">
-            <div class="widget-title">🌍 GLOBAL AGENCY NETWORK (全球情報節點)</div>
+            <div class="widget-title">
+                <span>🌍 全球情報節點</span>
+                <span class="widget-title-en">GLOBAL AGENCY NETWORK</span>
+            </div>
             <div class="list-container">
                 <div class="list-item" style="color: #00ebff;">[HQ] LANGLY, VA - ONLINE</div>
                 <div class="list-item">[NODE-01] TAICHUNG HUB - ACTIVE</div>
@@ -208,9 +288,8 @@ button:active {
     }
     
     function simulateIntel() {
-        // 模擬經緯度與情報跳動
         const lat = (24.1477 + (Math.random() - 0.5) * 0.0003).toFixed(4);
-        const lon = (120.6736 + (Math.random() - 0.5) * 0.0003).toFixed(4);
+        const lon = (120.6735 + (Math.random() - 0.5) * 0.0003).toFixed(4);
         document.getElementById('cia-coords').textContent = `TAICHUNG SECTOR / ${lat}° N, ${lon}° E`;
         
         if (Math.random() < 0.3) {
@@ -220,7 +299,6 @@ button:active {
                 'PING RECEIVED FROM UNDERGROUND SERVER.',
                 'ENCRYPTED PACKET INBOUND FROM SECTOR 4.',
                 'WARNING: UNAUTHORIZED PORT ACCESS DETECTED.',
-                'CLEANING TRACKS IN LOCAL ROUTER...',
                 'UPDATING ARCHITECT DATA PATTERNS.'
             ];
             const msg = intelMsgs[Math.floor(Math.random() * intelMsgs.length)];
@@ -229,7 +307,6 @@ button:active {
         }
     }
 
-    // 基本 Local Storage 存檔提示
     function saveToStorage() {
         localStorage.setItem('cia_terminal_status', 'ACTIVE_SECURE');
         alert('情報日誌與本地快取已強制安全同步。');
