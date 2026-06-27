@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>黑曜石戰術控制台</title>
+<title>CIA CENTRAL INTELLIGENCE TERMINAL</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
-    background-color: #000000;
-    color: #00FF33; /* 戰術綠 */
-    font-family: 'PingFang TC', 'Microsoft JhengHei', monospace; 
+    background-color: #050b14; /* 諜報冷深藍 */
+    color: #8fa0dd; /* 特工情報藍 */
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; 
     font-size: 20px; /* 超大基礎字體 */
     height: 100vh;
     width: 100vw;
@@ -19,21 +19,23 @@ body {
     padding: 8px;
 }
 
-/* 頂部系統狀態列 */
+/* 頂部 CIA 聯邦系統列 */
 .header {
-    background-color: #111111;
+    background-color: #0b1528;
     padding: 12px 20px;
-    border: 2px solid #00FF33;
+    border: 2px solid #1c355e;
     border-radius: 6px;
     display: flex;
     justify-content: space-between;
     font-weight: bold;
     font-size: 1.4rem; 
     margin-bottom: 10px;
+    box-shadow: 0 0 15px rgba(143, 160, 221, 0.1);
 }
-.header span { color: #FFCC00; letter-spacing: 1px; }
+.header span { color: #d1d9ff; letter-spacing: 1px; }
+.header .classification { color: #ff3b30; font-size: 1.1rem; border: 1px solid #ff3b30; padding: 2px 8px; border-radius: 4px; }
 
-/* 橫向滿版主區塊 */
+/* 橫向主區塊 */
 .main-content {
     flex: 1;
     display: flex;
@@ -48,10 +50,10 @@ body {
     gap: 12px;
 }
 
-/* 戰術外框 */
+/* 戰術控制箱 */
 .widget {
-    background-color: #080808;
-    border: 2px solid #333333;
+    background-color: #07101e;
+    border: 2px solid #142644;
     border-radius: 8px;
     padding: 15px;
     flex: 1;
@@ -60,47 +62,48 @@ body {
 }
 
 .widget-title {
-    color: #FFFFFF;
+    color: #00ebff; /* 高亮科技青 */
     font-size: 1.15rem;
     font-weight: bold;
     margin-bottom: 12px;
-    border-bottom: 2px solid #222222;
+    border-bottom: 2px solid #142644;
     padding-bottom: 6px;
     letter-spacing: 1px;
 }
 
-/* 數據字體激增 */
+/* 調查檔案數據 */
 .data-box {
-    margin-bottom: 12px;
+    margin-bottom: 10px;
 }
 .data-box label {
-    color: #888888;
-    font-size: 0.95rem;
+    color: #5c6f9e;
+    font-size: 0.9rem;
     display: block;
-    margin-bottom: 4px;
+    margin-bottom: 2px;
 }
 .data-box value {
-    font-size: 1.8rem; /* 數據特大號，開車秒看 */
+    font-size: 1.6rem;
     font-weight: bold;
-    letter-spacing: 1px;
+    color: #ffffff;
 }
-.alert { color: #FF3333; }
+.alert-high { color: #ff453a !important; text-shadow: 0 0 10px rgba(255,69,58,0.5); }
 
-/* 日誌滾動區 */
+/* 情報日誌滾動區 */
 .list-container {
     flex: 1;
     overflow-y: auto;
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     line-height: 1.5;
+    font-family: 'Courier New', Courier, monospace;
 }
 .list-item {
     margin-bottom: 6px;
-    border-bottom: 1px solid #1a1a1a;
+    border-bottom: 1px solid #0f1f38;
     padding-bottom: 4px;
 }
-.list-item-time { color: #666666; margin-right: 10px; }
+.list-item-time { color: #445684; margin-right: 10px; }
 
-/* 底部戰術按鈕 */
+/* 底部功能鈕 */
 .footer {
     height: 75px;
     margin-top: 10px;
@@ -109,121 +112,129 @@ body {
     gap: 12px;
 }
 button {
-    background-color: #111111;
-    color: #00FF33;
-    border: 2px solid #333333;
+    background-color: #0b1528;
+    color: #8fa0dd;
+    border: 2px solid #1c355e;
     border-radius: 8px;
-    font-size: 1.4rem;
+    font-size: 1.3rem;
     font-weight: bold;
     font-family: inherit;
     cursor: pointer;
+    transition: all 0.2s;
 }
 button:active {
-    background-color: #00FF33;
-    color: #000000;
+    background-color: #00ebff;
+    color: #050b14;
+    border-color: #00ebff;
 }
 </style>
 </head>
 <body>
 
-<!-- 頂部狀態列 -->
+<!-- 頂部密級狀態列 -->
 <div class="header">
-    <span>系統運作中 [行動代號：黑曜石]</span>
-    <div id="clock">16:15:00</div>
+    <span>CENTRAL INTELLIGENCE AGENCY // 核心終端</span>
+    <div class="classification">TOP SECRET / SCI</div>
+    <div id="clock">00:00:00</div>
 </div>
 
 <div class="main-content">
-    <!-- 左側面板：定位狀態 & 系統日誌 -->
+    <!-- 左側面板：案件對象 & 衛星定位 -->
     <div class="left-panel">
         <div class="widget">
-            <div class="widget-title">🛰️ 衛星戰術定位</div>
+            <div class="widget-title">📁 CASE PROFILE: 黑曜石計畫</div>
             <div class="data-box">
-                <label>目前經緯度</label>
-                <value id="gps-coords">24.1477N / 120.6736E</value>
+                <label>調查對象 (TARGET)</label>
+                <value>未知高階架構師</value>
             </div>
             <div class="data-box">
-                <label>即時時速 / 方位</label>
-                <value id="gps-speed">0 KM/H / 靜止</value>
+                <label>威脅評級 (THREAT LEVEL)</label>
+                <value class="alert-high">CRITICAL / CRIT-01</value>
             </div>
             <div class="data-box">
-                <label>通訊鏈路狀態</label>
-                <value class="alert">安全加密通道 (高強度)</value>
+                <label>監控據點位置 (TRANSCEIVER)</label>
+                <value id="cia-coords">TAICHUNG SECTOR / 24.1477° N, 120.6736° E</value>
             </div>
         </div>
         
         <div class="widget">
-            <div class="widget-title">📜 終端系統日誌</div>
+            <div class="widget-title">📡 LIVE INTERCEPT LOG (即時攔截日誌)</div>
             <div class="list-container" id="logList">
-                <div class="list-item"><span class="list-item-time">[16:15:36]</span> 核心加密網路連線成功</div>
-                <div class="list-item"><span class="list-item-time">[16:15:04]</span> 環境偵測模組啟動完畢</div>
-                <div class="list-item"><span class="list-item-time">[16:15:01]</span> 黑曜石計畫系統載入中...</div>
+                <div class="list-item"><span class="list-item-time">[SYSTEM]</span> SECURE COMSEC CHANNEL LINKED.</div>
+                <div class="list-item"><span class="list-item-time">[INTERCEPT]</span> BACKDOOR INITIATED ON TARGET SERVER.</div>
+                <div class="list-item"><span class="list-item-time">[STATUS]</span> INTEL SYNC COMPLETED WITH LANGLY.</div>
             </div>
         </div>
     </div>
     
-    <!-- 右側面板：當前任務 & 附近單位 -->
+    <!-- 右側面板：全球節點 & 行動代號 -->
     <div class="right-panel">
         <div class="widget">
-            <div class="widget-title">🚨 目前指派任務</div>
+            <div class="widget-title">⚡ OPERATION DETAILS (行動詳情)</div>
             <div class="data-box">
-                <label>任務代號 #7701</label>
-                <value style="color: #FFCC00;">準備下班，安全返航</value>
+                <label>當前行動代號 (OPERATION CODE)</label>
+                <value style="color: #00ebff;">BLACK OBSIDIAN GATE</value>
             </div>
             <div class="data-box">
-                <label>目的地 / 剩餘時間</label>
-                <value>溫暖的家 / 倒數中</value>
+                <label>聯合作戰架構夥伴 (AGENTS)</label>
+                <value>AGENT-JAY / ASSISTANT-ROU</value>
             </div>
         </div>
         
         <div class="widget">
-            <div class="widget-title">👥 聯合作戰單位</div>
+            <div class="widget-title">🌍 GLOBAL AGENCY NETWORK (全球情報節點)</div>
             <div class="list-container">
-                <div class="list-item" style="color:#FFCC00;">AI 夥伴 - 柔 (安全連線中)</div>
-                <div class="list-item">核心主機 - Win10 22H2 (待命)</div>
-                <div class="list-item">硬體狀態 - i5-9400F (監控中)</div>
+                <div class="list-item" style="color: #00ebff;">[HQ] LANGLY, VA - ONLINE</div>
+                <div class="list-item">[NODE-01] TAICHUNG HUB - ACTIVE</div>
+                <div class="list-item">[NODE-02] TPE STATION - STANDBY</div>
+                <div class="list-item">[SYS] WIN10-22H2 INTERFACE SECURED</div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- 底部功能鈕 -->
+<!-- 底部諜報按鈕 -->
 <div class="footer">
-    <button onclick="alert('地圖模組已就緒')">戰術地圖</button>
-    <button onclick="alert('通訊協議正常')">無線通訊</button>
-    <button onclick="alert('日誌已同步至雲端')">同步日誌</button>
-    <button onclick="toggleFullScreen()">全螢幕</button>
+    <button onclick="alert('解密金鑰已就緒，封包攔截中...')">解密封包</button>
+    <button onclick="alert('衛星已重新定向，鎖定亞洲板塊...')">衛星追蹤</button>
+    <button onclick="saveToStorage()">同步存檔</button>
+    <button onclick="toggleFullScreen()">全螢幕模式</button>
 </div>
 
 <script>
-    // 即時更新時鐘
     function updateClock() {
         const date = new Date();
         document.getElementById('clock').textContent = `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
     }
     
-    // 模擬動態數據（時速與日誌）
-    function simulateData() {
-        // 以台中為基準微幅飄移經緯度
-        const lat = (24.1477 + (Math.random() - 0.5) * 0.0005).toFixed(4);
-        const lon = (120.6736 + (Math.random() - 0.5) * 0.0005).toFixed(4);
-        // 模擬下班開車時速
-        const speed = (50 + Math.floor(Math.random() * 15));
+    function simulateIntel() {
+        // 模擬經緯度與情報跳動
+        const lat = (24.1477 + (Math.random() - 0.5) * 0.0003).toFixed(4);
+        const lon = (120.6736 + (Math.random() - 0.5) * 0.0003).toFixed(4);
+        document.getElementById('cia-coords').textContent = `TAICHUNG SECTOR / ${lat}° N, ${lon}° E`;
         
-        document.getElementById('gps-coords').textContent = `${lat}N / ${lon}E`;
-        document.getElementById('gps-speed').textContent = `${speed} KM/H / 西北 290°`;
-        
-        // 隨機觸發日誌
-        if (Math.random() < 0.25) {
+        if (Math.random() < 0.3) {
             const logList = document.getElementById('logList');
             const time = `[${String(new Date().getHours()).padStart(2, '0')}:${String(new Date().getMinutes()).padStart(2, '0')}:${String(new Date().getSeconds()).padStart(2, '0')}]`;
-            const messages = ['衛星定軌訊號優良', '流量安全監控中', '節流閥感應器數據正常', '車載串流服務同步中'];
-            const msg = messages[Math.floor(Math.random()*messages.length)];
+            const intelMsgs = [
+                'PING RECEIVED FROM UNDERGROUND SERVER.',
+                'ENCRYPTED PACKET INBOUND FROM SECTOR 4.',
+                'WARNING: UNAUTHORIZED PORT ACCESS DETECTED.',
+                'CLEANING TRACKS IN LOCAL ROUTER...',
+                'UPDATING ARCHITECT DATA PATTERNS.'
+            ];
+            const msg = intelMsgs[Math.floor(Math.random() * intelMsgs.length)];
             logList.insertAdjacentHTML('afterbegin', `<div class="list-item"><span class="list-item-time">${time}</span> ${msg}</div>`);
             if (logList.childElementCount > 6) logList.lastElementChild.remove();
         }
     }
 
-    // 點擊按鈕強制全螢幕大絕招
+    // 基本 Local Storage 存檔提示
+    function saveToStorage() {
+        localStorage.setItem('cia_terminal_status', 'ACTIVE_SECURE');
+        alert('情報日誌與本地快取已強制安全同步。');
+    }
+
     function toggleFullScreen() {
         if (!document.fullscreenElement) {
             document.documentElement.requestFullscreen().catch(err => {
@@ -235,9 +246,9 @@ button:active {
     }
     
     setInterval(updateClock, 1000);
-    setInterval(simulateData, 2000);
+    setInterval(simulateIntel, 2000);
     updateClock();
-    simulateData();
+    simulateIntel();
 </script>
 
 </body>
