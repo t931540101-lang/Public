@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CIA SATELLITE RADAR TERMINAL</title>
+<title>RADAR TRACKING SYSTEM // 戰術雷達回波系統</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
-    background-color: #020611;
-    color: #50b3ff;
+    background-color: #03070e;
+    color: #8fa0dd;
     font-family: 'Segoe UI', -apple-system, sans-serif;
     font-size: 16px;
     height: 100vh;
@@ -21,290 +21,302 @@ body {
 
 /* 頂部系統列 */
 .header {
-    background: rgba(10, 25, 50, 0.8);
+    background-color: #060e1a;
     padding: 10px 15px;
-    border: 1px solid #1a3e72;
-    border-radius: 4px;
+    border: 2px solid #142a4a;
+    border-radius: 6px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 8px;
     font-weight: bold;
+    font-size: 1.15rem;
+    margin-bottom: 8px;
 }
-.header span { color: #ffffff; letter-spacing: 2px; font-size: 1.1rem; }
-.header .status { color: #00ff66; animation: blink 1.5s infinite; }
+.header-title { color: #ffffff; letter-spacing: 1px; }
+.status-indicator { color: #00ff66; font-size: 0.9rem; }
+#clock { color: #00ebff; font-family: monospace; font-size: 1.2rem; }
 
-/* 三欄式主架構 */
+/* 主體三欄比例優化 */
 .main-content {
     flex: 1;
     display: flex;
-    gap: 8px;
+    gap: 10px;
     height: calc(100vh - 150px);
 }
-
 .panel {
-    background: rgba(5, 15, 30, 0.9);
-    border: 1px solid #15325c;
-    border-radius: 6px;
+    background-color: #050b15;
+    border: 2px solid #142a4a;
+    border-radius: 8px;
     padding: 12px;
     display: flex;
     flex-direction: column;
 }
+.panel-title {
+    color: #00ebff;
+    font-size: 1rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+}
 
-/* 左：照片閃爍比對區 */
-.left-panel { flex: 1.2; }
-.photo-scan-container {
+/* 左側：面部特徵比對 */
+.left-panel { flex: 1.1; }
+.face-box {
     flex: 1;
-    border: 1px solid #ff3b30;
-    background: rgba(255, 59, 48, 0.05);
+    border: 2px solid #ff3b30;
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-end;
+    background: linear-gradient(180deg, rgba(255,59,48,0.05) 0%, rgba(0,0,0,0.8) 100%);
     overflow: hidden;
-    margin-bottom: 10px;
 }
-.scan-line {
+/* 模擬雷射掃描線動畫 */
+.face-box::after {
+    content: '';
     position: absolute;
     width: 100%;
     height: 4px;
     background: #ff3b30;
     box-shadow: 0 0 10px #ff3b30;
     top: 0;
-    animation: scanMove 3s linear infinite;
+    animation: scan 3s linear infinite;
 }
-#target-photo {
-    width: 80%;
-    height: 65%;
+@keyframes scan {
+    0% { top: 0%; }
+    50% { top: 100%; }
+    100% { top: 0%; }
+}
+.face-image {
+    width: 85%;
+    height: 75%;
     object-fit: cover;
-    border: 2px solid #ff3b30;
-    filter: sepia(100%) hue-rotate(190deg) saturate(200%);
+    border: 1px solid #435b87;
+    margin-bottom: 10px;
+    filter: brightness(0.9) sepia(0.3) hue-rotate(180deg); /* 諜報藍調濾鏡 */
 }
-.match-status {
-    margin-top: 10px;
-    font-weight: bold;
-    font-size: 1.3rem;
+.match-rate {
     color: #ff3b30;
-    text-align: center;
+    font-size: 1.6rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-shadow: 0 0 8px rgba(255,59,48,0.4);
+}
+.target-details {
+    margin-top: 8px;
+    font-size: 0.9rem;
+    line-height: 1.4;
 }
 
-/* 中：正宗雷達回波系統 */
-.center-panel { 
-    flex: 1.8; 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    position: relative;
-}
-
-/* 雷達本體 */
-.radar-screen {
+/* 中間：動態雷達（核心重頭戲） */
+.center-panel { flex: 1.4; align-items: center; justify-content: space-between; }
+.radar-container {
     width: 260px;
     height: 260px;
+    border: 2px solid #142a4a;
     border-radius: 50%;
-    border: 2px solid #1a5ca8;
-    background: radial-gradient(circle, #041428 0%, #020914 100%);
     position: relative;
-    box-shadow: 0 0 20px rgba(0, 140, 255, 0.3);
-    overflow: hidden;
+    background: radial-gradient(circle, #08162b 0%, #03070e 100%);
+    margin-top: 20px;
 }
-
-/* 同心圓格線 */
-.radar-circle {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    border: 1px dashed rgba(0, 235, 255, 0.2);
-    border-radius: 50%;
+/* 雷達同心圓線 */
+.radar-container::before {
+    content: ''; position: absolute; top: 15%; left: 15%; width: 70%; height: 70%;
+    border: 1px dashed rgba(20, 42, 74, 0.6); border-radius: 50%;
 }
-.c1 { width: 60px; height: 60px; }
-.c2 { width: 130px; height: 130px; }
-.c3 { width: 200px; height: 200px; }
-
-/* 十字準星線 */
-.radar-cross-h { position: absolute; top: 50%; left: 0; width: 100%; height: 1px; background: rgba(0, 235, 255, 0.15); }
-.radar-cross-v { position: absolute; left: 50%; top: 0; width: 1px; height: 100%; background: rgba(0, 235, 255, 0.15); }
-
-/* 旋轉中的雷達回波扇形指針 */
+.radar-container::after {
+    content: ''; position: absolute; top: 35%; left: 35%; width: 30%; height: 30%;
+    border: 1px solid rgba(20, 42, 74, 0.4); border-radius: 50%;
+}
+/* 旋掃扇形 */
 .radar-sweep {
     position: absolute;
     width: 50%; height: 50%;
     top: 0; left: 50%;
-    background: linear-gradient(45deg, rgba(0, 235, 255, 0.4) 0%, rgba(0, 235, 255, 0) 70%);
-    transform-origin: left bottom;
-    border-radius: 0 100% 0 0;
-    animation: radarSweep 4s linear infinite;
+    background: linear-gradient(90deg, rgba(0,235,255,0.3) 0%, rgba(0,0,0,0) 100%);
+    transform-origin: bottom left;
+    border-left: 1px solid #00ebff;
+    animation: sweep 4s linear infinite;
 }
-
-/* 模擬被掃描到的回波鎖定點 */
-.radar-blip {
+@keyframes sweep {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+/* 動態雷達紅點（隨機閃爍） */
+.radar-dot {
     position: absolute;
-    width: 10px;
-    height: 10px;
-    background: #ff3b30;
+    width: 10px; height: 10px;
+    background-color: #ff3b30;
     border-radius: 50%;
-    box-shadow: 0 0 12px #ff3b30;
+    box-shadow: 0 0 10px #ff3b30;
     opacity: 0;
-    animation: blipFade 4s linear infinite;
+    animation: dot-glow 4s ease-in-out infinite;
 }
-.b1 { top: 30%; left: 65%; animation-delay: 0.5s; }
-.b2 { top: 70%; left: 25%; animation-delay: 2.3s; }
-.b3 { top: 45%; left: 40%; animation-delay: 1.1s; }
-
-.coords-overlay {
-    position: absolute;
-    bottom: 12px;
-    font-family: monospace;
-    font-size: 1.1rem;
-    color: #00ffea;
-}
-
-/* 右：數據串流 */
-.right-panel { flex: 1.2; }
-.widget-title {
-    color: #00ebff; font-size: 1rem; font-weight: bold;
-    border-bottom: 1px solid #15325c; padding-bottom: 4px; margin-bottom: 8px;
-}
-.log-container {
-    flex: 1; overflow-y: auto; font-family: monospace; font-size: 0.85rem; line-height: 1.4;
-}
-.log-item { margin-bottom: 5px; color: #7fa5d9; border-bottom: 1px solid rgba(21,50,92,0.3); padding-bottom: 2px; }
-
-/* 底部按鈕 */
-.footer { height: 60px; margin-top: 8px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-button {
-    background: #09172e; color: #50b3ff; border: 1px solid #1a3e72; border-radius: 4px;
-    font-size: 1.1rem; font-weight: bold; cursor: pointer;
-}
-button:active { background: #00ebff; color: #000; }
-
-/* 動態動畫 */
-@keyframes scanMove { 0% { top: 0%; } 50% { top: 100%; } 100% { top: 0%; } }
-@keyframes radarSweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-@keyframes blipFade {
+.dot1 { top: 40%; left: 30%; animation-delay: 0.5s; }
+.dot2 { top: 70%; left: 45%; animation-delay: 1.8s; }
+@keyframes dot-glow {
     0% { opacity: 0; }
-    5% { opacity: 1; transform: scale(1.3); }
-    15% { opacity: 0.8; }
-    60% { opacity: 0; }
+    20% { opacity: 1; }
+    60% { opacity: 0.2; }
     100% { opacity: 0; }
 }
-@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+.gps-lock-box {
+    width: 100%;
+    font-family: monospace;
+    font-size: 1.1rem;
+    color: #ffffff;
+    border-top: 1px solid #142a4a;
+    padding-top: 8px;
+}
+
+/* 右側：即時攔截日誌 */
+.right-panel { flex: 1.2; }
+.log-container {
+    flex: 1;
+    overflow-y: auto;
+    font-family: monospace;
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+.log-item { margin-bottom: 6px; border-bottom: 1px solid #0b1626; padding-bottom: 4px; }
+.log-time { color: #435b87; margin-right: 6px; }
+
+/* 底部按鈕 */
+.footer {
+    height: 65px;
+    margin-top: 8px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+button {
+    background: linear-gradient(180deg, #0c182d 0%, #060e1a 100%);
+    color: #9cb1e6;
+    border: 2px solid #1c3d70;
+    border-radius: 6px;
+    font-size: 1.15rem;
+    font-weight: bold;
+    cursor: pointer;
+}
+button:active { background: #00ebff; color: #03070e; border-color: #00ebff; }
 </style>
 </head>
 <body>
 
 <div class="header">
-    <span>CIA RADAR TRACKING SYSTEM // 戰術雷達回波系統</span>
-    <div class="status">● 雷達主機已就緒</div>
-    <div id="clock" style="font-family: monospace; color: #00ebff;">00:00:00</div>
+    <div class="header-title">RADAR TRACKING SYSTEM // 戰術雷達回波系統</div>
+    <div class="status-indicator">● 雷達主機已就緒 (WIN10-22H2 // i5-9400F)</div>
+    <div id="clock">22:03:05</div>
 </div>
 
 <div class="main-content">
-    <!-- 左欄 -->
-    <div class="panel left-panel">
-        <div class="widget-title">👤 面部特徵比對 (FACIAL)</div>
-        <div class="photo-scan-container">
-            <div class="scan-line"></div>
-            <img id="target-photo" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop" alt="Target">
-            <div class="match-status" id="match-pct">分析中...</div>
+    <!-- 左側面板 -->
+    <div class="left-panel panel">
+        <div class="panel-title">👤 面部特徵比對 (FACIAL)</div>
+        <div class="face-box">
+            <!-- 這裡預留圖片，可以使用你原本的 image_5 的女生特工圖 -->
+            <img class="face-image" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80" alt="Target">
+            <div class="match-rate" id="rate-display">比對成功: 98.3%</div>
         </div>
-        <div style="font-size: 0.9rem;">
-            <p>鎖定目標：<span style="color:#fff;">高級架構師 (Architect)</span></p>
-            <p>威脅等級：<span style="color:#ff3b30; font-weight:bold;">CRIT-01</span></p>
+        <div class="target-details">
+            <div>鎖定目標：高級架構師 (Architect)</div>
+            <div style="color:#ff3b30;">威脅等級：CRIT-01</div>
         </div>
     </div>
 
-    <!-- 中欄：完美還原雷達回波 -->
-    <div class="panel center-panel">
-        <div class="widget-title" style="position:absolute; top:12px; left:12px;">📡 ACTIVE RADAR SWEEP</div>
-        
-        <div class="radar-screen">
-            <div class="radar-circle c1"></div>
-            <div class="radar-circle c2"></div>
-            <div class="radar-circle c3"></div>
-            <div class="radar-cross-h"></div>
-            <div class="radar-cross-v"></div>
-            
-            <!-- 旋轉指針 -->
+    <!-- 中間面板 -->
+    <div class="center-panel panel">
+        <div class="panel-title">🛰️ ACTIVE RADAR SWEEP</div>
+        <div class="radar-container">
             <div class="radar-sweep"></div>
-            
-            <!-- 模擬同步回波點 -->
-            <div class="radar-blip b1"></div>
-            <div class="radar-blip b2"></div>
-            <div class="radar-blip b3"></div>
+            <div class="radar-dot dot1"></div>
+            <div class="radar-dot dot2"></div>
         </div>
-        
-        <div class="coords-overlay" id="live-coords">SYS LOCK: 24.1477° N / 120.6736° E</div>
+        <div class="gps-lock-box" id="gps-display">
+            SYS LOCK: 24.1473° N / <br>120.6733° E (正在取得衛星定位...)
+        </div>
     </div>
 
-    <!-- 右欄 -->
-    <div class="panel right-panel">
-        <div class="widget-title">📡 LIVE INTERCEPT (即時攔截)</div>
-        <div class="log-container" id="log-box">
-            <div class="log-item">[RADAR] 扇區掃描無異常。</div>
-            <div class="log-item">[SYS] 黑曜石多維矩陣運作中。</div>
+    <!-- 右側面板 -->
+    <div class="right-panel panel">
+        <div class="panel-title">📡 LIVE INTERCEPT (即時攔截)</div>
+        <div class="log-container" id="logList">
+            <div class="log-item"><span class="log-time">[22:03:01]</span> LINK: STREAM ACTIVE.</div>
+            <div class="log-item"><span class="log-time">[22:02:55]</span> RADAR: TARGET UPDATED.</div>
+            <div class="log-item"><span class="log-time">[22:02:49]</span> GRID: ECHO DETECTED.</div>
         </div>
     </div>
 </div>
 
 <div class="footer">
-    <button onclick="changeTarget()">手動刷新目標</button>
-    <button onclick="alert('脈衝功率已調至最大！')">雷達增益</button>
-    <button onclick="saveToLocal()">本地快取存檔</button>
+    <button onclick="refreshTarget()">手動刷新目標</button>
+    <button onclick="alert('雷達增益已調至最大功率')">雷達增益</button>
+    <button onclick="saveCache()">本地快取存檔</button>
     <button onclick="toggleFullScreen()">全螢幕模式</button>
 </div>
 
 <script>
-    const photoPool = [
-        "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=300&auto=format&fit=crop",
-        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&auto=format&fit=crop"
-    ];
-    
-    function changeTarget() {
-        const img = document.getElementById('target-photo');
-        img.src = photoPool[Math.floor(Math.random() * photoPool.length)];
-        document.getElementById('match-pct').textContent = `比對成功: ${(91 + Math.random()*8).toFixed(1)}%`;
+    // 即時時鐘
+    function updateClock() {
+        const d = new Date();
+        document.getElementById('clock').textContent = `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`;
+    }
+    setInterval(updateClock, 1000);
+
+    // 模擬日誌滾動
+    setInterval(() => {
+        if (Math.random() < 0.4) {
+            const list = document.getElementById('logList');
+            const d = new Date();
+            const time = `[${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}]`;
+            const msgs = ['LINK: STREAM ACTIVE.', 'RADAR: TARGET UPDATED.', 'GRID: ECHO DETECTED.', 'SYS: INTEL PACKET CAPTURED.'];
+            list.insertAdjacentHTML('afterbegin', `<div class="log-item"><span class="log-time">${time}</span> ${msgs[Math.floor(Math.random()*msgs.length)]}</div>`);
+            if (list.childElementCount > 8) list.lastElementChild.remove();
+        }
+    }, 2500);
+
+    // 大絕招：手動刷新目標（解碼數字滾動動畫）
+    function refreshTarget() {
+        let count = 0;
+        const display = document.getElementById('rate-display');
+        const interval = setInterval(() => {
+            display.textContent = `解碼中: ${(Math.random() * 100).toFixed(1)}%`;
+            count++;
+            if (count > 15) {
+                clearInterval(interval);
+                display.textContent = `比對成功: ${(95 + Math.random() * 4.9).toFixed(1)}%`;
+            }
+        }, 500);
     }
 
-    function updateSystem() {
-        const date = new Date();
-        document.getElementById('clock').textContent = `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
-        
-        const lat = (24.1477 + (Math.random() - 0.5) * 0.003).toFixed(4);
-        const lon = (120.6736 + (Math.random() - 0.5) * 0.003).toFixed(4);
-        document.getElementById('live-coords').textContent = `SYS LOCK: ${lat}° N / ${lon}° E`;
-
-        if (Math.random() < 0.3) {
-            changeTarget();
-            const box = document.getElementById('log-box');
-            const msgs = ['RADAR: TARGET UPDATED.', 'GRID: ECHO DETECTED.', 'LINK: STREAM ACTIVE.'];
-            box.insertAdjacentHTML('afterbegin', `<div class="log-item">[${date.toLocaleTimeString()}] ${msgs[Math.floor(Math.random()*msgs.length)]}</div>`);
-            if (box.childElementCount > 8) box.lastElementChild.remove();
+    // 實做 HTML5 真實 GPS 定位讀取
+    function initGPS() {
+        if (navigator.geolocation) {
+            navigator.geolocation.watchPosition((position) => {
+                const lat = position.coords.latitude.toFixed(4);
+                const lon = position.coords.longitude.toFixed(4);
+                document.getElementById('gps-display').innerHTML = `SYS LOCK: ${lat}° N / <br>${lon}° E`;
+            }, (err) => {
+                // 如果車機沒開 GPS，就維持台中基地預設值
+                document.getElementById('gps-display').innerHTML = `SYS LOCK: 24.1473° N / <br>120.6733° E`;
+            }, { enableHighAccuracy: true });
         }
     }
 
-    /* 💡 Local Storage 存檔建議：
-       將雷達鎖定的最後經緯度或配置狀態寫入本地，確保斷網或重啟時能秒恢復 */
-    function saveToLocal() {
-        localStorage.setItem('radar_system_state', 'SECURE_RUNNING');
-        localStorage.setItem('radar_last_coordinates', document.getElementById('live-coords').textContent);
-        alert('【黑曜石提示】雷達回波配置與最後定位點已同步至 local storage 存檔成功！');
+    function saveCache() {
+        localStorage.setItem('radar_secure_lock', 'SECURE_100');
+        alert('本地安全快取已同步。');
     }
 
     function toggleFullScreen() {
         if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen();
-        } else {
-            document.exitFullscreen();
-        }
+            document.documentElement.requestFullscreen().catch(err => alert(err.message));
+        } else { document.exitFullscreen(); }
     }
 
-    setInterval(updateSystem, 2000);
-    updateSystem();
+    updateClock();
+    initGPS();
 </script>
 </body>
 </html>
