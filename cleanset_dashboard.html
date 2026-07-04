@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>CLEANSET - 全球金融合規監控系統</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+            background-color: #060b13;
+            color: #e0e6ed;
+            overflow-x: hidden;
+            padding: 10px;
+            background: radial-gradient(circle at 50% 50%, #0c1624 0%, #05090f 100%);
+        }
+        
+        /* 頂部標題列 */
+        .header {
+            background: linear-gradient(90deg, rgba(16, 28, 48, 0.8) 0%, rgba(10, 18, 32, 0.8) 100%);
+            border: 1px solid #1a3154;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        .sys-title {
+            font-size: 22px;
+            font-weight: bold;
+            color: #00d2ff;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(0, 210, 255, 0.5);
+        }
+        .sys-subtitle {
+            font-size: 10px;
+            color: #627d98;
+            display: block;
+            margin-top: 4px;
+            letter-spacing: 1px;
+        }
+        
+        /* 模塊通用樣式 */
+        .module {
+            background: rgba(10, 20, 36, 0.6);
+            border: 1px solid #162d4a;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 12px;
+            box-shadow: inset 0 0 15px rgba(0, 140, 255, 0.05);
+        }
+        .mod-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #829ab1;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #1c3d5a;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+        
+        /* 左側模塊：資產來源網 */
+        .network-container {
+            height: 150px;
+            position: relative;
+            background: rgba(5, 12, 22, 0.5);
+            border-radius: 6px;
+            border: 1px dashed #1c3d5a;
+            margin-bottom: 15px;
+        }
+        .node {
+            position: absolute;
+            border-radius: 50%;
+            background: #00d2ff;
+            box-shadow: 0 0 8px #00d2ff;
+        }
+        .node.center {
+            width: 24px; height: 24px;
+            left: 50%; top: 50%;
+            transform: translate(-50%, -50%);
+            background: #00ffaa;
+            box-shadow: 0 0 12px #00ffaa;
+        }
+        .node.branch { width: 8px; height: 8px; background: #00bcff; }
+        .node.b1 { left: 20%; top: 30%; }
+        .node.b2 { left: 25%; top: 70%; }
+        .node.b3 { left: 75%; top: 25%; }
+        .node.b4 { left: 80%; top: 65%; }
+        
+        svg.lines {
+            position: absolute;
+            width: 100%; height: 100%;
+            left: 0; top: 0;
+        }
+        
+        .revenue-box {
+            background: rgba(16, 32, 56, 0.4);
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 4px solid #00ffaa;
+        }
+        .rev-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+        .rev-bar-bg {
+            height: 10px;
+            background: #102a45;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .rev-bar-fill {
+            height: 100%;
+            width: 94%;
+            background: linear-gradient(90deg, #00cc88, #00ffaa);
+        }
+        
+        /* 中間模塊：核心得分與全球動態 */
+        .score-circle-container {
+            text-align: center;
+            padding: 10px 0;
+        }
+        .score-circle {
+            width: 130px; height: 130px;
+            border-radius: 50%;
+            border: 6px solid #102a45;
+            border-top-color: #00ffaa;
+            border-right-color: #00d2ff;
+            margin: 0 auto 10px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        .score-num {
+            font-size: 28px;
+            font-weight: bold;
+            color: #00ffaa;
+            text-shadow: 0 0 10px rgba(0, 255, 170, 0.3);
+        }
+        .score-label {
+            font-size: 10px;
+            color: #627d98;
+        }
+        
+        .shuffle-monitor {
+            background: rgba(8, 16, 28, 0.5);
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #162d4a;
+            margin-top: 15px;
+        }
+        .country-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #102a45;
+            font-size: 12px;
+        }
+        .country-row:last-child { border-bottom: none; }
+        .status-tag {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        .status-tight { background: rgba(255, 170, 0, 0.15); color: #ffaa00; border: 1px solid #ffaa00; }
+        
+        /* 右側模塊：隱性資產攔截 */
+        .filter-header { color: #ff4a4a; text-shadow: 0 0 8px rgba(255, 74, 74, 0.3); }
+        .risk-item {
+            margin-bottom: 12px;
+            background: rgba(255, 74, 74, 0.03);
+            border: 1px solid #2d1a22;
+            padding: 10px;
+            border-radius: 6px;
+        }
+        .risk-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+        .risk-bar-bg { height: 6px; background: #20151a; border-radius: 3px; }
+        .risk-bar-fill { height: 100%; background: linear-gradient(90deg, #ff4a4a, #ff7878); border-radius: 3px; }
+        
+        /* 本地端存檔按鈕 */
+        .storage-panel {
+            margin-top: 15px;
+            padding-top: 12px;
+            border-top: 1px solid #1c3d5a;
+        }
+        .btn-action {
+            background: linear-gradient(180deg, #102a45 0%, #163d66 100%);
+            border: 1px solid #00d2ff;
+            color: #00d2ff;
+            padding: 8px;
+            font-size: 13px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+        }
+        .btn-action:hover {
+            background: #00d2ff;
+            color: #060b13;
+            box-shadow: 0 0 10px rgba(0, 210, 255, 0.4);
+        }
+        .log-output {
+            margin-top: 8px;
+            font-family: monospace;
+            font-size: 11px;
+            color: #486581;
+            background: #02060c;
+            padding: 6px;
+            border-radius: 4px;
+            max-height: 50px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 頂部標題列 -->
+    <div class="header">
+        <span class="sys-title">CLEANSET</span>
+        <span class="sys-subtitle">GLOBAL ASSET RISK & COMPLIANCE MONITOR</span>
+    </div>
+    
+    <!-- 模塊 1：資產來源 -->
+    <div class="module">
+        <div class="mod-title">Asset Origin & Flow / 資產來源與流向</div>
+        <div class="network-container">
+            <svg class="lines">
+                <line x1="20%" y1="30%" x2="50%" y2="50%" stroke="#163d66" stroke-width="1.5" />
+                <line x1="25%" y1="70%" x2="50%" y2="50%" stroke="#163d66" stroke-width="1.5" />
+                <line x1="75%" y1="25%" x2="50%" y2="50%" stroke="#163d66" stroke-width="1.5" />
+                <line x1="80%" y1="65%" x2="50%" y2="50%" stroke="#163d66" stroke-width="1.5" />
+            </svg>
+            <div class="node b1 branch"></div>
+            <div class="node b2 branch"></div>
+            <div class="node center"></div>
+            <div class="node b3 branch"></div>
+            <div class="node b4 branch"></div>
+        </div>
+        <div class="revenue-box">
+            <div class="rev-header">
+                <span style="color: #00ffaa; font-weight: bold;">LEGITIMATE REVENUE (合法收入)</span>
+                <span style="color: #00ffaa; font-weight: bold;">94%</span>
+            </div>
+            <div class="rev-bar-bg"><div class="rev-bar-fill"></div></div>
+        </div>
+    </div>
+    
+    <!-- 模塊 2：綜合評估與全球洗牌 -->
+    <div class="module">
+        <div class="mod-title">Compliance Evaluation / 核心合規評估</div>
+        <div class="score-circle-container">
+            <div class="score-circle">
+                <div class="score-num">98.7%</div>
+                <div class="score-label">COMPLIANCE</div>
+            </div>
+        </div>
+        
+        <div class="shuffle-monitor">
+            <div class="country-row">
+                <span>🇸🇬 新加坡 (SG) - 家族辦公室</span>
+                <span class="status-tag status-tight">審查收緊</span>
+            </div>
+            <div class="country-row">
+                <span>🇺🇸🇪🇺 歐美 (USA/EU) - CRS聯動</span>
+                <span class="status-tag status-tight">法規趨嚴</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 模塊 3：髒錢攔截器與存檔 -->
+    <div class="module">
+        <div class="mod-title filter-header">The "Dirty Money" Filter / 隱性資產攔截</div>
+        
+        <div class="risk-item">
+            <div class="risk-info"><span>線上博弈資金 (P2P Gaming)</span><span style="color: #ff4a4a;">82%</span></div>
+            <div class="risk-bar-bg"><div class="risk-bar-fill" style="width: 82%;"></div></div>
+        </div>
+        
+        <div class="risk-item">
+            <div class="risk-info"><span>不明虛擬貨幣 (Obscure Crypto)</span><span style="color: #ff4a4a;">95%</span></div>
+            <div class="risk-bar-bg"><div class="risk-bar-fill" style="width: 95%;"></div></div>
+        </div>
+        
+        <!-- Local Storage 功能模組 -->
+        <div class="storage-panel">
+            <button class="btn-action" onclick="saveSnapshot()">執行系統快照 (Save Snapshot)</button>
+            <div id="log-console" class="log-output">> 系統就緒。</div>
+        </div>
+    </div>
+
+<script>
+    function saveSnapshot() {
+        const consoleEl = document.getElementById('log-console');
+        const timestamp = new Date().toLocaleString();
+        const snapshotData = {
+            system: "CLEANSET",
+            score: "98.7%",
+            savedAt: timestamp
+        };
+        try {
+            localStorage.setItem('cleanset_mobile_snapshot', JSON.stringify(snapshotData));
+            consoleEl.innerHTML = `> [${timestamp}] 快照成功！已寫入 LocalStorage。<br>> Score: ${snapshotData.score}`;
+        } catch (e) {
+            consoleEl.innerHTML = `> [錯誤] 存檔失敗。`;
+        }
+    }
+
+    window.onload = function() {
+        const lastSnapshot = localStorage.getItem('cleanset_mobile_snapshot');
+        if (lastSnapshot) {
+            const data = JSON.parse(lastSnapshot);
+            document.getElementById('log-console').innerHTML = `> 載入上次紀錄 (${data.savedAt})<br>> 前次合規得分: ${data.score}`;
+        }
+    };
+</script>
+</body>
+</html>
