@@ -10,7 +10,7 @@
             font-family: 'Courier New', Courier, monospace, 'PingFang TC';
             background-color: #03070c;
             color: #00ffaa;
-            padding: 10px;
+            padding: 15px;
             overflow-x: hidden;
         }
         
@@ -20,7 +20,7 @@
             background: rgba(0, 20, 35, 0.8);
             padding: 12px;
             text-align: center;
-            margin-bottom: 12px;
+            margin-bottom: 15px;
             box-shadow: 0 0 15px rgba(0, 210, 255, 0.4);
             border-radius: 4px;
         }
@@ -31,25 +31,18 @@
             letter-spacing: 3px;
             text-shadow: 0 0 8px #00d2ff;
         }
-
-        /* 雙欄版面配置（手機端自動轉為單欄） */
-        .panel-container {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
         
         .module {
             background: rgba(8, 16, 28, 0.85);
             border: 1px solid #162d4a;
             border-radius: 4px;
-            padding: 12px;
-            position: relative;
+            padding: 15px;
+            margin-bottom: 15px;
         }
         .mod-title {
             font-size: 11px;
             color: #829ab1;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             font-weight: bold;
             letter-spacing: 1px;
             text-transform: uppercase;
@@ -57,47 +50,70 @@
             padding-left: 6px;
         }
 
-        /* 日誌視窗與數據矩陣並排 */
+        /* 核心關鍵：電腦版左右並排，手機版自動變單欄 */
         .main-grid {
+            display: grid;
+            grid-template-columns: 1fr; /* 預設手機版：單欄 */
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        /* 當螢幕寬度大於 768px (電腦螢幕) 時，強迫啟動左右雙欄並排 */
+        @media (min-width: 768px) {
+            .main-grid {
+                grid-template-columns: 2fr 1fr; /* 左邊日誌佔 2/3，右邊數據佔 1/3 */
+            }
+        }
+
+        /* 左側：終端機日誌 */
+        .terminal-section {
             display: flex;
             flex-direction: column;
-            gap: 12px;
         }
-        
-        .terminal-section { width: 100%; }
+        .terminal {
+            background: #010307;
+            border: 1px solid #1a3154;
+            padding: 12px;
+            font-size: 11px;
+            color: #a0aec0;
+            height: 200px;
+            overflow-y: auto;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.9);
+            flex-grow: 1;
+        }
+
+        /* 右側：ANALYSIS METRICS 面板（維持 2x2 緊湊格子） */
         .metrics-section {
-            width: 100%;
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
             background: rgba(4, 8, 15, 0.6);
-            padding: 10px;
+            padding: 12px;
             border: 1px dashed #1c3d5a;
         }
 
-        /* 終端機樣式 */
-        .terminal {
-            background: #010307;
-            border: 1px solid #1a3154;
-            padding: 10px;
-            font-size: 11px;
-            color: #a0aec0;
-            height: 180px;
-            overflow-y: auto;
-            margin-bottom: 8px;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.9);
+        .metric-card {
+            text-align: center;
+            padding: 8px;
+            border: 1px solid #102540;
+            background: rgba(2, 5, 10, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
 
         /* 右側矩陣：長條圖動畫 */
         .chart-box {
-            height: 70px;
+            height: 50px;
+            width: 100%;
             display: flex;
             align-items: flex-end;
             justify-content: space-around;
-            padding-top: 10px;
+            padding-top: 5px;
         }
         .bar {
-            width: 8px;
+            width: 6px;
             background: #00d2ff;
             height: 20%;
             animation: bounce 1.5s ease-in-out infinite alternate;
@@ -115,19 +131,19 @@
         /* 右側矩陣：雷達掃描動畫 */
         .radar-box {
             position: relative;
-            width: 65px; height: 65px;
+            width: 50px; height: 50px;
             border: 1px solid #00ffaa;
             border-radius: 50%;
-            margin: 0 auto;
             overflow: hidden;
+            background: radial-gradient(circle, rgba(0,255,170,0.1) 0%, transparent 80%);
         }
         .radar-box::after {
             content: '';
             position: absolute;
             width: 100%; height: 100%;
             top: 0; left: 0;
-            background: linear-gradient(45deg, rgba(0,255,170,0.3) 0%, transparent 50%);
-            transform-origin: translate(-50%, -50%);
+            background: linear-gradient(45deg, rgba(0,255,170,0.4) 0%, transparent 50%);
+            transform-origin: 0% 0%;
             animation: radar-scan 2s linear infinite;
         }
         @keyframes radar-scan {
@@ -135,30 +151,27 @@
             100% { transform: rotate(360deg); }
         }
 
-        .metric-card {
-            text-align: center;
-            padding: 5px;
-            border: 1px solid #102540;
-            background: rgba(2, 5, 10, 0.8);
-        }
         .metric-val {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: bold;
             color: #00ffaa;
-            margin-top: 4px;
+            margin-top: 5px;
         }
 
-        /* 按鈕樣式 */
+        /* 按鈕區域 */
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
         .btn {
             background: #001925;
             border: 1px solid #00ffaa;
             color: #00ffaa;
-            padding: 10px;
-            width: 100%;
+            padding: 12px;
             font-family: monospace;
             font-weight: bold;
             cursor: pointer;
-            margin-bottom: 6px;
             border-radius: 2px;
         }
         .btn:hover { background: #00ffaa; color: #03070c; box-shadow: 0 0 10px #00ffaa; }
@@ -169,7 +182,7 @@
         .analysis-box {
             background: #010307;
             border: 1px solid #162d4a;
-            padding: 8px;
+            padding: 10px;
             font-size: 11px;
             color: #00d2ff;
             min-height: 60px;
@@ -183,52 +196,52 @@
         <div style="font-size: 9px; color: #486581; margin-top: 4px;">SECURE MONITOR & ANALYSIS CLUSTER</div>
     </div>
 
-    <div class="panel-container">
-        <!-- 核心控制與矩陣區 -->
-        <div class="module">
-            <div class="mod-title">LIVE TRAFFIC LOGS // 即時流量監控</div>
-            
-            <div class="main-grid">
-                <!-- 左側：終端日誌 -->
-                <div class="terminal-section">
-                    <div class="terminal" id="logTerminal">> 白帽安全核心集群已啟動...</div>
-                </div>
-                
-                <!-- 右側：完全對齊圖片的 ANALYSIS METRICS 面板 -->
-                <div class="metrics-section">
-                    <div class="metric-card">
-                        <div style="font-size: 9px; color: #627d98;">Traffic Vol.</div>
-                        <div class="chart-box">
-                            <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
-                        </div>
-                    </div>
-                    <div class="metric-card">
-                        <div style="font-size: 9px; color: #627d98;">Threat Scan</div>
-                        <div style="padding-top: 5px;"><div class="radar-box"></div></div>
-                    </div>
-                    <div class="metric-card">
-                        <div style="font-size: 9px; color: #627d98;">Analyzed Logs</div>
-                        <div class="metric-val" id="countLogs">1450</div>
-                    </div>
-                    <div class="metric-card">
-                        <div style="font-size: 9px; color: #627d98;">Blocked IPs</div>
-                        <div class="metric-val" id="countBlocked" style="color:#ff0055;">22</div>
-                    </div>
-                </div>
+    <!-- 核心監控區 -->
+    <div class="module">
+        <div class="mod-title">LIVE TRAFFIC LOGS // 即時流量監控</div>
+        
+        <!-- 這裡啟動響應式網格 -->
+        <div class="main-grid">
+            <!-- 左側：終端日誌視窗 -->
+            <div class="terminal-section">
+                <div class="terminal" id="logTerminal">> 白帽安全核心集群已啟動...</div>
             </div>
             
-            <div style="margin-top: 12px;">
-                <button class="btn" onclick="generateTraffic()">模擬正常連線流入 (Simulate Traffic)</button>
-                <button class="btn btn-danger" onclick="generateAttack()">模擬惡意攻擊注入 (Simulate Attack)</button>
+            <!-- 右側：完全對齊圖片的 ANALYSIS METRICS 面板 -->
+            <div class="metrics-section">
+                <div class="metric-card">
+                    <div style="font-size: 9px; color: #627d98;">Traffic Vol.</div>
+                    <div class="chart-box">
+                        <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+                    </div>
+                </div>
+                <div class="metric-card">
+                    <div style="font-size: 9px; color: #627d98;">Threat Scan</div>
+                    <div class="radar-box"></div>
+                </div>
+                <div class="metric-card">
+                    <div style="font-size: 9px; color: #627d98;">Analyzed Logs</div>
+                    <div class="metric-val" id="countLogs">1450</div>
+                </div>
+                <div class="metric-card">
+                    <div style="font-size: 9px; color: #627d98;">Blocked IPs</div>
+                    <div class="metric-val" id="countBlocked" style="color:#ff0055;">22</div>
+                </div>
             </div>
         </div>
+        
+        <!-- 按鈕群組 -->
+        <div class="btn-group">
+            <button class="btn" onclick="generateTraffic()">模擬正常連線 (Traffic)</button>
+            <button class="btn btn-danger" onclick="generateAttack()">模擬攻擊注入 (Attack)</button>
+        </div>
+    </div>
 
-        <!-- 下方：白帽引擎分析結果 -->
-        <div class="module">
-            <div class="mod-title">ANALYSIS ENGINE // 本機防禦自動存檔</div>
-            <button class="btn" style="border-color: #00d2ff; color: #00d2ff; background: #001020;" onclick="analyzeAndBlock()">執行白帽特徵掃描 (Analyze & Block)</button>
-            <div class="analysis-box" id="analysisTerminal">> 等待資安防禦指令...</div>
-        </div>
+    <!-- 下方：白帽引擎分析結果 -->
+    <div class="module">
+        <div class="mod-title">ANALYSIS ENGINE // 本機防禦自動存檔</div>
+        <button class="btn" style="border-color: #00d2ff; color: #00d2ff; background: #001020; margin-bottom: 10px;" onclick="analyzeAndBlock()">執行白帽特徵掃描 (Analyze & Block)</button>
+        <div class="analysis-box" id="analysisTerminal">> 等待資安防禦指令...</div>
     </div>
 
 <script>
@@ -236,7 +249,6 @@
     let totalLogs = 1450;
     let totalBlocked = 22;
 
-    // 網頁載入讀取舊檔，並啟動定時自動流量（讓它真正動起來！）
     window.onload = function() {
         const savedData = localStorage.getItem('whitehat_v2_metrics');
         if (savedData) {
@@ -245,19 +257,13 @@
             totalBlocked = data.blocked;
             document.getElementById('countLogs').innerText = totalLogs;
             document.getElementById('countBlocked').innerText = totalBlocked;
-            document.getElementById('analysisTerminal').innerHTML = `> [系統重載] 成功同步本機防禦歷史。<br>> 累計防禦封鎖次數: <span style="color:#ff0055">${totalBlocked}</span>`;
         }
-
-        // 每 3 秒自動模擬一次微量正常背景流量，拒絕死板！
-        setInterval(() => {
-            generateTraffic(true); 
-        }, 3000);
+        setInterval(() => { generateTraffic(true); }, 3000);
     };
 
     function updateMetrics() {
         document.getElementById('countLogs').innerText = totalLogs;
         document.getElementById('countBlocked').innerText = totalBlocked;
-        // 同步寫入 LocalStorage
         localStorage.setItem('whitehat_v2_metrics', JSON.stringify({ logs: totalLogs, blocked: totalBlocked }));
     }
 
@@ -270,7 +276,7 @@
         trafficLogs.push(logEntry);
         updateMetrics();
 
-        if(!isAuto) { // 手動點擊才強制滾動日誌，避免干擾背景
+        if(!isAuto) {
             const term = document.getElementById('logTerminal');
             term.innerHTML += `<br><span style="color:#a0aec0">[${logEntry.time}] INFO: ${logEntry.ip} -> ${logEntry.request}</span>`;
             term.scrollTop = term.scrollHeight;
@@ -296,7 +302,7 @@
     function analyzeAndBlock() {
         const analysisTerm = document.getElementById('analysisTerminal');
         if (trafficLogs.length === 0) {
-            analysisTerm.innerHTML = `> [系統] 背景流量分析完畢。暫無突發異常特徵。`;
+            analysisTerm.innerHTML = `> [系統] 暫無新突發異常特徵。`;
             return;
         }
 
@@ -310,11 +316,9 @@
 
         const timestamp = new Date().toLocaleTimeString();
         if (blockedInThisTurn > 0) {
-            analysisTerm.innerHTML = `> [${timestamp}] 深度掃描 Cluster C-7 完成！<br>` +
-                                     `<span style="color:#ff0055">> 🛑 成功攔截並封鎖 ${blockedInThisTurn} 個惡意威脅源！</span><br>` +
-                                     `> [LOCAL STATUS] 數據已同步至本機防火牆規則。`;
+            analysisTerm.innerHTML = `> [${timestamp}] 深度掃描完成！<br><span style="color:#ff0055">> 🛑 已成功封鎖 ${blockedInThisTurn} 個惡意威脅。</span><br>> 數據已自動存檔同步。`;
         } else {
-            analysisTerm.innerHTML = `> [${timestamp}] 深度分析完成：當前緩衝區日誌特徵合規，未觸發攔截規則。`;
+            analysisTerm.innerHTML = `> [${timestamp}] 掃描完成：未觸發攔截規則。`;
         }
 
         trafficLogs = [];
