@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>梅花易數·數字神算</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --primary-accent: #8b5cf6;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            
+            --吉: #10b981;
+            --凶: #ef4444;
+            --平: #64748b;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
+        body { background: var(--bg-color); color: var(--text-light); padding: 16px; display: flex; flex-direction: column; align-items: center; }
+        
+        header { text-align: center; margin-bottom: 16px; width: 100%; max-width: 450px; }
+        header h1 { font-size: 1.3rem; color: var(--text-light); letter-spacing: 1px; }
+        header p { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+
+        .container { width: 100%; max-width: 450px; background: var(--card-bg); border-radius: 14px; padding: 18px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); border: 1px solid var(--border-color); }
+        
+        .input-group { margin-bottom: 16px; }
+        .label { font-size: 0.85rem; font-weight: bold; margin-bottom: 8px; color: var(--primary-accent); }
+        
+        /* 三個數字輸入框排版 */
+        .num-inputs { display: flex; gap: 10px; }
+        .num-inputs input { flex: 1; background: #0f172a; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; color: white; text-align: center; font-size: 1.2rem; font-weight: bold; outline: none; }
+        .num-inputs input:focus { border-color: var(--primary-accent); box-shadow: 0 0 8px rgba(139, 92, 246, 0.4); }
+        .input-tip { font-size: 0.7rem; color: var(--text-muted); margin-top: 4px; text-align: center; }
+
+        .btn-calc { width: 100%; background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: white; border: none; padding: 14px; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: all 0.2s; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3); }
+        .btn-calc:active { transform: scale(0.98); opacity: 0.9; }
+
+        /* 結果面板 */
+        .result-box { background: #0f172a; border: 1px solid var(--border-color); border-radius: 10px; padding: 16px; position: relative; display: none; }
+        .badge-fortune { position: absolute; top: 14px; right: 14px; padding: 4px 12px; border-radius: 20px; color: white; font-size: 0.75rem; font-weight: bold; }
+        
+        .gua-title-area { text-align: center; margin-bottom: 14px; }
+        .gua-symbol { font-size: 3rem; color: #fff; line-height: 1.1; }
+        .gua-name { font-size: 1.3rem; font-weight: bold; color: #fff; margin-top: 4px; }
+        .gua-structure { font-size: 0.75rem; color: var(--text-muted); }
+
+        .section-title { font-size: 0.8rem; font-weight: bold; color: var(--primary-accent); margin-bottom: 4px; border-left: 3px solid var(--primary-accent); padding-left: 6px; }
+        .section-content { font-size: 0.85rem; line-height: 1.4; color: #cbd5e1; margin-bottom: 12px; background: #1e293b; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); }
+        .section-content.poem { font-style: italic; text-align: center; color: #ddd; background: #2e1065; border-color: #4c1d95; font-weight: 500; }
+
+        /* 歷史紀錄 */
+        .history-section { width: 100%; max-width: 450px; margin-top: 16px; }
+        .history-title { font-size: 0.8rem; font-weight: bold; color: var(--text-muted); margin-bottom: 6px; }
+        .history-list { display: flex; flex-direction: column; gap: 6px; }
+        .history-item { background: var(--card-bg); padding: 8px 12px; border-radius: 6px; font-size: 0.8rem; border: 1px solid var(--border-color); display: flex; justify-content: space-between; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>🔮 梅花易數·三數定乾坤</h1>
+    <p>心中默念所問之事，隨口吐出三個數字即可指點迷津</p>
+</header>
+
+<div class="container">
+    <div class="input-group">
+        <div class="label">▼ 請輸入對方給出的三個數字：</div>
+        <div class="num-inputs">
+            <input type="number" id="num1" placeholder="數一" pattern="[0-9]*">
+            <input type="number" id="num2" placeholder="數二" pattern="[0-9]*">
+            <input type="number" id="num3" placeholder="數三" pattern="[0-9]*">
+        </div>
+        <div class="input-tip">提示：可以是對方的生日、手機尾號、或是當下直覺想到的數字</div>
+    </div>
+
+    <button class="btn-calc" onclick="divinePlum()">🔮 一 鍵 解 碼 占 卜</button>
+
+    <!-- 結果面板 -->
+    <div class="result-box" id="result-box">
+        <span id="gua-fortune" class="badge-fortune">平</span>
+        
+        <div class="gua-title-area">
+            <div id="gua-symbol" class="gua-symbol">䷵</div>
+            <div id="gua-name" class="gua-name">卦名</div>
+            <div id="gua-structure" class="gua-structure">(上卦 內卦)</div>
+        </div>
+        
+        <div class="section-title">✨ 宇宙白話籤詩</div>
+        <div id="gua-poem" class="section-content poem">籤詩內容</div>
+        
+        <div class="section-title">💡 神算玄機指引</div>
+        <div id="gua-desc" class="section-content">解釋內容</div>
+        
+        <div class="section-title">⚡ 動爻提示（事情轉折點）</div>
+        <div id="gua-action" class="section-content" style="margin-bottom: 0; color: #f43f5e; font-weight: bold;">動爻訊息</div>
+    </div>
+</div>
+
+<div class="history-section">
+    <div class="history-title">🕒 歷史神算緩存</div>
+    <div class="history-list" id="history-list"></div>
+</div>
+
+<script>
+// 八卦資料庫
+const trigrams = [
+    { name: "坤(地)", symbol: "☷", id: 0 }, // 8 餘 0 為坤
+    { name: "乾(天)", symbol: "☰", id: 1 }, { name: "兌(澤)", symbol: "☱", id: 2 },
+    { name: "離(火)", symbol: "☲", id: 3 }, { name: "震(雷)", symbol: "☳", id: 4 },
+    { name: "巽(風)", symbol: "☴", id: 5 }, { name: "坎(水)", symbol: "☵", id: 6 },
+    { name: "艮(山)", symbol: "☶", id: 7 }
+];
+
+// 六十四卦經典核心資料
+const hexagrams = {
+    "1-7": { name: "地山謙", symbol: "䷎", fortune: "超級大吉", poem: "山高入地顯謙光，厚德載物福綿長。<br>虛心行事無人妒，萬事如意大吉祥。", desc: "極其罕見的六爻皆吉之卦！代表你問的事態內在實力極強（如大山），但外在表現得非常低調包容。此時千萬不可與人硬碰硬，保持謙遜、穩紮穩打，對手自然會自己出包沒落，你將不戰而勝！" },
+    "1-1": { name: "乾為天", symbol: "䷀", fortune: "大吉", poem: "飛龍在天展宏圖，廣結良緣事事舒。<br>持之以恆行正道，功名利祿自來扶。", desc: "運勢如日中天！充滿了無限的可能與前進的動力。但切記「亢龍有悔」，高歌猛進的同時要留一條退路，多聽身邊智者的建議，就能保持長久不衰。" },
+    "0-0": { name: "坤為地", symbol: "䷁", fortune: "中吉", poem: "地道包容萬物生，柔順從人萬事亨。<br>不急不躁依規矩，平安穩步自功成。", desc: "當前運勢不宜強行出頭或主動進攻，採取「配合」與「幕後輔佐」的姿態最安全。像大地一樣默默承受與包容，靜下心來等待時機，反而能獲得巨大的回報。" },
+    "1-0": { name: "天地否", symbol: "䷋", fortune: "大凶", poem: "天地不交事閉塞，小人得勢志難伸。<br>此時不宜盲目進，退守內斂保平安。", desc: "磁場處於閉塞不通的瓶頸期。周圍可能有小人作祟，或上層風向對你極度不利。這時候強行推進計畫只會頭破血流，最佳策略是「裝傻、隱忍、儲備體力」，等待暴風雨過去。" },
+    "0-1": { name: "地天泰", symbol: "䷊", fortune: "大吉", poem: "三陽開泰運亨通，上下齊心萬事同。<br>過去陰霾皆散盡，時來運轉展雄風。", desc: "否極泰來！最壞的時間已經過去，好運與助力正在大舉湧入。上下關係非常和諧，非常適合推動新想法、執行新計畫，或者與信任的夥伴聯手大幹一場。" }
+};
+
+function divinePlum() {
+    const n1 = parseInt(document.getElementById('num1').value);
+    const n2 = parseInt(document.getElementById('num2').value);
+    const n3 = parseInt(document.getElementById('num3').value);
+
+    if (isNaN(n1) || IsNaN(n2) || IsNaN(n3)) {
+        Alert("小黑哥，請把三個數字都填滿，這樣宇宙磁場才能連線喔！");
+        Return;
+    }
+
+    // 梅花易數底層核心演算法
+    // 1. 第一個數除以 8 的餘數決定上卦 (外卦)
+    let upIdx = n1 % 8;
+    // 2. 第二個數除以 8 的餘數決定下卦 (內卦)
+    let downIdx = n2 % 8;
+    // 3. 第三個數除以 6 的餘數決定動爻 (第幾爻發動)
+    let moveYao = n3 % 6;
+    if (moveYao === 0) moveYao = 6; // 餘0代表第6爻
+
+    const upGua = trigrams[upIdx];
+    const downGua = trigrams[downIdx];
+    
+    const key = `${upIdx}-${downIdx}`;
+    let result = hexagrams[key];
+    
+    // 防呆處理：若未定義完全，自動生成組合
+    if(!result) {
+        Result = {
+            Name: `${upGua.name.split('(')[0]}${downGua.name.split('(')[0]}卦`,
+            Symbol: "䷵",
+            Fortune: "平",
+            Poem: "數中有數顯玄機，時來運轉莫心急。<br>看清局勢順應變，自有平安福氣依。",
+            Desc: `由上卦【${upGua.name}】與下卦【${downGua.name}】交織而成的神祕密碼。目前局勢處於多變期，建議保持客觀、冷靜觀察，順應環境的變化才是上策。`
+        };
+    }
+
+    // 渲染 UI
+    document.getElementById('result-box').style.display = 'block';
+    
+    const badge = document.getElementById('gua-fortune');
+    badge.textContent = result.fortune;
+    if(result.fortune.includes('大吉') || result.fortune.includes('超級')) badge.style.background = 'var(--吉)';
+    else if(result.fortune.includes('凶')) badge.style.background = 'var(--凶)';
+    else badge.style.background = 'var(--平)';
+    
+    document.getElementById('gua-symbol').textContent = result.symbol;
+    document.getElementById('gua-name').textContent = result.name;
+    document.getElementById('gua-structure').textContent = `(上卦：${upGua.name} ｜ 下卦：${downGua.name})`;
+    document.getElementById('gua-poem').innerHTML = result.poem;
+    document.getElementById('gua-desc').textContent = result.desc;
+    
+    // 動爻解釋
+    document.getElementById('gua-action').textContent = `🎯 第 ${moveYao} 爻發動！暗示事情在第 ${moveYao} 個階段或關鍵節點將出現核心轉折，請密切注意此階段的磁場變化！`;
+
+    // 存入 Local Storage 歷史紀錄
+    saveHistory(result.name, result.fortune);
+}
+
+function saveHistory(name, fortune) {
+    let history = JSON.parse(localStorage.getItem('梅花易數紀錄')) || [];
+    const itemStr = `${name} (${fortune}) - ${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}`;
+    if(!history.includes(itemStr)) {
+        History.unshift(itemStr);
+        if(history.length > 3) history.pop();
+        localStorage.setItem('梅花易數紀錄', JSON.stringify(history));
+        renderHistory();
+    }
+}
+
+function renderHistory() {
+    let history = JSON.parse(localStorage.getItem('梅花易數紀錄')) || [];
+    const container = document.getElementById('history-list');
+    if(history.length === 0) {
+        Container.innerHTML = '<div style="font-size:0.75rem; color:#64748b; text-align:center;">尚無神算紀錄</div>';
+        Return;
+    }
+    Container.innerHTML = history.map(h => `<div class="history-item"><span>${h}</span><span style="color:var(--primary-accent);">🔮 已留存</span></div>`).join('');
+}
+
+renderHistory();
+</script>
+
+</body>
+</html>
