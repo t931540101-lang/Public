@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>金錢卦簡易查卦器</title>
+    <style>
+        :root {
+            --bg-color: #f7f9fa;
+            --card-bg: #ffffff;
+            --primary: #2c3e50;
+            --accent: #d35400;
+            --text: #2c3e50;
+            --border: #e2e8f0;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, sans-serif; }
+        body { background: var(--bg-color); color: var(--text); padding: 16px; display: flex; flex-direction: column; align-items: center; }
+        
+        header { text-align: center; margin-bottom: 16px; width: 100%; max-width: 450px; }
+        header h1 { font-size: 1.25rem; color: var(--primary); }
+        header p { font-size: 0.8rem; color: #7f8c8d; }
+
+        .container { width: 100%; max-width: 450px; background: var(--card-bg); border-radius: 12px; padding: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        
+        .selector-group { margin-bottom: 16px; }
+        .label { font-size: 0.85rem; font-weight: bold; margin-bottom: 6px; color: var(--accent); }
+        
+        /* 手機版按鈕矩陣，方便單手大拇指點選 */
+        .grid-buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 12px; }
+        .btn-trigram { background: #f1f5f9; border: 1px solid var(--border); padding: 8px 4px; font-size: 0.85rem; border-radius: 6px; cursor: pointer; text-align: center; transition: all 0.2s; }
+        .btn-trigram.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .btn-trigram span { display: block; font-size: 0.7rem; opacity: 0.7; margin-top: 2px; }
+
+        .result-box { background: #f8fafc; border: 2px solid var(--border); border-radius: 8px; padding: 16px; text-align: center; min-height: 150px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .gua-symbol { font-size: 3rem; line-height: 1; margin-bottom: 8px; color: #000; font-weight: normal; }
+        .gua-name { font-size: 1.4rem; font-weight: bold; color: var(--primary); margin-bottom: 6px; }
+        .gua-desc { font-size: 0.85rem; color: #576574; line-height: 1.4; padding: 0 8px; }
+
+        /* 歷史紀錄區 */
+        .history-section { width: 100%; max-width: 450px; margin-top: 16px; }
+        .history-title { font-size: 0.9rem; font-weight: bold; margin-bottom: 8px; }
+        .history-list { display: flex; flex-direction: column; gap: 6px; }
+        .history-item { background: #fff; padding: 8px 12px; border-radius: 6px; font-size: 0.8rem; border: 1px solid var(--border); display: flex; justify-content: space-between; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>☯️ 金錢卦快速對照查解</h1>
+    <p>選定上卦與下卦，即時解碼六十四卦矩陣</p>
+</header>
+
+<div class="container">
+    <!-- 上卦選擇 -->
+    <div class="selector-group">
+        <div class="label">▼ 選擇上卦（外卦 / 圖片橫列）</div>
+        <div class="grid-buttons" id="up-gua-group"></div>
+    </div>
+
+    <!-- 下卦選擇 -->
+    <div class="selector-group">
+        <div class="label">▼ 選擇下卦（內卦 / 圖片縱欄）</div>
+        <div class="grid-buttons" id="down-gua-group"></div>
+    </div>
+
+    <!-- 查卦結果 -->
+    <div class="result-box">
+        <div id="gua-symbol" class="gua-symbol">☯️</div>
+        <div id="gua-name" class="gua-name">請選擇八卦</div>
+        <div id="gua-desc" class="gua-desc">點選上卦與下卦來組合出六十四卦。</div>
+    </div>
+</div>
+
+<!-- 歷史儲存 -->
+<div class="history-section">
+    <div class="history-title">🕒 最近查閱紀錄 (Local Storage)</div>
+    <div class="history-list" id="history-list"></div>
+</div>
+
+<script>
+// 八卦基本定義
+const trigrams = [
+    { name: "天", symbol: "☰", id: 0 }, { name: "澤", symbol: "☱", id: 1 },
+    { name: "火", symbol: "☲", id: 2 }, { name: "雷", symbol: "☳", id: 3 },
+    { name: "風", symbol: "☴", id: 4 }, { name: "水", symbol: "☵", id: 5 },
+    { name: "山", symbol: "☶", id: 6 }, { name: "地", symbol: "☷", id: 7 }
+];
+
+// 六十四卦矩陣對照表資料 (這裡先幫小黑哥注入經典的幾組，方便測試，可自由擴充)
+const hexagrams = {
+    "0-0": { name: "乾為天", symbol: "䷀", desc: "大亨以正。天行健，君子以自強不息。象徵極致的剛健與動力。" },
+    "0-1": { name: "天澤履", symbol: "䷉", desc: "履虎尾，不咥人，亨。步步為營，實踐禮理，小心能化險為夷。" },
+    "0-7": { name: "天地否", symbol: "䷋", desc: "否之匪人，不利君子貞。天地不交，閉塞不通，此時宜內斂守正。" },
+    "1-0": { name: "澤天夬", symbol: "䷪", desc: "揚於王庭，柔乘五剛。決斷、排除決裂之意，需要勇氣與智慧。" },
+    "1-1": { name: "兌為澤", symbol: "䷹", desc: "麗澤兌，君子以朋友講習。喜悅、交流、相談甚歡之象。" },
+    "2-2": { name: "離為火", symbol: "䷝", desc: "明兩作離，大人以繼明照于四方。光明、附著、依附，利於守正。" },
+    "3-3": { name: "震為雷", symbol: "䷲", desc: "震惊百里，不喪匕鬯。雷聲隆隆，帶來警惕與震動，反省則吉。" },
+    "7-7": { name: "坤為地", symbol: "䷁", desc: "地勢坤，君子以厚德載物。至柔至順，包容萬物，利於配合與輔佐。" }
+    // 其他組合若未定義，程式會自動根據上下卦拼出名稱
+};
+
+let currentUp = 0;
+let currentDown = 0;
+
+// 初始化按鈕介面
+function initButtons() {
+    const upGroup = document.getElementById('up-gua-group');
+    const downGroup = document.getElementById('down-gua-group');
+    
+    trigrams.forEach(t => {
+        upGroup.innerHTML += `<button class="btn-trigram ${t.id===0?'active':''}" data-id="${t.id}" onclick="selectGua('up', ${t.id})">${t.name}<span>${t.symbol}</span></button>`;
+        downGroup.innerHTML += `<button class="btn-trigram ${t.id===0?'active':''}" data-id="${t.id}" onclick="selectGua('down', ${t.id})">${t.name}<span>${t.symbol}</span></button>`;
+    });
+}
+
+// 切換選擇
+window.selectGua = function(type, id) {
+    if(type === 'up') {
+        currentUp = id;
+        updateActiveVisual('up-gua-group', id);
+    } else {
+        currentDown = id;
+        updateActiveVisual('down-gua-group', id);
+    }
+    calculateGua();
+}
+
+function updateActiveVisual(groupId, activeId) {
+    const btns = document.getElementById(groupId).querySelectorAll('.btn-trigram');
+    btns.forEach(b => {
+        if(parseInt(b.getAttribute('data-id')) === activeId) b.classList.add('active');
+        else b.classList.remove('active');
+    });
+}
+
+// 計算並顯示對應的卦象
+function calculateGua() {
+    const key = `${currentUp}-${currentDown}`;
+    const upGua = trigrams[currentUp];
+    const downGua = trigrams[currentDown];
+    
+    let result = hexagrams[key];
+    
+    // 如果矩陣還沒補完，自動用名字組合
+    if(!result) {
+        result = {
+            name: `${upGua.name}${downGua.name}卦`,
+            symbol: "䷵", // 預設六十四卦符號
+            desc: `由上卦【${upGua.name}】與下卦【${downGua.name}】組合成的卦象。小黑哥後續可在黑曜石計畫中補上核心占辭！`
+        };
+    }
+    
+    // 渲染畫面
+    document.getElementById('gua-symbol').textContent = result.symbol;
+    document.getElementById('gua-name').textContent = result.name;
+    document.getElementById('gua-desc').textContent = result.desc;
+    
+    // 存入 Local Storage 歷史紀錄
+    saveToHistory(result.name);
+}
+
+// 歷史紀錄處理
+function saveToHistory(guaName) {
+    let history = JSON.parse(localStorage.getItem('小黑哥查卦紀錄')) || [];
+    if(!history.includes(guaName)) {
+        history.unshift(guaName);
+        if(history.length > 3) history.pop(); // 保持最新3條
+        localStorage.setItem('小黑哥查卦紀錄', JSON.stringify(history));
+        renderHistory();
+    }
+}
+
+function renderHistory() {
+    let history = JSON.parse(localStorage.getItem('小黑哥查卦紀錄')) || [];
+    const container = document.getElementById('history-list');
+    if(history.length === 0) {
+        container.innerHTML = '<div style="font-size:0.75rem; color:#aaa;">尚無紀錄</div>';
+        return;
+    }
+    container.innerHTML = history.map(h => `<div class="history-item"><span>${h}</span><span style="color:#16a085;">✓ 已緩存</span></div>`).join('');
+}
+
+// 啟動
+initButtons();
+calculateGua();
+renderHistory();
+</script>
+
+</body>
+</html>
