@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>116年1月排班表</title>
+    <title>jan2027</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -59,45 +59,47 @@
 <body>
 
 <div class="container">
-    <h2>116年 1月 智慧排班表</h2>
+    <h2>116年 1月 排班表 (固定三日休)</h2>
     <table>
         <tr>
             <th>日期</th>
             <th>星期</th>
             <th>班別/狀態</th>
         </tr>
-        <tr><td>1/1</td><td>五</td><td class="rest-day">元旦休假</td></tr>
+        <tr><td>1/1</td><td>五</td><td class="work-day">日B班</td></tr>
         <tr><td>1/2</td><td>六</td><td class="work-day">日B班</td></tr>
-        <tr><td>1/3</td><td>日</td><td class="rest-day">例假</td></tr>
-        <tr><td>1/4 - 1/7</td><td>一~四</td><td class="work-day">正常上班 (4天)</td></tr>
-        <tr><td>1/8</td><td>五</td><td class="rest-day">排休 (1)</td></tr>
-        <tr><td>1/9 - 1/12</td><td>六~二</td><td class="work-day">正常上班 (4天)</td></tr>
-        <tr><td>1/13</td><td>三</td><td class="rest-day">排休 (2)</td></tr>
-        <tr><td>1/14 - 1/17</td><td>四~日</td><td class="work-day">正常上班 (4天)</td></tr>
-        <tr><td>1/18</td><td>一</td><td class="rest-day">排休 (3)</td></tr>
-        <tr><td>1/19 - 1/21</td><td>二~四</td><td class="work-day">正常上班 (3天)</td></tr>
-        <tr><td>1/22</td><td>五</td><td class="rest-day">排休 (4)</td></tr>
-        <tr><td>1/23 - 1/26</td><td>六~二</td><td class="work-day">正常上班 (4天)</td></tr>
-        <tr><td>1/27</td><td>三</td><td class="rest-day">排休 (5)</td></tr>
-        <tr><td>1/28 - 1/30</td><td>四~六</td><td class="work-day">正常上班 (3天)</td></tr>
-        <tr><td>1/31</td><td>日</td><td class="rest-day">例假</td></tr>
+        <tr><td>1/3</td><td>日</td><td class="rest-day">例假 (固定休)</td></tr>
+        <tr><td>1/4 - 1/5</td><td>一~二</td><td class="work-day">正常上班</td></tr>
+        <tr><td>1/6</td><td>三</td><td class="rest-day">排休 (固定休)</td></tr>
+        <tr><td>1/7 - 1/9</td><td>四~六</td><td class="work-day">正常上班</td></tr>
+        <tr><td>1/10</td><td>日</td><td class="rest-day">例假 (固定休)</td></tr>
+        <tr><td>1/11 - 1/12</td><td>一~二</td><td class="work-day">正常上班</td></tr>
+        <tr><td>1/13</td><td>三</td><td class="rest-day">排休 (固定休)</td></tr>
+        <tr><td>1/14 - 1/16</td><td>四~六</td><td class="work-day">正常上班</td></tr>
+        <tr><td>1/17</td><td>日</td><td class="rest-day">例假 (固定休)</td></tr>
+        <tr><td>1/18 - 1/19</td><td>一~二</td><td class="work-day">正常上班</td></tr>
+        <tr><td>1/20</td><td>三</td><td class="rest-day">排休 (固定休)</td></tr>
+        <tr><td>1/21 - 1/23</td><td>四~六</td><td class="work-day">正常上班</td></tr>
+        <tr><td>1/24</td><td>日</td><td class="rest-day">例假 (固定休)</td></tr>
+        <tr><td>1/25 - 1/26</td><td>一~二</td><td class="work-day">正常上班</td></tr>
+        <tr><td>1/27</td><td>三</td><td class="rest-day">排休 (固定休)</td></tr>
+        <tr><td>1/28 - 1/30</td><td>四~六</td><td class="work-day">正常上班</td></tr>
+        <tr><td>1/31</td><td>日</td><td class="rest-day">例假 (固定休)</td></tr>
     </table>
     
     <div class="note">
-        <strong>💡 排班亮點：</strong><br>
-        1. 完美落實每月 10 天休假（含元旦與例假）。<br>
-        2. 最大連續上班天數不超過 4 天，完全避開 12 天紅線[span_1](start_span)[span_1](end_span)。<br>
-        3. 替 2 月初的農曆過年預留完美的體力與彈性！
+        <strong>💡 三日固定休優勢：</strong><br>
+        1. 作息超級規律，每隔幾天就放假，完全不會過勞。<br>
+        2. 遠離 12 天連續上班紅線，安全過關[span_0](start_span)[span_0](end_span)。<br>
+        3. 檔名維持簡潔：jan2027.html。
     </div>
 </div>
 
 <script>
-    // LocalStorage 基本存檔功能建議架構
     function saveScheduleState() {
-        const scheduleData = { month: "2027-01", updated: new Date().toISOString() };
-        localStorage.setItem('my_schedule_2027_01', JSON.stringify(scheduleData));
+        const scheduleData = { type: "fixed_Wed_Sun", month: "2027-01", updated: new Date().toISOString() };
+        localStorage.setItem('jan2027_schedule', JSON.stringify(scheduleData));
     }
-    // 自動執行存檔紀錄
     saveScheduleState();
 </script>
 
