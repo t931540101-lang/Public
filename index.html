@@ -6,7 +6,7 @@
     <title>排班管理系統 (多班別/請假/國定假日)</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: -apple-system, sans-serif; background: #f4f6f8; padding: 12px; color: #333; }
+        body { font-family: -apple-system, sans-serif; background: #f4f6f8; padding: 12px; color: #333; max-width: 480px; margin: 0 auto; }
         .card { background: #fff; padding: 12px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 12px; }
         h2 { font-size: 18px; margin-bottom: 8px; text-align: center; color: #2c3e50; }
         .controls { display: flex; gap: 8px; margin-bottom: 8px; }
@@ -69,7 +69,7 @@
     <div class="card">
         <h2>🗓️ 排班管理系統</h2>
         <div class="controls">
-            <input type="month" id="monthPicker">
+            <input type="month" id="monthPicker" onchange="loadOrGenerateSchedule()">
             <button onclick="generateSchedule()">重置生成</button>
         </div>
         <div id="summaryText" class="summary"></div>
@@ -101,20 +101,24 @@
     let currentSelectedIndex = -1;
     let scheduleData = [];
 
+    // 初始化預設月份
     const today = new Date();
     document.getElementById('monthPicker').value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
 
-    function generateSchedule() {
+    function getSelectedYearMonth() {
         const monthValue = document.getElementById('monthPicker').value;
-        if (!monthValue) return;
-
         const [year, month] = monthValue.split('-').map(Number);
-        const daysInMonth = new Date(year, month, 0).getDate();
+        return { year, month, monthValue }; // 這裡的 month 是 1~12
+    }
+
+    function generateSchedule() {
+        const { year, month, monthValue } = getSelectedYearMonth();
+        const daysInMonth = new Date(year, month, 0).getDate(); // 取得當月天數
         
         scheduleData = [];
 
         for (let day = 1; day <= daysInMonth; day++) {
-            const currentDate = new Date(year, month - 1, day);
+            const currentDate = new Date(year, month - 1, day); // JS 月份 0-11
             const weekDay = currentDate.getDay(); // 0: 週日, 3: 週三
             
             let shift = '日B班';
@@ -124,10 +128,22 @@
             scheduleData.push({ day, weekDay, shift });
         }
 
-        renderCalendar(year, month, monthValue);
+        renderCalendar();
     }
 
-    function renderCalendar(year, month, monthValue) {
+    function loadOrGenerateSchedule() {
+        const { monthValue } = getSelectedYearMonth();
+        const saved = localStorage.getItem(`full_schedule_${monthValue}`);
+        if (saved) {
+            scheduleData = JSON.parse(saved);
+            renderCalendar();
+        } else {
+            generateSchedule();
+        }
+    }
+
+    function renderCalendar() {
+        const { year, month, monthValue } = getSelectedYearMonth();
         const container = document.getElementById('calendarContainer');
         let html = '';
 
@@ -177,23 +193,13 @@
     function selectShift(shiftName) {
         if (currentSelectedIndex !== -1) {
             scheduleData[currentSelectedIndex].shift = shiftName;
-            const monthValue = document.getElementById('monthPicker').value;
-            const [year, month] = monthValue.split('-').map(Number);
-            renderCalendar(year, month, monthValue);
+            renderCalendar();
         }
         closeModal();
     }
 
     window.onload = () => {
-        const monthValue = document.getElementById('monthPicker').value;
-        const saved = localStorage.getItem(`full_schedule_${monthValue}`);
-        if (saved) {
-            scheduleData = JSON.parse(saved);
-            const [year, month] = monthValue.split('-').map(Number);
-            renderCalendar(year, month, monthValue);
-        } else {
-            generateSchedule();
-        }
+        loadOrGenerateSchedule();
     };
 </script>
 </body>
