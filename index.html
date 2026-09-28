@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>自動排班小幫手</title>
+    <title>自動排班小幫手 (月休10天)</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: -apple-system, sans-serif; background: #f4f6f8; padding: 15px; color: #333; }
@@ -13,8 +13,9 @@
         input[type="month"] { flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
         button { padding: 8px 16px; background: #007aff; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
         button:active { opacity: 0.8; }
+        .summary { font-size: 14px; font-weight: bold; margin-top: 10px; text-align: center; color: #555; }
         .shift-list { display: flex; flex-direction: column; gap: 8px; }
-        .shift-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: 8px; font-size: 14px; }
+        .shift-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: 8px; font-size: 14px; cursor: pointer; }
         .work-day { background: #eef6ff; border-left: 4px solid #007aff; }
         .off-day { background: #ffeef0; border-left: 4px solid #ff3b30; }
         .status { font-weight: bold; }
@@ -25,17 +26,17 @@
 <body>
 
     <div class="card">
-        <h2>🗓️ 排班自動生成器</h2>
+        <h2>🗓️ 排班自動生成器 (月休10天)</h2>
         <div class="controls">
             <input type="month" id="monthPicker">
             <button onclick="generateSchedule()">自動排班</button>
         </div>
+        <div id="summaryText" class="summary"></div>
     </div>
 
     <div id="scheduleContainer" class="shift-list"></div>
 
 <script>
-    // 預設月份設為當前月份
     const today = new Date();
     document.getElementById('monthPicker').value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
 
@@ -45,48 +46,89 @@
 
         const [year, month] = monthValue.split('-').map(Number);
         const daysInMonth = new Date(year, month, 0).getDate();
-        const scheduleData = [];
+        
+        let scheduleData = [];
+        let offCount = 0;
 
-        let html = '';
-
+        // 1. 先標註所有固定休假 (週三與週日)
         for (let day = 1; day <= daysInMonth; day++) {
             const currentDate = new Date(year, month - 1, day);
-            const weekDay = currentDate.getDay(); // 0 是週日, 3 是週三
-            const dateStr = `${month}/${day} (${['日','一','二','三','四','五','六'][weekDay]})`;
+            const weekDay = currentDate.getDay(); // 0: 週日, 3: 週三
+            const isFixedOff = (weekDay === 0 || weekDay === 3);
+            
+            if (isFixedOff) offCount++;
 
-            let isOff = (weekDay === 0 || weekDay === 3); // 週三(3)、週日(0)排休
-            let shiftName = isOff ? '休假' : '上班 (07:00 - 19:00)';
-            let itemClass = isOff ? 'off-day' : 'work-day';
-            let textClass = isOff ? 'off-text' : 'work-text';
+            scheduleData.push({
+                day,
+                weekDay,
+                dateStr: `${month}/${day} (${['日','一','二','三','四','五','六'][weekDay]})`,
+                isOff: isFixedOff,
+                isExtraOff: false
+            });
+        }
 
-            scheduleData.push({ date: dateStr, shift: shiftName, isOff });
+        // 2. 計算還差幾天假湊滿 10 天
+        let neededExtraOff = 10 - offCount;
+
+        // 3. 自動把剩餘的假補在週六或週一（形成連假）
+        if (neededExtraOff > 0) {
+            for (let i = scheduleData.length - 1; i >= 0; i--) {
+                if (neededExtraOff === 0) break;
+                if (!scheduleData[i].isOff && (scheduleData[i].weekDay === 6 || scheduleData[i].weekDay === 1)) {
+                    scheduleData[i].isOff = true;
+                    scheduleData[i].isExtraOff = true;
+                    neededExtraOff--;
+                }
+            }
+        }
+
+        // 渲染畫面
+        renderSchedule(scheduleData, monthValue);
+    }
+
+    function renderSchedule(scheduleData, monthValue) {
+        let html = '';
+        let totalOff = 0;
+        let totalWork = 0;
+
+        scheduleData.forEach((item, index) => {
+            if (item.isOff) totalOff++;
+            else totalWork++;
+
+            let shiftName = item.isOff ? (item.isExtraOff ? '排休/特休' : '例休 (週三/日)') : '上班 (07:00 - 19:00)';
+            let itemClass = item.isOff ? 'off-day' : 'work-day';
+            let textClass = item.isOff ? 'off-text' : 'work-text';
 
             html += `
-                <div class="shift-item ${itemClass}">
-                    <span>${dateStr}</span>
+                <div class="shift-item ${itemClass}" onclick="toggleShift(${index})">
+                    <span>${item.dateStr}</span>
                     <span class="status ${textClass}">${shiftName}</span>
                 </div>
             `;
-        }
+        });
 
         document.getElementById('scheduleContainer').innerHTML = html;
+        document.getElementById('summaryText').innerText = `本月總計：上班 ${totalWork} 天 | 休假 ${totalOff} 天`;
 
-        // 儲存到 Local Storage
+        // 儲存至 Local Storage
         localStorage.setItem(`schedule_${monthValue}`, JSON.stringify(scheduleData));
     }
 
-    // 頁面載入時自動讀取或生成
+    // 手動點擊切換上班/休假
+    function toggleShift(index) {
+        const monthValue = document.getElementById('monthPicker').value;
+        const savedData = JSON.parse(localStorage.getItem(`schedule_${monthValue}`));
+        if (!savedData) return;
+
+        savedData[index].isOff = !savedData[index].isOff;
+        savedData[index].isExtraOff = false;
+
+        renderSchedule(savedData, monthValue);
+    }
+
     window.onload = () => {
-        const currentMonth = document.getElementById('monthPicker').value;
-        const savedData = localStorage.getItem(`schedule_${currentMonth}`);
-        if (savedData) {
-            // 如果有舊資料可直接讀取，這裡先預設自動生成一次
-            generateSchedule();
-        } else {
-            generateSchedule();
-        }
+        generateSchedule();
     };
 </script>
 </body>
 </html>
- 
