@@ -3,25 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>自動排班小幫手 (月曆版)</title>
+    <title>排班管理系統 (多班別/請假/國定假日)</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: -apple-system, sans-serif; background: #f4f6f8; padding: 12px; color: #333; }
         .card { background: #fff; padding: 12px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 12px; }
-        h2 { font-size: 18px; margin-bottom: 10px; text-align: center; color: #2c3e50; }
+        h2 { font-size: 18px; margin-bottom: 8px; text-align: center; color: #2c3e50; }
         .controls { display: flex; gap: 8px; margin-bottom: 8px; }
         input[type="month"] { flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
         button { padding: 8px 14px; background: #007aff; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
-        button:active { opacity: 0.8; }
-        .summary { font-size: 13px; font-weight: bold; text-align: center; color: #555; margin-top: 4px; }
+        .summary { font-size: 12px; text-align: center; color: #555; line-height: 1.5; }
         
-        /* 月曆網格樣式 (手機平板最佳化) */
+        /* 日曆網格 */
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
         .weekday-header { text-align: center; font-size: 12px; font-weight: bold; padding: 6px 0; color: #666; background: #e9ecef; border-radius: 4px; }
         .calendar-day { 
             background: #fff; 
             border-radius: 6px; 
-            min-height: 52px; 
+            min-height: 58px; 
             padding: 4px; 
             display: flex; 
             flex-direction: column; 
@@ -33,30 +32,75 @@
         .empty-day { background: transparent; box-shadow: none; cursor: default; }
         .day-num { font-size: 12px; font-weight: bold; color: #444; }
         .badge { font-size: 10px; font-weight: bold; text-align: center; padding: 2px 0; border-radius: 3px; }
-        
-        /* 上班/休假色彩 */
-        .work-day { background: #eef6ff; border: 1px solid #b3d7ff; }
-        .work-day .badge { color: #007aff; background: #d0e5ff; }
-        
-        .off-day { background: #ffeef0; border: 1px solid #ffc1c6; }
-        .off-day .badge { color: #ff3b30; background: #ffd5d8; }
+
+        /* 各班別與假別色彩標示 */
+        .shift-日B班 { background: #eef6ff; border: 1px solid #b3d7ff; }
+        .shift-日B班 .badge { color: #007aff; background: #d0e5ff; }
+
+        .shift-夜E班 { background: #f3e8ff; border: 1px solid #d8b4fe; }
+        .shift-夜E班 .badge { color: #7e22ce; background: #e9d5ff; }
+
+        .shift-夜B班 { background: #e0e7ff; border: 1px solid #a5b4fc; }
+        .shift-夜B班 .badge { color: #3730a3; background: #c7d2fe; }
+
+        .shift-例假, .shift-休息日 { background: #ffeef0; border: 1px solid #ffc1c6; }
+        .shift-例假 .badge, .shift-休息日 .badge { color: #ff3b30; background: #ffd5d8; }
+
+        .shift-特休 { background: #e6f4ea; border: 1px solid #a8dab5; }
+        .shift-特休 .badge { color: #137333; background: #ceead6; }
+
+        .shift-病假, .shift-事假 { background: #fff7ed; border: 1px solid #ffedd5; }
+        .shift-病假 .badge, .shift-事假 .badge { color: #c2410c; background: #ffedd5; }
+
+        .shift-國定假日 { background: #fef2f2; border: 1px solid #fca5a5; }
+        .shift-國定假日 .badge { color: #dc2626; background: #fecaca; }
+
+        /* 彈出點選選單 Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 100; }
+        .modal-content { background: #fff; padding: 20px; border-radius: 12px; width: 85%; max-width: 320px; }
+        .modal h3 { font-size: 16px; margin-bottom: 12px; text-align: center; }
+        .option-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 12px; }
+        .option-btn { padding: 10px; font-size: 13px; font-weight: bold; border: 1px solid #ddd; border-radius: 6px; background: #f8f9fa; cursor: pointer; text-align: center; }
+        .close-btn { width: 100%; padding: 8px; background: #6c757d; color: white; border: none; border-radius: 6px; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div class="card">
-        <h2>🗓️ 自動排班小幫手 (月休10天)</h2>
+        <h2>🗓️ 排班管理系統</h2>
         <div class="controls">
             <input type="month" id="monthPicker">
-            <button onclick="generateSchedule()">自動排班</button>
+            <button onclick="generateSchedule()">重置生成</button>
         </div>
         <div id="summaryText" class="summary"></div>
     </div>
 
-    <!-- 月曆容器 -->
+    <!-- 月曆區域 -->
     <div id="calendarContainer" class="calendar-grid"></div>
 
+    <!-- 選擇班別/請假 Modal -->
+    <div id="shiftModal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle">選擇班別 / 請假</h3>
+            <div class="option-grid">
+                <div class="option-btn" onclick="selectShift('日B班')">日B班<br><small>07-19</small></div>
+                <div class="option-btn" onclick="selectShift('夜E班')">夜E班<br><small>19-07</small></div>
+                <div class="option-btn" onclick="selectShift('夜B班')">夜B班<br><small>17-05</small></div>
+                <div class="option-btn" onclick="selectShift('例假')">例假</div>
+                <div class="option-btn" onclick="selectShift('休息日')">休息日</div>
+                <div class="option-btn" onclick="selectShift('特休')">特休</div>
+                <div class="option-btn" onclick="selectShift('病假')">病假</div>
+                <div class="option-btn" onclick="selectShift('事假')">事假</div>
+                <div class="option-btn" onclick="selectShift('國定假日')">國定假日</div>
+            </div>
+            <button class="close-btn" onclick="closeModal()">取消</button>
+        </div>
+    </div>
+
 <script>
+    let currentSelectedIndex = -1;
+    let scheduleData = [];
+
     const today = new Date();
     document.getElementById('monthPicker').value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
 
@@ -67,107 +111,89 @@
         const [year, month] = monthValue.split('-').map(Number);
         const daysInMonth = new Date(year, month, 0).getDate();
         
-        let scheduleData = [];
-        let offCount = 0;
+        scheduleData = [];
 
-        // 1. 先標註所有例休 (週三與週日)
         for (let day = 1; day <= daysInMonth; day++) {
             const currentDate = new Date(year, month - 1, day);
             const weekDay = currentDate.getDay(); // 0: 週日, 3: 週三
-            const isFixedOff = (weekDay === 0 || weekDay === 3);
             
-            if (isFixedOff) offCount++;
+            let shift = '日B班';
+            if (weekDay === 0) shift = '例假';
+            else if (weekDay === 3) shift = '休息日';
 
-            scheduleData.push({
-                day,
-                weekDay,
-                isOff: isFixedOff,
-                isExtraOff: false
-            });
+            scheduleData.push({ day, weekDay, shift });
         }
 
-        // 2. 自動補足到月休 10 天 (優先補在週六/週一串成連假)
-        let neededExtraOff = 10 - offCount;
-        if (neededExtraOff > 0) {
-            for (let i = scheduleData.length - 1; i >= 0; i--) {
-                if (neededExtraOff === 0) break;
-                if (!scheduleData[i].isOff && (scheduleData[i].weekDay === 6 || scheduleData[i].weekDay === 1)) {
-                    scheduleData[i].isOff = true;
-                    scheduleData[i].isExtraOff = true;
-                    neededExtraOff--;
-                }
-            }
-        }
-        if (neededExtraOff > 0) {
-            for (let i = scheduleData.length - 1; i >= 0; i--) {
-                if (neededExtraOff === 0) break;
-                if (!scheduleData[i].isOff) {
-                    scheduleData[i].isOff = true;
-                    scheduleData[i].isExtraOff = true;
-                    neededExtraOff--;
-                }
-            }
-        }
-
-        renderCalendar(scheduleData, year, month, monthValue);
+        renderCalendar(year, month, monthValue);
     }
 
-    function renderCalendar(scheduleData, year, month, monthValue) {
+    function renderCalendar(year, month, monthValue) {
         const container = document.getElementById('calendarContainer');
         let html = '';
 
-        // 渲染日到六標題
         const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
         weekDays.forEach(w => {
             html += `<div class="weekday-header">${w}</div>`;
         });
 
-        // 算 1 號是星期幾，前方的空格補滿
         const firstDayOfWeek = new Date(year, month - 1, 1).getDay();
         for (let i = 0; i < firstDayOfWeek; i++) {
             html += `<div class="calendar-day empty-day"></div>`;
         }
 
-        let totalOff = 0;
-        let totalWork = 0;
+        let counts = {};
 
-        // 渲染日期方格
         scheduleData.forEach((item, index) => {
-            if (item.isOff) totalOff++;
-            else totalWork++;
-
-            let shiftText = item.isOff ? (item.isExtraOff ? '排休' : '休假') : '上班';
-            let dayClass = item.isOff ? 'off-day' : 'work-day';
+            counts[item.shift] = (counts[item.shift] || 0) + 1;
 
             html += `
-                <div class="calendar-day ${dayClass}" onclick="toggleShift(${index})">
+                <div class="calendar-day shift-${item.shift}" onclick="openModal(${index})">
                     <span class="day-num">${item.day}</span>
-                    <span class="badge">${shiftText}</span>
+                    <span class="badge">${item.shift}</span>
                 </div>
             `;
         });
 
         container.innerHTML = html;
-        document.getElementById('summaryText').innerText = `上班：${totalWork} 天 | 休假：${totalOff} 天`;
 
-        localStorage.setItem(`calendar_schedule_${monthValue}`, JSON.stringify(scheduleData));
+        // 統計頂部數據
+        let summaryHtml = `上班: ${ (counts['日B班']||0) + (counts['夜E班']||0) + (counts['夜B班']||0) } 天 | 休假: ${ (counts['例假']||0) + (counts['休息日']||0) } 天<br>`;
+        summaryHtml += `特休: ${counts['特休']||0}天 | 病假: ${counts['病假']||0}天 | 事假: ${counts['事假']||0}天 | 國定假日: ${counts['國定假日']||0}天`;
+        document.getElementById('summaryText').innerHTML = summaryHtml;
+
+        localStorage.setItem(`full_schedule_${monthValue}`, JSON.stringify(scheduleData));
     }
 
-    // 點擊方格切換上班/休假
-    function toggleShift(index) {
-        const monthValue = document.getElementById('monthPicker').value;
-        const savedData = JSON.parse(localStorage.getItem(`calendar_schedule_${monthValue}`));
-        if (!savedData) return;
+    function openModal(index) {
+        currentSelectedIndex = index;
+        document.getElementById('modalTitle').innerText = `${scheduleData[index].day} 號 - 選擇班別 / 請假`;
+        document.getElementById('shiftModal').style.display = 'flex';
+    }
 
-        savedData[index].isOff = !savedData[index].isOff;
-        savedData[index].isExtraOff = false;
+    function closeModal() {
+        document.getElementById('shiftModal').style.display = 'none';
+    }
 
-        const [year, month] = monthValue.split('-').map(Number);
-        renderCalendar(savedData, year, month, monthValue);
+    function selectShift(shiftName) {
+        if (currentSelectedIndex !== -1) {
+            scheduleData[currentSelectedIndex].shift = shiftName;
+            const monthValue = document.getElementById('monthPicker').value;
+            const [year, month] = monthValue.split('-').map(Number);
+            renderCalendar(year, month, monthValue);
+        }
+        closeModal();
     }
 
     window.onload = () => {
-        generateSchedule();
+        const monthValue = document.getElementById('monthPicker').value;
+        const saved = localStorage.getItem(`full_schedule_${monthValue}`);
+        if (saved) {
+            scheduleData = JSON.parse(saved);
+            const [year, month] = monthValue.split('-').map(Number);
+            renderCalendar(year, month, monthValue);
+        } else {
+            generateSchedule();
+        }
     };
 </script>
 </body>
