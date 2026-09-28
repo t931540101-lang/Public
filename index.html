@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>自動排班小幫手</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, sans-serif; background: #f4f6f8; padding: 15px; color: #333; }
+        .card { background: #fff; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 15px; }
+        h2 { font-size: 18px; margin-bottom: 12px; text-align: center; color: #2c3e50; }
+        .controls { display: flex; gap: 10px; margin-bottom: 12px; }
+        input[type="month"] { flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+        button { padding: 8px 16px; background: #007aff; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        button:active { opacity: 0.8; }
+        .shift-list { display: flex; flex-direction: column; gap: 8px; }
+        .shift-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-radius: 8px; font-size: 14px; }
+        .work-day { background: #eef6ff; border-left: 4px solid #007aff; }
+        .off-day { background: #ffeef0; border-left: 4px solid #ff3b30; }
+        .status { font-weight: bold; }
+        .work-text { color: #007aff; }
+        .off-text { color: #ff3b30; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h2>🗓️ 排班自動生成器</h2>
+        <div class="controls">
+            <input type="month" id="monthPicker">
+            <button onclick="generateSchedule()">自動排班</button>
+        </div>
+    </div>
+
+    <div id="scheduleContainer" class="shift-list"></div>
+
+<script>
+    // 預設月份設為當前月份
+    const today = new Date();
+    document.getElementById('monthPicker').value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+
+    function generateSchedule() {
+        const monthValue = document.getElementById('monthPicker').value;
+        if (!monthValue) return;
+
+        const [year, month] = monthValue.split('-').map(Number);
+        const daysInMonth = new Date(year, month, 0).getDate();
+        const scheduleData = [];
+
+        let html = '';
+
+        for (let day = 1; day <= daysInMonth; day++) {
+            const currentDate = new Date(year, month - 1, day);
+            const weekDay = currentDate.getDay(); // 0 是週日, 3 是週三
+            const dateStr = `${month}/${day} (${['日','一','二','三','四','五','六'][weekDay]})`;
+
+            let isOff = (weekDay === 0 || weekDay === 3); // 週三(3)、週日(0)排休
+            let shiftName = isOff ? '休假' : '上班 (07:00 - 19:00)';
+            let itemClass = isOff ? 'off-day' : 'work-day';
+            let textClass = isOff ? 'off-text' : 'work-text';
+
+            scheduleData.push({ date: dateStr, shift: shiftName, isOff });
+
+            html += `
+                <div class="shift-item ${itemClass}">
+                    <span>${dateStr}</span>
+                    <span class="status ${textClass}">${shiftName}</span>
+                </div>
+            `;
+        }
+
+        document.getElementById('scheduleContainer').innerHTML = html;
+
+        // 儲存到 Local Storage
+        localStorage.setItem(`schedule_${monthValue}`, JSON.stringify(scheduleData));
+    }
+
+    // 頁面載入時自動讀取或生成
+    window.onload = () => {
+        const currentMonth = document.getElementById('monthPicker').value;
+        const savedData = localStorage.getItem(`schedule_${currentMonth}`);
+        if (savedData) {
+            // 如果有舊資料可直接讀取，這裡先預設自動生成一次
+            generateSchedule();
+        } else {
+            generateSchedule();
+        }
+    };
+</script>
+</body>
+</html>
+ 
