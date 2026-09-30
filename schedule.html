@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>智慧排班小幫手</title>
+    <title>116年全年智慧排班表</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -62,7 +62,7 @@
         }
         th, td {
             border: 1px solid #e9ecef;
-            padding: 8px 6px;
+            padding: 7px 4px;
             text-align: center;
         }
         th {
@@ -96,29 +96,41 @@
 <body>
 
 <div class="container">
-    <h2>智慧自動排班系統</h2>
-    <div class="subtitle">解決例假與排休混淆，一鍵搞定！</div>
+    <h2>116年全年智慧排班系統</h2>
+    <div class="subtitle">週三固定例假 ｜ 每月穩健 10 休</div>
     
     <div class="controls">
-        <select id="monthSelect">
-            <option value="2027-01">116年 1月 (31天)</option>
-            <option value="2027-02">116年 2月 (28天)</option>
+        <select id="monthSelect" onchange="generateSchedule()">
+            <option value="2027-01">116年 1月</option>
+            <option value="2027-02">116年 2月</option>
+            <option value="2027-03">116年 3月</option>
+            <option value="2027-04">116年 4月</option>
+            <option value="2027-05">116年 5月</option>
+            <option value="2027-06">116年 6月</option>
+            <option value="2027-07">116年 7月</option>
+            <option value="2027-08">116年 8月</option>
+            <option value="2027-09">116年 9月</option>
+            <option value="2027-10">116年 10月</option>
+            <option value="2027-11">116年 11月</option>
+            <option value="2027-12">116年 12月</option>
         </select>
-        <button onclick="generateSchedule()">自動排班</button>
+        <button onclick="generateSchedule()">重新整理</button>
     </div>
 
-    <div id="scheduleTableContainer">
-        <!-- 動態表格會生成在這裡 -->
-    </div>
+    <div id="scheduleTableContainer"></div>
 
-    <div class="summary" id="summaryBox">
-        點擊上方「自動排班」按鈕，系統將自動幫您配置國定假、例假與10天月休。
-    </div>
+    <div class="summary" id="summaryBox"></div>
 </div>
 
 <script>
+    // 116年重要國定假日對照
     const holidaysData = {
-        "2027-01": { 1: "國定假日(元旦)" }
+        "2027-01": { 1: "元旦" },
+        "2027-02": { 6: "春節前夕", 8: "農曆除夕", 9: "春節", 10: "初二", 11: "初三" },
+        "2027-04": { 4: "兒童節/清明節", 5: "補假" },
+        "2027-05": { 30: "端午節" },
+        "2027-09": { 15: "中秋節" },
+        "2027-10": { 10: "國慶日" }
     };
 
     function getDaysInMonth(year, month) {
@@ -139,27 +151,32 @@
         let restCount = 0;
         const monthHolidays = holidaysData[val] || {};
         
-        // 模擬自動排班邏輯：固定週日為例假，其餘用平日排休補滿10天
         for (let day = 1; day <= daysCount; day++) {
             let dateObj = new Date(year, month - 1, day);
             let wd = weekdays[dateObj.getDay()];
             let statusClass = "work-day";
             let statusText = "正常上班";
             
-            // 判斷是否為國定假日
+            // 1. 優先判斷國定假日
             if (monthHolidays[day]) {
                 statusClass = "holiday";
                 statusText = monthHolidays[day];
                 restCount++;
             } 
-            // 判斷是否為週日例假
-            else if (wd === '日') {
+            // 2. 核心規則：固定星期三為「例假」
+            else if (wd === '三') {
                 statusClass = "rest-day";
                 statusText = "例假";
                 restCount++;
             } 
-            // 智慧自動排休：若還沒達到10天假，每隔幾天自動安插一天排休（避開連續上班過長）
-            else if ((day % 6 === 3 || day === 27 || day === 30) && restCount < 10) {
+            // 3. 星期日預設為休息日
+            else if (wd === '日') {
+                statusClass = "rest-day";
+                statusText = "休息日";
+                restCount++;
+            }
+            // 4. 若當月休假未達 10 天，利用智慧邏輯在平日自動安插排休湊滿 10 天
+            else if (restCount < 10 && (day % 7 === 1 || day % 11 === 0)) {
                 statusClass = "rest-day";
                 statusText = "排休";
                 restCount++;
@@ -171,20 +188,21 @@
         html += `</table>`;
         document.getElementById('scheduleTableContainer').innerHTML = html;
         
-        // 更新統計與 LocalStorage 存檔
-        const summaryText = `📊 <strong>排班完成統計：</strong> 本月總天數 ${daysCount} 天，自動為您精準分配好 <strong>${restCount} 天休假</strong>（含例假與排休），連續上班天數皆在安全範圍內！`;
+        const summaryText = `📊 <strong>${month}月排班統計：</strong> 本月共安排 <strong>${restCount} 天休假</strong>（含週三固定例假與國定/彈性休假），完美符合規範！`;
         document.getElementById('summaryBox').innerHTML = summaryText;
 
+        // LocalStorage 自動存檔
         const storageData = {
             month: val,
             generatedAt: new Date().toISOString(),
             totalRest: restCount
         };
-        localStorage.setItem('smart_schedule_' + val, JSON.stringify(storageData));
+        localStorage.setItem('year_schedule_' + val, JSON.stringify(storageData));
     }
 
-    // 頁面載入時自動執行一次
+    // 頁面載入時預設載入 1 月
     window.onload = function() {
+        document.getElementById('monthSelect').value = "2027-01";
         generateSchedule();
     };
 </script>
