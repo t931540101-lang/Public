@@ -286,7 +286,7 @@
             margin-bottom: 12px;
             border-radius: 10px;
             overflow: hidden;
-            max-height: 300px;
+            max-height: 350px;
             background-color: #1a1d24;
             display: flex;
             justify-content: center;
@@ -296,7 +296,7 @@
         .card-media-container img, .card-media-container video {
             width: 100%;
             height: auto;
-            max-height: 300px;
+            max-height: 350px;
             object-fit: contain;
         }
 
@@ -400,10 +400,10 @@
 
             <!-- 發文輸入框 -->
             <div class="post-box">
-                <textarea id="post-content" placeholder="分享旅遊照片、隨手筆記或貼上 YouTube 網址..."></textarea>
+                <textarea id="post-content" placeholder="分享旅遊照片、短影片或貼上 YouTube 網址..."></textarea>
                 <div class="post-tools">
                     <label class="file-upload-label">
-                        🎬 附加圖片/影片
+                        🎬 附加照片/影片
                         <input type="file" id="media-input" accept="image/*,video/*" onchange="previewMedia(event)">
                     </label>
                     <button class="btn" onclick="createPost()">發布動態</button>
@@ -418,8 +418,8 @@
 
     <script>
         const CORRECT_PASSCODE = "1234";
-        let tempMediaBase64 = "";
-        let tempMediaType = ""; // 'image' 或 'video'
+        let selectedFileObj = null;
+        let selectedMediaType = ""; 
 
         function checkPasscode() {
             const inputVal = document.getElementById('passcode-input').value;
@@ -446,8 +446,7 @@
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    const base64Img = e.target.result;
-                    localStorage.setItem('black_wall_avatar', base64Img);
+                    localStorage.setItem('black_wall_avatar', e.target.result);
                     loadUserProfile();
                 }
                 reader.readAsDataURL(file);
@@ -457,20 +456,14 @@
         function previewMedia(event) {
             const file = event.target.files[0];
             if (file) {
-                tempMediaType = file.type.startsWith('video') ? 'video' : 'image';
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    tempMediaBase64 = e.target.result;
-                    document.getElementById('media-preview-name').innerText = `已選擇檔案：${file.name}`;
-                }
-                reader.readAsDataURL(file);
+                selectedFileObj = file;
+                selectedMediaType = file.type.startsWith('video') ? 'video' : 'image';
+                document.getElementById('media-preview-name').innerText = `已選擇檔案：${file.name}`;
             }
         }
 
-        // 解析 YouTube 網址
         function parseYouTube(text) {
             const ytRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})(?:\S*)?/g;
-            
             return text.replace(ytRegex, (match, videoId) => {
                 return `
                     <div class="video-container" style="margin-top: 6px; margin-bottom: 6px;">
@@ -484,7 +477,7 @@
             const postsContainer = document.getElementById('posts-container');
             postsContainer.innerHTML = '';
             
-            let posts = JSON.parse(localStorage.getItem('black_wall_posts_v5')) || [];
+            let posts = JSON.parse(localStorage.getItem('black_wall_posts_v6')) || [];
 
             if (posts.length === 0) {
                 postsContainer.innerHTML = '<p style="text-align:center; color:#777; font-size:13px; margin-top:20px;">目前沒有動態，快發布第一則回憶吧！</p>';
@@ -496,11 +489,11 @@
                 card.className = 'card';
                 
                 let mediaHtml = '';
-                if (post.media) {
+                if (post.mediaUrl) {
                     if (post.mediaType === 'video') {
-                        mediaHtml = `<div class="card-media-container"><video src="${post.media}" controls playsinline></video></div>`;
+                        mediaHtml = `<div class="card-media-container"><video src="${post.mediaUrl}" controls playsinline></video></div>`;
                     } else {
-                        mediaHtml = `<div class="card-media-container"><img src="${post.media}" alt="動態圖片"></div>`;
+                        mediaHtml = `<div class="card-media-container"><img src="${post.mediaUrl}" alt="動態圖片"></div>`;
                     }
                 }
 
@@ -537,45 +530,57 @@
         function createPost() {
             const contentBox = document.getElementById('post-content');
             const text = contentBox.value.trim();
-            if (!text && !tempMediaBase64) {
+            
+            if (!text && !selectedFileObj) {
                 alert('請輸入文字或選擇照片/影片！');
                 return;
             }
 
-            let posts = JSON.parse(localStorage.getItem('black_wall_posts_v5')) || [];
+            // 如果有選檔案，直接建立 Object URL（完美支援大影片，不爆容量）
+            let mediaUrl = "";
+            let mediaType = "";
+            if (selectedFileObj) {
+                mediaUrl = URL.createObjectURL(selectedFileObj);
+                mediaType = selectedMediaType;
+            }
+
+            let posts = JSON.parse(localStorage.getItem('black_wall_posts_v6')) || [];
             const now = new Date();
             const timeStr = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
 
             posts.unshift({
                 text: text,
-                media: tempMediaBase64,
-                mediaType: tempMediaType,
+                mediaUrl: mediaUrl,
+                mediaType: mediaType,
                 time: timeStr,
                 likes: 0,
                 comments: [],
                 showComments: false
             });
 
-            localStorage.setItem('black_wall_posts_v5', JSON.stringify(posts));
+            localStorage.setItem('black_wall_posts_v6', JSON.stringify(posts));
+            
+            // 清空輸入
             contentBox.value = '';
-            tempMediaBase64 = "";
-            tempMediaType = "";
+            selectedFileObj = null;
+            selectedMediaType = "";
             document.getElementById('media-preview-name').innerText = '';
             document.getElementById('media-input').value = '';
+            
             loadPosts();
         }
 
         function likePost(index) {
-            let posts = JSON.parse(localStorage.getItem('black_wall_posts_v5')) || [];
+            let posts = JSON.parse(localStorage.getItem('black_wall_posts_v6')) || [];
             posts[index].likes = (posts[index].likes || 0) + 1;
-            localStorage.setItem('black_wall_posts_v5', JSON.stringify(posts));
+            localStorage.setItem('black_wall_posts_v6', JSON.stringify(posts));
             loadPosts();
         }
 
         function toggleComments(index) {
-            let posts = JSON.parse(localStorage.getItem('black_wall_posts_v5')) || [];
+            let posts = JSON.parse(localStorage.getItem('black_wall_posts_v6')) || [];
             posts[index].showComments = !posts[index].showComments;
-            localStorage.setItem('black_wall_posts_v5', JSON.stringify(posts));
+            localStorage.setItem('black_wall_posts_v6', JSON.stringify(posts));
             loadPosts();
         }
 
@@ -588,11 +593,11 @@
 
             if (!text) return;
 
-            let posts = JSON.parse(localStorage.getItem('black_wall_posts_v5')) || [];
+            let posts = JSON.parse(localStorage.getItem('black_wall_posts_v6')) || [];
             if (!posts[index].comments) posts[index].comments = [];
 
             posts[index].comments.push({ name: name, text: text });
-            localStorage.setItem('black_wall_posts_v5', JSON.stringify(posts));
+            localStorage.setItem('black_wall_posts_v6', JSON.stringify(posts));
             loadPosts();
         }
 
