@@ -393,14 +393,13 @@
             <div class="featured-video-box">
                 <div class="featured-video-title">🎵 專屬精選音樂/回憶</div>
                 <div class="video-container">
-                    <!-- 這裡的 src 可以隨時換成你喜歡的 YouTube 影片代碼 (embed 格式) -->
                     <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                 </div>
             </div>
 
             <!-- 發文輸入框 -->
             <div class="post-box">
-                <textarea id="post-content" placeholder="分享旅遊照片或隨手筆記..."></textarea>
+                <textarea id="post-content" placeholder="分享旅遊照片、隨手筆記或貼上 YouTube 網址..."></textarea>
                 <div class="post-tools">
                     <label class="file-upload-label">
                         📷 附加圖片
@@ -465,11 +464,24 @@
             }
         }
 
+        // 解析 YouTube 網址並轉成嵌入語法
+        function parseYouTube(text) {
+            const ytRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/g;
+            
+            return text.replace(ytRegex, (match, videoId) => {
+                return `
+                    <div class="video-container" style="margin-top: 10px;">
+                        <iframe src="https://www.youtube.com/embed/${videoId}" title="YouTube video player" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                `;
+            });
+        }
+
         function loadPosts() {
             const postsContainer = document.getElementById('posts-container');
             postsContainer.innerHTML = '';
             
-            let posts = JSON.parse(localStorage.getItem('black_wall_posts_v2')) || [];
+            let posts = JSON.parse(localStorage.getItem('black_wall_posts_v3')) || [];
 
             if (posts.length === 0) {
                 postsContainer.innerHTML = '<p style="text-align:center; color:#777; font-size:13px; margin-top:20px;">目前沒有動態，快發布第一則回憶吧！</p>';
@@ -482,6 +494,9 @@
                 
                 let imageHtml = post.image ? `<div class="card-img-container"><img src="${post.image}" alt="動態圖片"></div>` : '';
                 
+                // 轉換內文中的 YouTube 連結為影片框
+                let formattedBody = parseYouTube(post.text);
+
                 let commentsHtml = '';
                 if (post.comments && post.comments.length > 0) {
                     post.comments.forEach(c => {
@@ -492,7 +507,7 @@
                 card.innerHTML = `
                     <div class="card-header">${post.time}</div>
                     ${imageHtml}
-                    <div class="card-body">${post.text}</div>
+                    <div class="card-body">${formattedBody}</div>
                     <div class="card-actions">
                         <div class="action-item" onclick="likePost(${index})">❤️ 讚 (${post.likes || 0})</div>
                         <div class="action-item" onclick="toggleComments(${index})">💬 留言 (${post.comments ? post.comments.length : 0})</div>
@@ -518,7 +533,7 @@
                 return;
             }
 
-            let posts = JSON.parse(localStorage.getItem('black_wall_posts_v2')) || [];
+            let posts = JSON.parse(localStorage.getItem('black_wall_posts_v3')) || [];
             const now = new Date();
             const timeStr = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
 
@@ -531,7 +546,7 @@
                 showComments: false
             });
 
-            localStorage.setItem('black_wall_posts_v2', JSON.stringify(posts));
+            localStorage.setItem('black_wall_posts_v3', JSON.stringify(posts));
             contentBox.value = '';
             tempImageBase64 = "";
             document.getElementById('image-preview-name').innerText = '';
@@ -540,16 +555,16 @@
         }
 
         function likePost(index) {
-            let posts = JSON.parse(localStorage.getItem('black_wall_posts_v2')) || [];
+            let posts = JSON.parse(localStorage.getItem('black_wall_posts_v3')) || [];
             posts[index].likes = (posts[index].likes || 0) + 1;
-            localStorage.setItem('black_wall_posts_v2', JSON.stringify(posts));
+            localStorage.setItem('black_wall_posts_v3', JSON.stringify(posts));
             loadPosts();
         }
 
         function toggleComments(index) {
-            let posts = JSON.parse(localStorage.getItem('black_wall_posts_v2')) || [];
+            let posts = JSON.parse(localStorage.getItem('black_wall_posts_v3')) || [];
             posts[index].showComments = !posts[index].showComments;
-            localStorage.setItem('black_wall_posts_v2', JSON.stringify(posts));
+            localStorage.setItem('black_wall_posts_v3', JSON.stringify(posts));
             loadPosts();
         }
 
@@ -562,11 +577,11 @@
 
             if (!text) return;
 
-            let posts = JSON.parse(localStorage.getItem('black_wall_posts_v2')) || [];
+            let posts = JSON.parse(localStorage.getItem('black_wall_posts_v3')) || [];
             if (!posts[index].comments) posts[index].comments = [];
 
             posts[index].comments.push({ name: name, text: text });
-            localStorage.setItem('black_wall_posts_v2', JSON.stringify(posts));
+            localStorage.setItem('black_wall_posts_v3', JSON.stringify(posts));
             loadPosts();
         }
 
