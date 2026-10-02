@@ -94,7 +94,7 @@
             text-align: center;
         }
 
-        /* 個人檔案標頭區塊 (質感升級) */
+        /* 個人檔案標頭區塊 (大頭貼可點擊更換) */
         .profile-header {
             background: linear-gradient(135deg, #1e293b, #0f172a);
             padding: 16px;
@@ -106,6 +106,12 @@
             gap: 14px;
         }
 
+        .profile-avatar-container {
+            position: relative;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
         .profile-avatar {
             width: 55px;
             height: 55px;
@@ -114,11 +120,29 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 24px;
+            font-size: 20px;
             font-weight: bold;
             color: white;
             box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4);
-            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-hint {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: #2563eb;
+            color: white;
+            font-size: 10px;
+            padding: 2px 4px;
+            border-radius: 50%;
+            border: 1px solid #1a1d24;
         }
 
         .profile-info h3 {
@@ -314,9 +338,16 @@
         <!-- 主內容畫面 -->
         <div id="main-app" class="content-area" style="display: none;">
             
-            <!-- 個人檔案頂部列 -->
+            <!-- 個人檔案頂部列 (支援點擊更換大頭貼) -->
             <div class="profile-header">
-                <div class="profile-avatar">慶</div>
+                <div class="profile-avatar-container" onclick="document.getElementById('avatar-file-input').click()">
+                    <div class="profile-avatar" id="avatar-display">
+                        慶
+                    </div>
+                    <div class="avatar-hint">📷</div>
+                </div>
+                <input type="file" id="avatar-file-input" accept="image/*" style="display: none;" onchange="changeAvatar(event)">
+                
                 <div class="profile-info">
                     <h3>小黑哥</h3>
                     <p>記錄生活點滴與技術隨筆 📷</p>
@@ -343,16 +374,39 @@
 
     <script>
         const CORRECT_PASSCODE = "1234";
-        let tempImageBase64 = ""; // 暫存上傳的圖片資料
+        let tempImageBase64 = "";
 
         function checkPasscode() {
             const inputVal = document.getElementById('passcode-input').value;
             if (inputVal === CORRECT_PASSCODE) {
                 document.getElementById('auth-screen').style.display = 'none';
                 document.getElementById('main-app').style.display = 'block';
+                loadUserProfile();
                 loadPosts();
             } else {
                 alert('密碼錯誤！');
+            }
+        }
+
+        // 載入與更新大頭貼
+        function loadUserProfile() {
+            const savedAvatar = localStorage.getItem('black_wall_avatar');
+            const avatarDisplay = document.getElementById('avatar-display');
+            if (savedAvatar) {
+                avatarDisplay.innerHTML = `<img src="${savedAvatar}" alt="大頭貼">`;
+            }
+        }
+
+        function changeAvatar(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const base64Img = e.target.result;
+                    localStorage.setItem('black_wall_avatar', base64Img);
+                    loadUserProfile();
+                }
+                reader.readAsDataURL(file);
             }
         }
 
