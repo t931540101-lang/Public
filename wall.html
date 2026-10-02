@@ -282,21 +282,22 @@
             word-break: break-all;
         }
 
-        .card-img-container {
+        .card-media-container {
             margin-bottom: 12px;
             border-radius: 10px;
             overflow: hidden;
-            max-height: 250px;
+            max-height: 300px;
             background-color: #1a1d24;
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        .card-img-container img {
+        .card-media-container img, .card-media-container video {
             width: 100%;
             height: auto;
-            object-fit: cover;
+            max-height: 300px;
+            object-fit: contain;
         }
 
         /* 互動按鈕區 */
@@ -402,12 +403,12 @@
                 <textarea id="post-content" placeholder="分享旅遊照片、隨手筆記或貼上 YouTube 網址..."></textarea>
                 <div class="post-tools">
                     <label class="file-upload-label">
-                        📷 附加圖片
-                        <input type="file" id="image-input" accept="image/*" onchange="previewImage(event)">
+                        🎬 附加圖片/影片
+                        <input type="file" id="media-input" accept="image/*,video/*" onchange="previewMedia(event)">
                     </label>
                     <button class="btn" onclick="createPost()">發布動態</button>
                 </div>
-                <div id="image-preview-name" style="font-size: 11px; color: #3b82f6; margin-top: 6px;"></div>
+                <div id="media-preview-name" style="font-size: 11px; color: #3b82f6; margin-top: 6px;"></div>
             </div>
 
             <!-- 動態牆列表 -->
@@ -417,7 +418,8 @@
 
     <script>
         const CORRECT_PASSCODE = "1234";
-        let tempImageBase64 = "";
+        let tempMediaBase64 = "";
+        let tempMediaType = ""; // 'image' 或 'video'
 
         function checkPasscode() {
             const inputVal = document.getElementById('passcode-input').value;
@@ -452,19 +454,20 @@
             }
         }
 
-        function previewImage(event) {
+        function previewMedia(event) {
             const file = event.target.files[0];
             if (file) {
+                tempMediaType = file.type.startsWith('video') ? 'video' : 'image';
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    tempImageBase64 = e.target.result;
-                    document.getElementById('image-preview-name').innerText = `已選擇圖片：${file.name}`;
+                    tempMediaBase64 = e.target.result;
+                    document.getElementById('media-preview-name').innerText = `已選擇檔案：${file.name}`;
                 }
                 reader.readAsDataURL(file);
             }
         }
 
-        // 解析 YouTube 網址並完美過濾追蹤參數
+        // 解析 YouTube 網址
         function parseYouTube(text) {
             const ytRegex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})(?:\S*)?/g;
             
@@ -481,7 +484,7 @@
             const postsContainer = document.getElementById('posts-container');
             postsContainer.innerHTML = '';
             
-            let posts = JSON.parse(localStorage.getItem('black_wall_posts_v4')) || [];
+            let posts = JSON.parse(localStorage.getItem('black_wall_posts_v5')) || [];
 
             if (posts.length === 0) {
                 postsContainer.innerHTML = '<p style="text-align:center; color:#777; font-size:13px; margin-top:20px;">目前沒有動態，快發布第一則回憶吧！</p>';
@@ -492,7 +495,15 @@
                 let card = document.createElement('div');
                 card.className = 'card';
                 
-                let imageHtml = post.image ? `<div class="card-img-container"><img src="${post.image}" alt="動態圖片"></div>` : '';
+                let mediaHtml = '';
+                if (post.media) {
+                    if (post.mediaType === 'video') {
+                        mediaHtml = `<div class="card-media-container"><video src="${post.media}" controls playsinline></video></div>`;
+                    } else {
+                        mediaHtml = `<div class="card-media-container"><img src="${post.media}" alt="動態圖片"></div>`;
+                    }
+                }
+
                 let formattedBody = parseYouTube(post.text);
 
                 let commentsHtml = '';
@@ -504,7 +515,7 @@
 
                 card.innerHTML = `
                     <div class="card-header">${post.time}</div>
-                    ${imageHtml}
+                    ${mediaHtml}
                     <div class="card-body">${formattedBody}</div>
                     <div class="card-actions">
                         <div class="action-item" onclick="likePost(${index})">❤️ 讚 (${post.likes || 0})</div>
@@ -526,43 +537,45 @@
         function createPost() {
             const contentBox = document.getElementById('post-content');
             const text = contentBox.value.trim();
-            if (!text && !tempImageBase64) {
-                alert('請輸入文字或選擇圖片！');
+            if (!text && !tempMediaBase64) {
+                alert('請輸入文字或選擇照片/影片！');
                 return;
             }
 
-            let posts = JSON.parse(localStorage.getItem('black_wall_posts_v4')) || [];
+            let posts = JSON.parse(localStorage.getItem('black_wall_posts_v5')) || [];
             const now = new Date();
             const timeStr = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
 
             posts.unshift({
                 text: text,
-                image: tempImageBase64,
+                media: tempMediaBase64,
+                mediaType: tempMediaType,
                 time: timeStr,
                 likes: 0,
                 comments: [],
                 showComments: false
             });
 
-            localStorage.setItem('black_wall_posts_v4', JSON.stringify(posts));
+            localStorage.setItem('black_wall_posts_v5', JSON.stringify(posts));
             contentBox.value = '';
-            tempImageBase64 = "";
-            document.getElementById('image-preview-name').innerText = '';
-            document.getElementById('image-input').value = '';
+            tempMediaBase64 = "";
+            tempMediaType = "";
+            document.getElementById('media-preview-name').innerText = '';
+            document.getElementById('media-input').value = '';
             loadPosts();
         }
 
         function likePost(index) {
-            let posts = JSON.parse(localStorage.getItem('black_wall_posts_v4')) || [];
+            let posts = JSON.parse(localStorage.getItem('black_wall_posts_v5')) || [];
             posts[index].likes = (posts[index].likes || 0) + 1;
-            localStorage.setItem('black_wall_posts_v4', JSON.stringify(posts));
+            localStorage.setItem('black_wall_posts_v5', JSON.stringify(posts));
             loadPosts();
         }
 
         function toggleComments(index) {
-            let posts = JSON.parse(localStorage.getItem('black_wall_posts_v4')) || [];
+            let posts = JSON.parse(localStorage.getItem('black_wall_posts_v5')) || [];
             posts[index].showComments = !posts[index].showComments;
-            localStorage.setItem('black_wall_posts_v4', JSON.stringify(posts));
+            localStorage.setItem('black_wall_posts_v5', JSON.stringify(posts));
             loadPosts();
         }
 
@@ -575,11 +588,11 @@
 
             if (!text) return;
 
-            let posts = JSON.parse(localStorage.getItem('black_wall_posts_v4')) || [];
+            let posts = JSON.parse(localStorage.getItem('black_wall_posts_v5')) || [];
             if (!posts[index].comments) posts[index].comments = [];
 
             posts[index].comments.push({ name: name, text: text });
-            localStorage.setItem('black_wall_posts_v4', JSON.stringify(posts));
+            localStorage.setItem('black_wall_posts_v5', JSON.stringify(posts));
             loadPosts();
         }
 
