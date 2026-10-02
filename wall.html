@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>小黑哥的私密好友社群牆</title>
+    <title>小黑哥的私密互動牆</title>
     <style>
         :root {
-            --bg-color: #121212;
-            --card-bg: #1e1e1e;
-            --text-color: #e0e0e0;
-            --text-secondary: #888888;
-            --accent-color: #4CAF50;
-            --accent-hover: #45a049;
-            --border-color: #333333;
+            --bg-color: #0f1115;
+            --card-bg: #1a1d24;
+            --text-color: #f0f2f5;
+            --text-secondary: #9ca3af;
+            --accent-color: #3b82f6;
+            --accent-hover: #2563eb;
+            --border-color: #2d3748;
         }
 
         * {
@@ -38,8 +38,8 @@
             height: 100vh;
             max-height: 850px;
             background-color: var(--card-bg);
-            border-radius: 20px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+            border-radius: 24px;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.6);
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -55,12 +55,13 @@
         /* 頂部導覽列 */
         header {
             padding: 16px;
-            background-color: #181818;
+            background-color: #14171d;
             border-bottom: 1px solid var(--border-color);
             text-align: center;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
             color: #ffffff;
+            letter-spacing: 1px;
         }
 
         /* 內容捲動區 */
@@ -85,18 +86,57 @@
             width: 100%;
             padding: 12px;
             margin: 12px 0;
-            border-radius: 8px;
+            border-radius: 10px;
             border: 1px solid var(--border-color);
-            background-color: #2c2c2c;
+            background-color: #222632;
             color: white;
             font-size: 16px;
+            text-align: center;
+        }
+
+        /* 個人檔案標頭區塊 (質感升級) */
+        .profile-header {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            padding: 16px;
+            border-radius: 16px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .profile-avatar {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background-color: #3b82f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+            box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4);
+            flex-shrink: 0;
+        }
+
+        .profile-info h3 {
+            font-size: 16px;
+            color: white;
+            margin-bottom: 4px;
+        }
+
+        .profile-info p {
+            font-size: 13px;
+            color: var(--text-secondary);
         }
 
         /* 發文區塊 */
         .post-box {
-            background-color: #252525;
-            padding: 12px;
-            border-radius: 12px;
+            background-color: #222632;
+            padding: 14px;
+            border-radius: 16px;
             margin-bottom: 16px;
             border: 1px solid var(--border-color);
         }
@@ -104,13 +144,38 @@
         .post-box textarea {
             width: 100%;
             height: 80px;
-            background-color: #1e1e1e;
+            background-color: #1a1d24;
             border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 8px;
+            border-radius: 10px;
+            padding: 10px;
             color: white;
             resize: none;
             font-size: 14px;
+        }
+
+        .post-box textarea:focus, .comment-input-box input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        .post-tools {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .file-upload-label {
+            font-size: 13px;
+            color: var(--accent-color);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .file-upload-label input {
+            display: none;
         }
 
         .btn {
@@ -118,52 +183,68 @@
             color: white;
             border: none;
             padding: 8px 16px;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 14px;
-            transition: background 0.2s;
+            font-size: 13px;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .btn:active {
+            transform: scale(0.96);
         }
 
         .btn:hover {
             background-color: var(--accent-hover);
         }
 
-        .post-btn-container {
-            display: flex;
-            justify-content: flex-end;
-            margin-top: 8px;
-        }
-
         /* 貼文卡片 */
         .card {
-            background-color: #252525;
-            border-radius: 12px;
-            padding: 12px;
+            background-color: #222632;
+            border-radius: 16px;
+            padding: 14px;
             margin-bottom: 16px;
             border: 1px solid var(--border-color);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
 
         .card-header {
             font-size: 12px;
             color: var(--text-secondary);
-            margin-bottom: 6px;
+            margin-bottom: 8px;
         }
 
         .card-body {
             font-size: 15px;
             line-height: 1.5;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             word-break: break-all;
         }
 
-        /* 互動按鈕區 (讚與留言數) */
+        .card-img-container {
+            margin-bottom: 12px;
+            border-radius: 10px;
+            overflow: hidden;
+            max-height: 250px;
+            background-color: #1a1d24;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .card-img-container img {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+        }
+
+        /* 互動按鈕區 */
         .card-actions {
             display: flex;
             gap: 16px;
             border-top: 1px solid var(--border-color);
-            padding-top: 8px;
-            font-size: 14px;
+            padding-top: 10px;
+            font-size: 13px;
             color: var(--text-secondary);
         }
 
@@ -171,7 +252,7 @@
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 6px;
             transition: color 0.2s;
         }
 
@@ -181,18 +262,18 @@
 
         /* 留言清單區 */
         .comments-section {
-            margin-top: 8px;
+            margin-top: 10px;
             border-top: 1px dashed var(--border-color);
-            padding-top: 8px;
-            display: none; /* 預設收合，點擊留言展開 */
+            padding-top: 10px;
+            display: none;
         }
 
         .comment-item {
             font-size: 13px;
             margin-bottom: 6px;
-            background-color: #1e1e1e;
-            padding: 6px 10px;
-            border-radius: 6px;
+            background-color: #1a1d24;
+            padding: 8px 10px;
+            border-radius: 8px;
         }
 
         .comment-item span {
@@ -204,54 +285,65 @@
         .comment-input-box {
             display: flex;
             gap: 6px;
-            margin-top: 8px;
+            margin-top: 10px;
         }
 
         .comment-input-box input {
-            flex: 1;
-            padding: 6px;
-            background-color: #1e1e1e;
+            background-color: #1a1d24;
             border: 1px solid var(--border-color);
-            border-radius: 6px;
+            border-radius: 8px;
             color: white;
             font-size: 13px;
+            padding: 6px 8px;
         }
     </style>
 </head>
 <body>
 
     <div class="mobile-container">
-        <header>小黑哥的私密互動牆</header>
+        <header>✨ 小黑哥的私密互動牆</header>
 
         <!-- 密碼驗證畫面 -->
         <div id="auth-screen">
             <h3>🔒 私密空間請輸入通行密碼</h3>
-            <p style="font-size: 13px; color: #888; margin-top: 4px;">預設密碼為：1234</p>
+            <p style="font-size: 13px; color: #888; margin-top: 6px;">預設密碼為：1234</p>
             <input type="password" id="passcode-input" placeholder="請輸入通行密碼">
             <button class="btn" onclick="checkPasscode()">進入牆面</button>
         </div>
 
-        <!-- 主內容畫面 (預設隱藏，驗證通過後顯示) -->
+        <!-- 主內容畫面 -->
         <div id="main-app" class="content-area" style="display: none;">
             
-            <!-- 發文輸入框 -->
-            <div class="post-box">
-                <textarea id="post-content" placeholder="隨手記錄生活或技術筆記..."></textarea>
-                <div class="post-btn-container">
-                    <button class="btn" onclick="createPost()">發布動態</button>
+            <!-- 個人檔案頂部列 -->
+            <div class="profile-header">
+                <div class="profile-avatar">慶</div>
+                <div class="profile-info">
+                    <h3>小黑哥</h3>
+                    <p>記錄生活點滴與技術隨筆 📷</p>
                 </div>
             </div>
 
-            <!-- 動態牆列表 -->
-            <div id="posts-container">
-                <!-- 動態由 JavaScript 動態生成 -->
+            <!-- 發文輸入框 -->
+            <div class="post-box">
+                <textarea id="post-content" placeholder="分享旅遊照片或隨手筆記..."></textarea>
+                <div class="post-tools">
+                    <label class="file-upload-label">
+                        📷 附加圖片
+                        <input type="file" id="image-input" accept="image/*" onchange="previewImage(event)">
+                    </label>
+                    <button class="btn" onclick="createPost()">發布動態</button>
+                </div>
+                <div id="image-preview-name" style="font-size: 11px; color: #3b82f6; margin-top: 6px;"></div>
             </div>
+
+            <!-- 動態牆列表 -->
+            <div id="posts-container"></div>
         </div>
     </div>
 
     <script>
-        // 預設密碼
         const CORRECT_PASSCODE = "1234";
+        let tempImageBase64 = ""; // 暫存上傳的圖片資料
 
         function checkPasscode() {
             const inputVal = document.getElementById('passcode-input').value;
@@ -260,25 +352,40 @@
                 document.getElementById('main-app').style.display = 'block';
                 loadPosts();
             } else {
-                alert('密碼錯誤！請輸入正確的通行密碼。');
+                alert('密碼錯誤！');
             }
         }
 
-        // 從 LocalStorage 載入貼文
+        // 圖片轉 Base64 預處理
+        function previewImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    tempImageBase64 = e.target.result;
+                    document.getElementById('image-preview-name').innerText = `已選擇圖片：${file.name}`;
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // 載入貼文
         function loadPosts() {
             const postsContainer = document.getElementById('posts-container');
             postsContainer.innerHTML = '';
             
-            let posts = JSON.parse(localStorage.getItem('black_wall_posts')) || [];
+            let posts = JSON.parse(localStorage.getItem('black_wall_posts_v2')) || [];
 
             if (posts.length === 0) {
-                postsContainer.innerHTML = '<p style="text-align:center; color:#777; font-size:14px; margin-top:20px;">目前沒有任何動態，發布第一則貼文吧！</p>';
+                postsContainer.innerHTML = '<p style="text-align:center; color:#777; font-size:13px; margin-top:20px;">目前沒有動態，快發布第一則回憶吧！</p>';
                 return;
             }
 
             posts.forEach((post, index) => {
                 let card = document.createElement('div');
                 card.className = 'card';
+                
+                let imageHtml = post.image ? `<div class="card-img-container"><img src="${post.image}" alt="動態圖片"></div>` : '';
                 
                 let commentsHtml = '';
                 if (post.comments && post.comments.length > 0) {
@@ -289,6 +396,7 @@
 
                 card.innerHTML = `
                     <div class="card-header">${post.time}</div>
+                    ${imageHtml}
                     <div class="card-body">${post.text}</div>
                     <div class="card-actions">
                         <div class="action-item" onclick="likePost(${index})">❤️ 讚 (${post.likes || 0})</div>
@@ -297,9 +405,9 @@
                     <div class="comments-section" id="comments-${index}" style="display: ${post.showComments ? 'block' : 'none'};">
                         <div id="comment-list-${index}">${commentsHtml}</div>
                         <div class="comment-input-box">
-                            <input type="text" id="c-name-${index}" placeholder="你的暱稱" style="width: 80px;">
-                            <input type="text" id="c-text-${index}" placeholder="留個言吧..." onkeypress="handleKeyPress(event, ${index})">
-                            <button class="btn" style="padding: 4px 8px;" onclick="addComment(${index})">送出</button>
+                            <input type="text" id="c-name-${index}" placeholder="暱稱" style="width: 70px;">
+                            <input type="text" id="c-text-${index}" placeholder="留個言..." style="flex:1;" onkeypress="handleKeyPress(event, ${index})">
+                            <button class="btn" style="padding: 4px 10px;" onclick="addComment(${index})">送出</button>
                         </div>
                     </div>
                 `;
@@ -307,49 +415,50 @@
             });
         }
 
-        // 建立新貼文
+        // 發布貼文
         function createPost() {
             const contentBox = document.getElementById('post-content');
             const text = contentBox.value.trim();
-            if (!text) {
-                alert('請輸入貼文內容！');
+            if (!text && !tempImageBase64) {
+                alert('請輸入文字或選擇圖片！');
                 return;
             }
 
-            let posts = JSON.parse(localStorage.getItem('black_wall_posts')) || [];
+            let posts = JSON.parse(localStorage.getItem('black_wall_posts_v2')) || [];
             const now = new Date();
             const timeStr = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
 
             posts.unshift({
                 text: text,
+                image: tempImageBase64,
                 time: timeStr,
                 likes: 0,
                 comments: [],
                 showComments: false
             });
 
-            localStorage.setItem('black_wall_posts', JSON.stringify(posts));
+            localStorage.setItem('black_wall_posts_v2', JSON.stringify(posts));
             contentBox.value = '';
+            tempImageBase64 = "";
+            document.getElementById('image-preview-name').innerText = '';
+            document.getElementById('image-input').value = '';
             loadPosts();
         }
 
-        // 按讚功能
         function likePost(index) {
-            let posts = JSON.parse(localStorage.getItem('black_wall_posts')) || [];
+            let posts = JSON.parse(localStorage.getItem('black_wall_posts_v2')) || [];
             posts[index].likes = (posts[index].likes || 0) + 1;
-            localStorage.setItem('black_wall_posts', JSON.stringify(posts));
+            localStorage.setItem('black_wall_posts_v2', JSON.stringify(posts));
             loadPosts();
         }
 
-        // 切換留言區顯示
         function toggleComments(index) {
-            let posts = JSON.parse(localStorage.getItem('black_wall_posts')) || [];
+            let posts = JSON.parse(localStorage.getItem('black_wall_posts_v2')) || [];
             posts[index].showComments = !posts[index].showComments;
-            localStorage.setItem('black_wall_posts', JSON.stringify(posts));
+            localStorage.setItem('black_wall_posts_v2', JSON.stringify(posts));
             loadPosts();
         }
 
-        // 新增留言
         function addComment(index) {
             const nameInput = document.getElementById(`c-name-${index}`);
             const textInput = document.getElementById(`c-text-${index}`);
@@ -359,11 +468,11 @@
 
             if (!text) return;
 
-            let posts = JSON.parse(localStorage.getItem('black_wall_posts')) || [];
+            let posts = JSON.parse(localStorage.getItem('black_wall_posts_v2')) || [];
             if (!posts[index].comments) posts[index].comments = [];
 
             posts[index].comments.push({ name: name, text: text });
-            localStorage.setItem('black_wall_posts', JSON.stringify(posts));
+            localStorage.setItem('black_wall_posts_v2', JSON.stringify(posts));
             loadPosts();
         }
 
