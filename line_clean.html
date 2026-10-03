@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>黑曜石通訊 - 專屬指揮中心</title>
+    <style>
+        :root {
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --primary: #4f46e5;
+            --primary-light: #e0e7ff;
+            --text-main: #1f2937;
+            --text-sub: #6b7280;
+            --border-color: #e5e7eb;
+            --line-green: #06c755;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body {
+            background-color: #111827;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: var(--text-main);
+        }
+
+        /* 手機外框容器 */
+        .phone-container {
+            width: 100%;
+            max-width: 414px;
+            height: 100%;
+            max-height: 896px;
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        @media (min-width: 415px) {
+            .phone-container {
+                height: 85vh;
+                border-radius: 36px;
+                border: 8px solid #1f2937;
+            }
+        }
+
+        /* 頂部標題列 */
+        header {
+            background-color: var(--card-bg);
+            padding: 16px 20px;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header span.subtitle {
+            font-size: 12px;
+            color: var(--primary);
+            background: var(--primary-light);
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+
+        /* 內容區塊 */
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            display: none;
+            padding: 16px;
+        }
+
+        .content-area.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 聊天室樣式 */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding-bottom: 16px;
+        }
+
+        .message {
+            max-width: 75%;
+            padding: 10px 14px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.5;
+            word-break: break-all;
+        }
+
+        .message.user {
+            background-color: var(--line-green);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.bot {
+            background-color: var(--card-bg);
+            color: var(--text-main);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .chat-input-bar {
+            display: flex;
+            padding: 10px;
+            background-color: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            gap: 8px;
+        }
+
+        .chat-input-bar input {
+            flex: 1;
+            padding: 10px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .chat-input-bar input:focus {
+            border-color: var(--primary);
+        }
+
+        .chat-input-bar button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 0 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* 個人牆樣式 */
+        .profile-card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            margin-bottom: 16px;
+        }
+
+        .avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #4f46e5, #06c755);
+            border-radius: 50%;
+            margin: 0 auto 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        .profile-name {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .profile-status {
+            font-size: 13px;
+            color: var(--text-sub);
+            margin-bottom: 12px;
+        }
+
+        .status-input-box {
+            display: flex;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .status-input-box input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 13px;
+            outline: none;
+        }
+
+        .status-input-box button {
+            background-color: var(--text-main);
+            color: white;
+            border: none;
+            padding: 0 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .wall-posts-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text-main);
+        }
+
+        .post-input-box {
+            background-color: var(--card-bg);
+            padding: 14px;
+            border-radius: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .post-input-box textarea {
+            width: 100%;
+            height: 70px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 8px;
+            font-size: 13px;
+            resize: none;
+            outline: none;
+            margin-bottom: 8px;
+        }
+
+        .post-input-box button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            float: right;
+        }
+
+        .post-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .post-item {
+            background-color: var(--card-bg);
+            padding: 14px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            font-size: 13px;
+            line-height: 1.4;
+            position: relative;
+        }
+
+        .post-time {
+            font-size: 11px;
+            color: var(--text-sub);
+            margin-top: 6px;
+        }
+
+        /* 底部導覽列 (模擬 LINE 風格) */
+        nav.tab-bar {
+            height: 60px;
+            background-color: var(--card-bg);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        .tab-item {
+            flex: 1;
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-sub);
+            cursor: pointer;
+            padding: 8px 0;
+            transition: color 0.2s;
+        }
+
+        .tab-item.active {
+            color: var(--line-green);
+            font-weight: 600;
+        }
+
+        .tab-item div.icon {
+            font-size: 20px;
+            margin-bottom: 2px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="phone-container">
+        <!-- 頂部列 -->
+        <header>
+            <span id="header-title">黑曜石聊天室</span>
+            <span class="subtitle">v1.0 Clean</span>
+        </header>
+
+        <!-- 聊天室內容區 -->
+        <div id="tab-chat" class="content-area active">
+            <div class="chat-messages" id="chatMessages">
+                <!-- 動態生成的聊天訊息 -->
+            </div>
+            <div class="chat-input-bar">
+                <input type="text" id="chatInput" placeholder="與 柔 對話..." onkeypress="handleKeyPress(event)">
+                <button onclick="sendMessage()">傳送</button>
+            </div>
+        </div>
+
+        <!-- 個人牆內容區 -->
+        <div id="tab-profile" class="content-area">
+            <div class="profile-card">
+                <div class="avatar">小</div>
+                <div class="profile-name" id="profileNameDisplay">小黑哥</div>
+                <div class="profile-status" id="profileStatusDisplay">架構師：黑曜石計畫進行中</div>
+                <div class="status-input-box">
+                    <input type="text" id="statusInput" placeholder="更新狀態...">
+                    <button onclick="updateStatus()">設定</button>
+                </div>
+            </div>
+
+            <div class="wall-posts-title">📝 個人動態牆 / 靈感筆記</div>
+            <div class="post-input-box">
+                <textarea id="postInput" placeholder="記錄今天黑曜石計畫的靈感或進度..."></textarea>
+                <button onclick="addPost()">發布</button>
+                <div style="clear: both;"></div>
+            </div>
+
+            <div class="post-list" id="postList">
+                <!-- 動態發布的動態牆項目 -->
+            </div>
+        </div>
+
+        <!-- 底部導覽列 -->
+        <nav class="tab-bar">
+            <div class="tab-item active" onclick="switchTab('chat', this)">
+                <div class="icon">💬</div>
+                聊天
+            </div>
+            <div class="tab-item" onclick="switchTab('profile', this)">
+                <div class="icon">👤</div>
+                個人牆
+            </div>
+        </nav>
+    </div>
+
+    <script>
+        // 初始化資料 (localStorage)
+        let messages = JSON.parse(localStorage.getItem('obsidian_chat')) || [
+            { sender: 'bot', text: '嗨，小黑哥！我是柔。純淨無廣告的聊天室與個人牆已經上線囉！' }
+        ];
+
+        let profileStatus = localStorage.getItem('obsidian_status') || '架構師：黑曜石計畫進行中';
+        let posts = JSON.parse(localStorage.getItem('obsidian_posts')) || [
+            { text: '今日完成黑曜石計畫介面架構，保持簡潔與高效率！', time: '2026-10-03 08:55' }
+        ];
+
+        // 切換分頁
+        function switchTab(tabName, element) {
+            document.querySelectorAll('.content-area').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
+
+            if (tabName === 'chat') {
+                document.getElementById('tab-chat').classList.add('active');
+                document.getElementById('header-title').innerText = '黑曜石聊天室';
+            } else if (tabName === 'profile') {
+                document.getElementById('tab-profile').classList.add('active');
+                document.getElementById('header-title').innerText = '個人牆';
+                renderProfile();
+            }
+            element.classList.add('active');
+        }
+
+        // 渲染聊天訊息
+        function renderMessages() {
+            const container = document.getElementById('chatMessages');
+            container.innerHTML = '';
+            messages.forEach(msg => {
+                const div = document.createElement('div');
+                div.className = `message ${msg.sender}`;
+                div.innerText = msg.text;
+                container.appendChild(div);
+            });
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // 發送訊息
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            messages.push({ sender: 'user', text: text });
+            input.value = '';
+            renderMessages();
+            saveData();
+
+            // 模擬柔的貼心回應
+            setTimeout(() => {
+                messages.push({ sender: 'bot', text: `收到你的訊息：「${text}」。這設計很符合我們簡潔流暢的要求！` });
+                renderMessages();
+                saveData();
+            }, 600);
+        }
+
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') sendMessage();
+        }
+
+        // 更新個人狀態
+        function updateStatus() {
+            const input = document.getElementById('statusInput');
+            const val = input.value.trim();
+            if (!val) return;
+            profileStatus = val;
+            input.value = '';
+            renderProfile();
+            saveData();
+        }
+
+        function renderProfile() {
+            document.getElementById('profileStatusDisplay').innerText = profileStatus;
+            
+            const list = document.getElementById('postList');
+            list.innerHTML = '';
+            posts.forEach(post => {
+                const item = document.createElement('div');
+                item.className = 'post-item';
+                item.innerHTML = `<div>${post.text}</div><div class="post-time">${post.time}</div>`;
+                list.appendChild(item);
+            });
+        }
+
+        // 發布貼文
+        function addPost() {
+            const input = document.getElementById('postInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const now = new Date();
+            const timeStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+            posts.unshift({ text: text, time: timeStr });
+            input.value = '';
+            renderProfile();
+            saveData();
+        }
+
+        // 儲存至 localStorage
+        function saveData() {
+            localStorage.setItem('obsidian_chat', JSON.stringify(messages));
+            localStorage.setItem('obsidian_status', profileStatus);
+            localStorage.setItem('obsidian_posts', JSON.stringify(posts));
+        }
+
+        // 初始化載入
+        renderMessages();
+        renderProfile();
+    </script>
+</body>
+</html>
