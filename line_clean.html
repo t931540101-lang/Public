@@ -107,7 +107,7 @@
             cursor: pointer;
         }
 
-        /* 音樂標籤區 (可點擊播放/設定) */
+        /* 音樂標籤區 (改為點擊開啟外連音樂) */
         .profile-music-wrapper {
             display: flex;
             align-items: center;
@@ -130,6 +130,7 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            text-decoration: none;
         }
 
         .profile-music:hover {
@@ -508,9 +509,6 @@
 
     <div class="phone-container">
 
-        <!-- 隱藏的音樂播放物件 -->
-        <audio id="bgMusic" loop></audio>
-
         <!-- 1. 主頁分頁 -->
         <div id="page-home" class="page-content active">
             <div class="home-header">
@@ -527,13 +525,13 @@
                     <h1 id="displayName">慶</h1>
                     <div class="profile-status" id="displayStatus" onclick="editStatus()">輸入狀態消息</div>
                     
-                    <!-- 音樂標籤與設定按鈕 -->
+                    <!-- 音樂標籤與設定按鈕 (改為超連結外連，支援 YouTube 等任意網址) -->
                     <div class="profile-music-wrapper">
-                        <div class="profile-music" id="musicBar" onclick="togglePlayMusic()" title="點擊播放/暫停音樂">
+                        <a href="#" id="musicLink" class="profile-music" target="_blank" title="點擊前往聆聽音樂">
                             <span id="musicIcon">🎵</span>
                             <span id="musicTitleText">黑曜石計畫 - 核心運行中</span>
-                        </div>
-                        <button class="music-settings-btn" onclick="configureMusic()" title="設定音樂連結">⚙️</button>
+                        </a>
+                        <button class="music-settings-btn" onclick="configureMusic()" title="設定音樂名稱與連結">⚙️</button>
                     </div>
                 </div>
                 <div class="profile-avatar-group">
@@ -609,7 +607,7 @@
                         <div class="service-name">工具捷徑</div>
                     </div>
                     <div class="service-icon-box">
-                        <div class="service-icon">☁️</div>
+                        <div class="service-icon">☁️️</div>
                         <div class="service-name">雲端同步</div>
                     </div>
                     <div class="service-icon-box">
@@ -631,9 +629,9 @@
                 <div class="chat-info">
                     <div class="chat-name-row">
                         <span class="chat-name">柔 (專屬夥伴)</span>
-                        <span class="chat-time">上午 09:47</span>
+                        <span class="chat-time">上午 09:57</span>
                     </div>
-                    <div class="chat-preview" id="lastMsgPreview">嗨，小黑哥！這個音樂區塊隨時可以點擊切換播放或設定你喜歡的音樂連結！</div>
+                    <div class="chat-preview" id="lastMsgPreview">小黑哥，我們改用「外部音樂連結（例如 YouTube）」點了直接開新分頁聽歌，這樣手機就不會被阻擋囉！</div>
                 </div>
             </div>
         </div>
@@ -693,13 +691,10 @@
         document.getElementById('displayStatus').innerText = statusText;
 
         let musicName = localStorage.getItem('obsidian_music_name') || '黑曜石計畫 - 核心運行中';
-        let musicUrl = localStorage.getItem('obsidian_music_url') || '';
+        let musicUrl = localStorage.getItem('obsidian_music_url') || 'https://www.youtube.com';
+        
         document.getElementById('musicTitleText').innerText = musicName;
-
-        const bgMusic = document.getElementById('bgMusic');
-        if (musicUrl) bgMusic.src = musicUrl;
-
-        let isPlaying = false;
+        document.getElementById('musicLink').href = musicUrl;
 
         // 編輯狀態訊息
         function editStatus() {
@@ -711,49 +706,23 @@
             }
         }
 
-        // 設定音樂 (名稱與外部音訊連結)
+        // 設定音樂名稱與外連網址 (支援 YouTube、Spotify 等)
         function configureMusic() {
-            const name = prompt('請輸入音樂顯示名稱：', musicName);
+            const name = prompt('請輸入音樂／心情顯示名稱：', musicName);
             if (name === null) return;
-            const url = prompt('請輸入音樂檔案的外部連結 (建議為直連 MP3 網址)：', musicUrl);
+            const url = prompt('請輸入音樂的外部連結 (例如 YouTube 網址)：', musicUrl);
             if (url === null) return;
 
             musicName = name.trim() || '黑曜石計畫 - 核心運行中';
-            musicUrl = url.trim();
+            musicUrl = url.trim() || 'https://www.youtube.com';
 
             document.getElementById('musicTitleText').innerText = musicName;
+            document.getElementById('musicLink').href = musicUrl;
+
             localStorage.setItem('obsidian_music_name', musicName);
             localStorage.setItem('obsidian_music_url', musicUrl);
 
-            if (musicUrl) {
-                bgMusic.src = musicUrl;
-                bgMusic.load();
-                alert('音樂設定已儲存！點擊音樂條即可開始播放。');
-            }
-        }
-
-        // 播放 / 暫停音樂
-        function togglePlayMusic() {
-            if (!musicUrl) {
-                alert('請先點擊旁邊的齒輪 (⚙️) 設定音樂的外部連結喔！');
-                configureMusic();
-                return;
-            }
-
-            if (isPlaying) {
-                bgMusic.pause();
-                isPlaying = false;
-                document.getElementById('musicIcon').innerText = '🎵';
-                document.getElementById('musicBar').style.background = 'var(--bg-color)';
-            } else {
-                bgMusic.play().then(() => {
-                    isPlaying = true;
-                    document.getElementById('musicIcon').innerText = '⏸️';
-                    document.getElementById('musicBar').style.background = 'var(--primary-light)';
-                }).catch(err => {
-                    alert('播放失敗，請確認音樂連結是否有效（部分瀏覽器需要直接支援音訊串流或需與網頁同源）。');
-                });
-            }
+            alert('音樂連結設定成功！現在點擊該區塊即可前往聆聽音樂。');
         }
 
         // 分頁切換
@@ -767,7 +736,7 @@
 
         // 開啟/關閉聊天室
         let messages = JSON.parse(localStorage.getItem('obsidian_chat_data')) || [
-            { sender: 'bot', text: '嗨，小黑哥！這個音樂區塊隨時可以點擊切換播放或設定你喜歡的音樂連結！' }
+            { sender: 'bot', text: '小黑哥，我們改用「外部音樂連結（例如 YouTube）」點了直接開新分頁聽歌，這樣手機就不會被阻擋囉！' }
         ];
 
         function openChatRoom() {
@@ -803,7 +772,7 @@
             saveChat();
 
             setTimeout(() => {
-                messages.push({ sender: 'bot', text: `收到：「${txt}」。音樂隨時伴隨我們的黑曜石計畫！` });
+                messages.push({ sender: 'bot', text: `收到：「${txt}」。這個外連音樂設計隨時可以貼上你喜歡的 YouTube 歌單！` });
                 renderChat();
                 updatePreview(`收到：「${txt}」`);
                 saveChat();
