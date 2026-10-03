@@ -107,7 +107,7 @@
             cursor: pointer;
         }
 
-        /* 音樂標籤區 (改為點擊開啟外連音樂) */
+        /* 音樂標籤區 */
         .profile-music-wrapper {
             display: flex;
             align-items: center;
@@ -318,6 +318,11 @@
             align-items: center;
             justify-content: center;
             font-size: 20px;
+            transition: transform 0.1s;
+        }
+
+        .service-icon-box:active .service-icon {
+            transform: scale(0.92);
         }
 
         .service-name {
@@ -475,6 +480,69 @@
             cursor: pointer;
         }
 
+        /* 彈出式備忘錄面板 */
+        #memo-pane {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--card-bg);
+            display: none;
+            flex-direction: column;
+            z-index: 60;
+        }
+
+        .memo-top {
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .memo-content-area {
+            flex: 1;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .memo-content-area textarea {
+            flex: 1;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 14px;
+            outline: none;
+            resize: none;
+            background: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.5;
+        }
+
+        .memo-footer {
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: var(--text-sub);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .memo-save-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
         /* 底部 LINE 風格導覽列 */
         nav.tab-bar {
             height: 65px;
@@ -525,7 +593,7 @@
                     <h1 id="displayName">慶</h1>
                     <div class="profile-status" id="displayStatus" onclick="editStatus()">輸入狀態消息</div>
                     
-                    <!-- 音樂標籤與設定按鈕 (改為超連結外連，支援 YouTube 等任意網址) -->
+                    <!-- 音樂標籤與設定按鈕 -->
                     <div class="profile-music-wrapper">
                         <a href="#" id="musicLink" class="profile-music" target="_blank" title="點擊前往聆聽音樂">
                             <span id="musicIcon">🎵</span>
@@ -594,23 +662,23 @@
                 </div>
 
                 <div class="services-grid">
-                    <div class="service-icon-box">
+                    <div class="service-icon-box" onclick="alert('貼圖小鋪功能建置中...')">
                         <div class="service-icon">🎨</div>
                         <div class="service-name">貼圖小鋪</div>
                     </div>
-                    <div class="service-icon-box">
+                    <div class="service-icon-box" onclick="alert('靈感小鋪功能建置中...')">
                         <div class="service-icon">💡</div>
                         <div class="service-name">靈感小鋪</div>
                     </div>
-                    <div class="service-icon-box">
+                    <div class="service-icon-box" onclick="alert('工具捷徑功能即將推出！')">
                         <div class="service-icon">🛠️</div>
                         <div class="service-name">工具捷徑</div>
                     </div>
-                    <div class="service-icon-box">
-                        <div class="service-icon">☁️️</div>
+                    <div class="service-icon-box" onclick="alert('雲端同步狀態：正常運行中')">
+                        <div class="service-icon">☁</div>
                         <div class="service-name">雲端同步</div>
                     </div>
-                    <div class="service-icon-box">
+                    <div class="service-icon-box" onclick="openMemo()">
                         <div class="service-icon">📌</div>
                         <div class="service-name">備忘錄</div>
                     </div>
@@ -629,9 +697,9 @@
                 <div class="chat-info">
                     <div class="chat-name-row">
                         <span class="chat-name">柔 (專屬夥伴)</span>
-                        <span class="chat-time">上午 09:57</span>
+                        <span class="chat-time">上午 07:53</span>
                     </div>
-                    <div class="chat-preview" id="lastMsgPreview">小黑哥，我們改用「外部音樂連結（例如 YouTube）」點了直接開新分頁聽歌，這樣手機就不會被阻擋囉！</div>
+                    <div class="chat-preview" id="lastMsgPreview">小黑哥，備忘錄功能已經成功嵌入服務區囉！點擊即可隨時記筆記。</div>
                 </div>
             </div>
         </div>
@@ -657,6 +725,22 @@
             <div class="chatroom-input">
                 <input type="text" id="chatInputText" placeholder="輸入訊息..." onkeypress="handleEnterKey(event)">
                 <button onclick="sendMsg()">傳送</button>
+            </div>
+        </div>
+
+        <!-- 彈出式備忘錄面板 -->
+        <div id="memo-pane">
+            <div class="memo-top">
+                <span style="cursor: pointer;" onclick="closeMemo()">❮ 返回</span>
+                <span>黑曜石隨身備忘錄</span>
+                <span style="width: 40px;"></span>
+            </div>
+            <div class="memo-content-area">
+                <textarea id="memoTextArea" placeholder="在此輸入您的靈感、程式碼片段或代辦事項...（會自動存檔）" oninput="autoSaveMemo()"></textarea>
+            </div>
+            <div class="memo-footer">
+                <span id="memoSaveStatus">已自動儲存</span>
+                <button class="memo-save-btn" onclick="closeMemo()">完成</button>
             </div>
         </div>
 
@@ -696,6 +780,10 @@
         document.getElementById('musicTitleText').innerText = musicName;
         document.getElementById('musicLink').href = musicUrl;
 
+        // 載入備忘錄內容
+        const savedMemo = localStorage.getItem('obsidian_memo_content') || '';
+        document.getElementById('memoTextArea').value = savedMemo;
+
         // 編輯狀態訊息
         function editStatus() {
             const newStatus = prompt('請輸入新的狀態訊息：', statusText);
@@ -706,7 +794,7 @@
             }
         }
 
-        // 設定音樂名稱與外連網址 (支援 YouTube、Spotify 等)
+        // 設定音樂名稱與外連網址
         function configureMusic() {
             const name = prompt('請輸入音樂／心情顯示名稱：', musicName);
             if (name === null) return;
@@ -722,7 +810,28 @@
             localStorage.setItem('obsidian_music_name', musicName);
             localStorage.setItem('obsidian_music_url', musicUrl);
 
-            alert('音樂連結設定成功！現在點擊該區塊即可前往聆聽音樂。');
+            alert('音樂連結設定成功！');
+        }
+
+        // 開啟/關閉備忘錄
+        function openMemo() {
+            document.getElementById('memo-pane').style.display = 'flex';
+        }
+
+        function closeMemo() {
+            document.getElementById('memo-pane').style.display = 'none';
+        }
+
+        function autoSaveMemo() {
+            const content = document.getElementById('memoTextArea').value;
+            localStorage.setItem('obsidian_memo_content', content);
+            const statusEl = document.getElementById('memoSaveStatus');
+            statusEl.innerText = '已自動儲存';
+            setTimeout(() => {
+                if (statusEl.innerText === '已自動儲存') {
+                    statusEl.innerText = 'LocalStorage 同步中';
+                }
+            }, 1500);
         }
 
         // 分頁切換
@@ -736,7 +845,7 @@
 
         // 開啟/關閉聊天室
         let messages = JSON.parse(localStorage.getItem('obsidian_chat_data')) || [
-            { sender: 'bot', text: '小黑哥，我們改用「外部音樂連結（例如 YouTube）」點了直接開新分頁聽歌，這樣手機就不會被阻擋囉！' }
+            { sender: 'bot', text: '小黑哥，備忘錄功能已經成功嵌入服務區囉！點擊即可隨時記筆記。' }
         ];
 
         function openChatRoom() {
@@ -772,7 +881,7 @@
             saveChat();
 
             setTimeout(() => {
-                messages.push({ sender: 'bot', text: `收到：「${txt}」。這個外連音樂設計隨時可以貼上你喜歡的 YouTube 歌單！` });
+                messages.push({ sender: 'bot', text: `收到：「${txt}」。備忘錄隨時可以記錄你的靈感，我們繼續朝黑曜石計畫前進！` });
                 renderChat();
                 updatePreview(`收到：「${txt}」`);
                 saveChat();
