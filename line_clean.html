@@ -13,6 +13,7 @@
             --text-main: #111111;
             --text-sub: #888888;
             --border-color: #f0f0f0;
+            --danger: #ef4444;
         }
 
         * {
@@ -543,6 +544,116 @@
             cursor: pointer;
         }
 
+        /* 彈出式工具捷徑面板 */
+        #shortcuts-pane {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--card-bg);
+            display: none;
+            flex-direction: column;
+            z-index: 60;
+        }
+
+        .shortcuts-top {
+            padding: 14px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .shortcuts-body {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .shortcut-add-box {
+            background: var(--bg-color);
+            padding: 12px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .shortcut-add-box input {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            outline: none;
+            font-size: 13px;
+            background: white;
+        }
+
+        .shortcut-add-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .shortcut-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .shortcut-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-color);
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .shortcut-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            text-decoration: none;
+            color: var(--text-main);
+            flex: 1;
+            min-width: 0;
+            cursor: pointer;
+        }
+
+        .shortcut-name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .shortcut-url {
+            font-size: 11px;
+            color: var(--text-sub);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .shortcut-del {
+            background: none;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+            font-size: 14px;
+            padding: 4px 8px;
+        }
+
         /* 底部 LINE 風格導覽列 */
         nav.tab-bar {
             height: 65px;
@@ -670,7 +781,7 @@
                         <div class="service-icon">💡</div>
                         <div class="service-name">靈感小鋪</div>
                     </div>
-                    <div class="service-icon-box" onclick="alert('工具捷徑功能即將推出！')">
+                    <div class="service-icon-box" onclick="openShortcuts()">
                         <div class="service-icon">🛠️</div>
                         <div class="service-name">工具捷徑</div>
                     </div>
@@ -697,9 +808,9 @@
                 <div class="chat-info">
                     <div class="chat-name-row">
                         <span class="chat-name">柔 (專屬夥伴)</span>
-                        <span class="chat-time">上午 07:53</span>
+                        <span class="chat-time">上午 07:57</span>
                     </div>
-                    <div class="chat-preview" id="lastMsgPreview">小黑哥，備忘錄功能已經成功嵌入服務區囉！點擊即可隨時記筆記。</div>
+                    <div class="chat-preview" id="lastMsgPreview">小黑哥，工具捷徑面板已經成功加進去了！隨時可以管理你的常用網址。</div>
                 </div>
             </div>
         </div>
@@ -744,6 +855,25 @@
             </div>
         </div>
 
+        <!-- 彈出式工具捷徑面板 -->
+        <div id="shortcuts-pane">
+            <div class="shortcuts-top">
+                <span style="cursor: pointer;" onclick="closeShortcuts()">❮ 返回</span>
+                <span>黑曜石工具捷徑</span>
+                <span style="width: 40px;"></span>
+            </div>
+            <div class="shortcuts-body">
+                <div class="shortcut-add-box">
+                    <input type="text" id="shortcutNameInput" placeholder="捷徑名稱 (例如: GitHub)">
+                    <input type="text" id="shortcutUrlInput" placeholder="網址 (例如: https://github.com)">
+                    <button class="shortcut-add-btn" onclick="addShortcut()">＋ 新增捷徑</button>
+                </div>
+                <div class="shortcut-list" id="shortcutListContainer">
+                    <!-- 動態載入捷徑清單 -->
+                </div>
+            </div>
+        </div>
+
         <!-- 底部 LINE 風格導覽列 -->
         <nav class="tab-bar">
             <div class="tab-item active" onclick="switchTab('home', this)">
@@ -783,6 +913,12 @@
         // 載入備忘錄內容
         const savedMemo = localStorage.getItem('obsidian_memo_content') || '';
         document.getElementById('memoTextArea').value = savedMemo;
+
+        // 載入工具捷徑
+        let shortcuts = JSON.parse(localStorage.getItem('obsidian_shortcuts')) || [
+            { name: 'GitHub 專案', url: 'https://github.com' },
+            { name: 'Vercel 部署主控台', url: 'https://vercel.com' }
+        ];
 
         // 編輯狀態訊息
         function editStatus() {
@@ -834,6 +970,69 @@
             }, 1500);
         }
 
+        // 開啟/關閉工具捷徑
+        function openShortcuts() {
+            document.getElementById('shortcuts-pane').style.display = 'flex';
+            renderShortcuts();
+        }
+
+        function closeShortcuts() {
+            document.getElementById('shortcuts-pane').style.display = 'none';
+        }
+
+        function renderShortcuts() {
+            const container = document.getElementById('shortcutListContainer');
+            container.innerHTML = '';
+            if (shortcuts.length === 0) {
+                container.innerHTML = '<div style="font-size: 13px; color: var(--text-sub); text-align: center; padding: 10px;">目前尚無捷徑，請在上方新增！</div>';
+                return;
+            }
+            shortcuts.forEach((s, index) => {
+                const item = document.createElement('div');
+                item.className = 'shortcut-item';
+                item.innerHTML = `
+                    <a href="${s.url}" target="_blank" class="shortcut-info">
+                        <div class="shortcut-name">${s.name}</div>
+                        <div class="shortcut-url">${s.url}</div>
+                    </a>
+                    <button class="shortcut-del" onclick="deleteShortcut(${index})">刪除</button>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function addShortcut() {
+            const nameInput = document.getElementById('shortcutNameInput');
+            const urlInput = document.getElementById('shortcutUrlInput');
+            const name = nameInput.value.trim();
+            const url = urlInput.value.trim();
+
+            if (!name || !url) {
+                alert('請完整輸入捷徑名稱與網址！');
+                return;
+            }
+
+            let validUrl = url;
+            if (!validUrl.startsWith('http://') && !validUrl.startsWith('https://')) {
+                validUrl = 'https://' + validUrl;
+            }
+
+            shortcuts.push({ name: name, url: validUrl });
+            localStorage.setItem('obsidian_shortcuts', JSON.stringify(shortcuts));
+
+            nameInput.value = '';
+            urlInput.value = '';
+            renderShortcuts();
+        }
+
+        function deleteShortcut(index) {
+            if (confirm('確定要刪除這個捷徑嗎？')) {
+                shortcuts.splice(index, 1);
+                localStorage.setItem('obsidian_shortcuts', JSON.stringify(shortcuts));
+                renderShortcuts();
+            }
+        }
+
         // 分頁切換
         function switchTab(pageId, element) {
             document.querySelectorAll('.page-content').forEach(el => el.classList.remove('active'));
@@ -845,7 +1044,7 @@
 
         // 開啟/關閉聊天室
         let messages = JSON.parse(localStorage.getItem('obsidian_chat_data')) || [
-            { sender: 'bot', text: '小黑哥，備忘錄功能已經成功嵌入服務區囉！點擊即可隨時記筆記。' }
+            { sender: 'bot', text: '小黑哥，工具捷徑面板已經成功加進去了！隨時可以管理你的常用網址。' }
         ];
 
         function openChatRoom() {
@@ -881,7 +1080,7 @@
             saveChat();
 
             setTimeout(() => {
-                messages.push({ sender: 'bot', text: `收到：「${txt}」。備忘錄隨時可以記錄你的靈感，我們繼續朝黑曜石計畫前進！` });
+                messages.push({ sender: 'bot', text: `收到：「${txt}」。我們的黑曜石指揮中心越來越完整囉！` });
                 renderChat();
                 updatePreview(`收到：「${txt}」`);
                 saveChat();
