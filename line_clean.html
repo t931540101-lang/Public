@@ -67,7 +67,7 @@
             flex-direction: column;
         }
 
-        /* ==================== 主頁樣式 (對齊截圖) ==================== */
+        /* 主頁樣式 */
         .home-header {
             padding: 16px 20px 8px 20px;
             display: flex;
@@ -107,21 +107,60 @@
             cursor: pointer;
         }
 
+        /* 音樂標籤區 (可點擊播放/設定) */
+        .profile-music-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
         .profile-music {
             display: inline-flex;
             align-items: center;
             background: var(--bg-color);
-            padding: 4px 10px;
-            border-radius: 14px;
+            padding: 6px 12px;
+            border-radius: 16px;
             font-size: 12px;
             color: var(--text-main);
             gap: 6px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+            max-width: 220px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .profile-music:hover {
+            border-color: var(--primary);
+            background: var(--primary-light);
+        }
+
+        .music-settings-btn {
+            background: var(--bg-color);
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+            color: var(--text-sub);
+        }
+
+        .music-settings-btn:hover {
+            background: #e5e7eb;
+            color: var(--text-main);
         }
 
         .profile-avatar-group {
             position: relative;
             width: 70px;
             height: 70px;
+            flex-shrink: 0;
         }
 
         .main-avatar {
@@ -181,14 +220,13 @@
             color: var(--text-main);
         }
 
-        /* 區塊分隔線 */
         .section-divider {
             height: 6px;
             background-color: var(--bg-color);
             width: 100%;
         }
 
-        /* 清單群組 (好友名單 / 服務) */
+        /* 清單群組 */
         .list-section {
             padding: 16px 20px;
         }
@@ -286,7 +324,7 @@
             color: var(--text-main);
         }
 
-        /* ==================== 聊天分頁樣式 ==================== */
+        /* 聊天分頁樣式 */
         .chat-list-header {
             padding: 16px 20px;
             font-size: 20px;
@@ -470,7 +508,10 @@
 
     <div class="phone-container">
 
-        <!-- 1. 主頁分頁 (對齊截圖排版) -->
+        <!-- 隱藏的音樂播放物件 -->
+        <audio id="bgMusic" loop></audio>
+
+        <!-- 1. 主頁分頁 -->
         <div id="page-home" class="page-content active">
             <div class="home-header">
                 <div class="home-top-icons">
@@ -485,9 +526,14 @@
                 <div class="profile-left">
                     <h1 id="displayName">慶</h1>
                     <div class="profile-status" id="displayStatus" onclick="editStatus()">輸入狀態消息</div>
-                    <div class="profile-music">
-                        <span>🎵</span>
-                        <span>黑曜石計畫 - 核心運行中</span>
+                    
+                    <!-- 音樂標籤與設定按鈕 -->
+                    <div class="profile-music-wrapper">
+                        <div class="profile-music" id="musicBar" onclick="togglePlayMusic()" title="點擊播放/暫停音樂">
+                            <span id="musicIcon">🎵</span>
+                            <span id="musicTitleText">黑曜石計畫 - 核心運行中</span>
+                        </div>
+                        <button class="music-settings-btn" onclick="configureMusic()" title="設定音樂連結">⚙️</button>
                     </div>
                 </div>
                 <div class="profile-avatar-group">
@@ -585,14 +631,14 @@
                 <div class="chat-info">
                     <div class="chat-name-row">
                         <span class="chat-name">柔 (專屬夥伴)</span>
-                        <span class="chat-time">上午 09:08</span>
+                        <span class="chat-time">上午 09:47</span>
                     </div>
-                    <div class="chat-preview" id="lastMsgPreview">嗨，小黑哥！隨時準備好和你的黑曜石計畫一起大展身手！</div>
+                    <div class="chat-preview" id="lastMsgPreview">嗨，小黑哥！這個音樂區塊隨時可以點擊切換播放或設定你喜歡的音樂連結！</div>
                 </div>
             </div>
         </div>
 
-        <!-- 3. 其他分頁預留 (逛逛、TODAY、錢包) -->
+        <!-- 3. 其他分頁預留 -->
         <div id="page-explore" class="page-content" style="align-items: center; justify-content: center; color: var(--text-sub);">
             <p>精簡版：無廣告逛逛專區</p>
         </div>
@@ -646,9 +692,14 @@
         let statusText = localStorage.getItem('obsidian_user_status') || '輸入狀態消息';
         document.getElementById('displayStatus').innerText = statusText;
 
-        let messages = JSON.parse(localStorage.getItem('obsidian_chat_data')) || [
-            { sender: 'bot', text: '嗨，小黑哥！隨時準備好和你的黑曜石計畫一起大展身手！' }
-        ];
+        let musicName = localStorage.getItem('obsidian_music_name') || '黑曜石計畫 - 核心運行中';
+        let musicUrl = localStorage.getItem('obsidian_music_url') || '';
+        document.getElementById('musicTitleText').innerText = musicName;
+
+        const bgMusic = document.getElementById('bgMusic');
+        if (musicUrl) bgMusic.src = musicUrl;
+
+        let isPlaying = false;
 
         // 編輯狀態訊息
         function editStatus() {
@@ -657,6 +708,51 @@
                 statusText = newStatus.trim() || '輸入狀態消息';
                 document.getElementById('displayStatus').innerText = statusText;
                 localStorage.setItem('obsidian_user_status', statusText);
+            }
+        }
+
+        // 設定音樂 (名稱與外部音訊連結)
+        function configureMusic() {
+            const name = prompt('請輸入音樂顯示名稱：', musicName);
+            if (name === null) return;
+            const url = prompt('請輸入音樂檔案的外部連結 (建議為直連 MP3 網址)：', musicUrl);
+            if (url === null) return;
+
+            musicName = name.trim() || '黑曜石計畫 - 核心運行中';
+            musicUrl = url.trim();
+
+            document.getElementById('musicTitleText').innerText = musicName;
+            localStorage.setItem('obsidian_music_name', musicName);
+            localStorage.setItem('obsidian_music_url', musicUrl);
+
+            if (musicUrl) {
+                bgMusic.src = musicUrl;
+                bgMusic.load();
+                alert('音樂設定已儲存！點擊音樂條即可開始播放。');
+            }
+        }
+
+        // 播放 / 暫停音樂
+        function togglePlayMusic() {
+            if (!musicUrl) {
+                alert('請先點擊旁邊的齒輪 (⚙️) 設定音樂的外部連結喔！');
+                configureMusic();
+                return;
+            }
+
+            if (isPlaying) {
+                bgMusic.pause();
+                isPlaying = false;
+                document.getElementById('musicIcon').innerText = '🎵';
+                document.getElementById('musicBar').style.background = 'var(--bg-color)';
+            } else {
+                bgMusic.play().then(() => {
+                    isPlaying = true;
+                    document.getElementById('musicIcon').innerText = '⏸️';
+                    document.getElementById('musicBar').style.background = 'var(--primary-light)';
+                }).catch(err => {
+                    alert('播放失敗，請確認音樂連結是否有效（部分瀏覽器需要直接支援音訊串流或需與網頁同源）。');
+                });
             }
         }
 
@@ -670,6 +766,10 @@
         }
 
         // 開啟/關閉聊天室
+        let messages = JSON.parse(localStorage.getItem('obsidian_chat_data')) || [
+            { sender: 'bot', text: '嗨，小黑哥！這個音樂區塊隨時可以點擊切換播放或設定你喜歡的音樂連結！' }
+        ];
+
         function openChatRoom() {
             document.getElementById('chat-room-pane').style.display = 'flex';
             renderChat();
@@ -679,7 +779,6 @@
             document.getElementById('chat-room-pane').style.display = 'none';
         }
 
-        // 渲染聊天對話
         function renderChat() {
             const box = document.getElementById('chatMessagesBox');
             box.innerHTML = '';
@@ -692,7 +791,6 @@
             box.scrollTop = box.scrollHeight;
         }
 
-        // 發送訊息
         function sendMsg() {
             const input = document.getElementById('chatInputText');
             const txt = input.value.trim();
@@ -705,7 +803,7 @@
             saveChat();
 
             setTimeout(() => {
-                messages.push({ sender: 'bot', text: `收到你的訊息：「${txt}」。這主頁排版完全對齊了你的需求！` });
+                messages.push({ sender: 'bot', text: `收到：「${txt}」。音樂隨時伴隨我們的黑曜石計畫！` });
                 renderChat();
                 updatePreview(`收到：「${txt}」`);
                 saveChat();
