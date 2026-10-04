@@ -1,21 +1,19 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>黑曜石通訊 - 指揮中心</title>
+    <title>黑曜石計畫 - 好友名單</title>
     <style>
         :root {
-            --bg-color: #f7f8fa;
-            --card-bg: #ffffff;
-            --primary: #06c755;
-            --primary-light: #e8f8f0;
-            --text-main: #111111;
-            --text-sub: #888888;
-            --border-color: #f0f0f0;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --purple: #8b5cf6;
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-primary: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --accent-color: #bb86fc;
+            --accent-hover: #9955eb;
+            --danger-color: #cf6679;
+            --border-color: #2c2c2c;
         }
 
         * {
@@ -26,1517 +24,244 @@
         }
 
         body {
-            background-color: #111827;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            color: var(--text-main);
+            min-height: 100vh;
+            padding: 10px;
         }
 
-        /* 手機外框容器 */
         .phone-container {
             width: 100%;
-            max-width: 414px;
-            height: 100%;
-            max-height: 896px;
+            max-width: 400px;
+            height: 85vh;
+            max-height: 750px;
             background-color: var(--card-bg);
+            border-radius: 30px;
+            border: 4px solid #333;
             display: flex;
             flex-direction: column;
-            position: relative;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
             overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
         }
 
-        @media (min-width: 415px) {
-            .phone-container {
-                height: 85vh;
-                border-radius: 36px;
-                border: 8px solid #1f2937;
-            }
-        }
-
-        /* 內容切換頁面 */
-        .page-content {
-            flex: 1;
-            overflow-y: auto;
-            display: none;
-            background-color: var(--card-bg);
-            padding-bottom: 20px;
-        }
-
-        .page-content.active {
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* 主頁樣式 */
-        .home-header {
-            padding: 16px 20px 8px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .home-top-icons {
-            display: flex;
-            gap: 16px;
-            font-size: 18px;
-            color: var(--text-main);
-            margin-left: auto;
-        }
-
-        .home-top-icons span {
-            cursor: pointer;
-        }
-
-        .profile-section {
-            padding: 12px 20px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .profile-left h1 {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-
-        .profile-status {
-            font-size: 14px;
-            color: var(--text-sub);
-            margin-bottom: 8px;
-            cursor: pointer;
-        }
-
-        /* 音樂標籤區 */
-        .profile-music-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .profile-music {
-            display: inline-flex;
-            align-items: center;
-            background: var(--bg-color);
-            padding: 6px 12px;
-            border-radius: 16px;
-            font-size: 12px;
-            color: var(--text-main);
-            gap: 6px;
-            cursor: pointer;
-            border: 1px solid transparent;
-            transition: all 0.2s;
-            max-width: 220px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            text-decoration: none;
-        }
-
-        .profile-music:hover {
-            border-color: var(--primary);
-            background: var(--primary-light);
-        }
-
-        .music-settings-btn {
-            background: var(--bg-color);
-            border: none;
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 12px;
-            color: var(--text-sub);
-        }
-
-        .music-settings-btn:hover {
-            background: #e5e7eb;
-            color: var(--text-main);
-        }
-
-        .profile-avatar-group {
-            position: relative;
-            width: 70px;
-            height: 70px;
-            flex-shrink: 0;
-        }
-
-        .main-avatar {
-            width: 60px;
-            height: 60px;
-            background: #d1d5db;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            border: 2px solid white;
-        }
-
-        .sub-avatar {
-            width: 36px;
-            height: 36px;
-            background: var(--primary);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            position: absolute;
-            top: 0;
-            right: 0;
-            border: 2px solid white;
-            font-weight: bold;
-        }
-
-        /* 搜尋列 */
-        .search-container {
-            padding: 0 20px 16px 20px;
-        }
-
-        .search-box {
-            background-color: var(--bg-color);
-            border-radius: 20px;
-            padding: 10px 16px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: var(--text-sub);
-            font-size: 14px;
-        }
-
-        .search-box input {
-            border: none;
-            background: transparent;
-            outline: none;
-            width: 100%;
-            font-size: 14px;
-            color: var(--text-main);
-        }
-
-        .section-divider {
-            height: 6px;
-            background-color: var(--bg-color);
-            width: 100%;
-        }
-
-        /* 清單群組 */
-        .list-section {
-            padding: 16px 20px;
-        }
-
-        .list-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
-
-        .list-title {
-            font-size: 16px;
-            font-weight: 700;
-        }
-
-        .list-more {
-            font-size: 13px;
-            color: var(--text-sub);
-            cursor: pointer;
-        }
-
-        .list-item {
-            display: flex;
-            align-items: center;
-            padding: 10px 0;
-            gap: 12px;
+        .header {
+            padding: 20px;
+            background-color: #181818;
             border-bottom: 1px solid var(--border-color);
-            cursor: pointer;
-        }
-
-        .list-item-avatar {
-            width: 44px;
-            height: 44px;
-            background: #e5e7eb;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: var(--text-sub);
-            font-size: 16px;
-        }
-
-        .list-item-info {
-            flex: 1;
-        }
-
-        .list-item-name {
-            font-size: 15px;
-            font-weight: 600;
-            margin-bottom: 2px;
-        }
-
-        .list-item-desc {
-            font-size: 13px;
-            color: var(--text-sub);
-        }
-
-        .list-item-count {
-            font-size: 13px;
-            color: var(--text-sub);
-        }
-
-        /* 服務網格 */
-        .services-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 12px;
             text-align: center;
-            padding: 4px 0;
         }
 
-        .service-icon-box {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-            cursor: pointer;
+        .header h1 {
+            font-size: 1.2rem;
+            color: var(--accent-color);
+            letter-spacing: 1px;
         }
 
-        .service-icon {
-            width: 44px;
-            height: 44px;
-            background: var(--bg-color);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            transition: transform 0.1s;
-        }
-
-        .service-icon-box:active .service-icon {
-            transform: scale(0.92);
-        }
-
-        .service-name {
-            font-size: 11px;
-            color: var(--text-main);
-        }
-
-        /* 聊天分頁樣式 */
-        .chat-list-header {
-            padding: 16px 20px;
-            font-size: 20px;
-            font-weight: 700;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .chat-item {
-            display: flex;
-            align-items: center;
-            padding: 12px 20px;
-            gap: 12px;
-            border-bottom: 1px solid var(--border-color);
-            cursor: pointer;
-        }
-
-        .chat-item:hover {
-            background-color: var(--bg-color);
-        }
-
-        .chat-avatar {
-            width: 48px;
-            height: 48px;
-            background: var(--primary);
-            border-radius: 50%;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 18px;
-        }
-
-        .chat-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .chat-name-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 4px;
-        }
-
-        .chat-name {
-            font-size: 15px;
-            font-weight: 600;
-        }
-
-        .chat-time {
-            font-size: 11px;
-            color: var(--text-sub);
-        }
-
-        .chat-preview {
-            font-size: 13px;
-            color: var(--text-sub);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        /* 獨立聊天室視窗 */
-        #chat-room-pane {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--bg-color);
-            display: none;
-            flex-direction: column;
-            z-index: 50;
-        }
-
-        .chatroom-top {
-            background: var(--card-bg);
-            padding: 14px 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-bottom: 1px solid var(--border-color);
-            font-weight: 600;
-            font-size: 16px;
-        }
-
-        .chatroom-messages {
-            flex: 1;
-            padding: 16px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .msg-bubble {
-            max-width: 75%;
-            padding: 10px 14px;
-            border-radius: 16px;
-            font-size: 14px;
-            line-height: 1.4;
-            word-break: break-all;
-        }
-
-        .msg-bubble.user {
-            background-color: var(--primary);
-            color: white;
-            align-self: flex-end;
-            border-bottom-right-radius: 4px;
-        }
-
-        .msg-bubble.bot {
-            background-color: var(--card-bg);
-            color: var(--text-main);
-            align-self: flex-start;
-            border-bottom-left-radius: 4px;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-        }
-
-        /* 聊天室專屬貼圖訊息樣式 */
-        .msg-sticker {
-            font-size: 42px;
-            padding: 4px 8px;
-            align-self: flex-end;
-            background: transparent;
-            box-shadow: none;
-        }
-        .msg-sticker.bot {
-            align-self: flex-start;
-        }
-
-        .chatroom-input-area {
-            background: var(--card-bg);
-            display: flex;
-            flex-direction: column;
-            border-top: 1px solid var(--border-color);
-        }
-
-        .chatroom-input {
-            padding: 10px 16px;
-            display: flex;
-            gap: 8px;
-        }
-
-        .chatroom-input input {
-            flex: 1;
-            padding: 10px 14px;
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            outline: none;
-            font-size: 14px;
-        }
-
-        .chatroom-input button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 0 16px;
-            border-radius: 20px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        /* 聊天室內快捷貼圖抽屜 */
-        .chatroom-quick-stickers {
-            display: flex;
-            gap: 10px;
-            padding: 8px 16px;
-            overflow-x: auto;
-            background: var(--bg-color);
-            border-top: 1px solid var(--border-color);
-        }
-
-        .quick-sticker-btn {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            font-size: 20px;
-            padding: 4px 8px;
-            cursor: pointer;
-            flex-shrink: 0;
-            transition: transform 0.1s;
-        }
-
-        .quick-sticker-btn:active {
-            transform: scale(0.9);
-        }
-
-        /* 彈出式通用面板共用樣式 */
-        .sub-pane {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--card-bg);
-            display: none;
-            flex-direction: column;
-            z-index: 60;
-        }
-
-        .sub-pane-top {
-            padding: 14px 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid var(--border-color);
-            font-weight: 600;
-            font-size: 16px;
-        }
-
-        /* 彈出式備忘錄面板 */
-        .memo-content-area {
-            flex: 1;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .memo-content-area textarea {
-            flex: 1;
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 12px;
-            font-size: 14px;
-            outline: none;
-            resize: none;
-            background: var(--bg-color);
-            color: var(--text-main);
-            line-height: 1.5;
-        }
-
-        .memo-footer {
-            padding: 12px 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 12px;
-            color: var(--text-sub);
-            border-top: 1px solid var(--border-color);
-        }
-
-        .memo-save-btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 16px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        /* 彈出式工具捷徑面板 */
-        .shortcuts-body {
-            flex: 1;
-            padding: 16px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .shortcut-add-box {
-            background: var(--bg-color);
-            padding: 12px;
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .shortcut-add-box input {
-            padding: 8px 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            outline: none;
-            font-size: 13px;
-            background: white;
-        }
-
-        .shortcut-add-btn {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 8px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 13px;
-            cursor: pointer;
-        }
-
-        .shortcut-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .shortcut-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: var(--bg-color);
-            padding: 10px 14px;
-            border-radius: 10px;
-            border: 1px solid var(--border-color);
-        }
-
-        .shortcut-info {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-            text-decoration: none;
-            color: var(--text-main);
-            flex: 1;
-            min-width: 0;
-            cursor: pointer;
-        }
-
-        .shortcut-name {
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .shortcut-url {
-            font-size: 11px;
-            color: var(--text-sub);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .shortcut-del {
-            background: none;
-            border: none;
-            color: var(--danger);
-            cursor: pointer;
-            font-size: 14px;
-            padding: 4px 8px;
-        }
-
-        /* 彈出式靈感小鋪面板 */
-        .ideas-body {
-            flex: 1;
-            padding: 16px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            background: var(--bg-color);
-        }
-
-        .idea-add-card {
-            background: var(--card-bg);
-            padding: 14px;
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        }
-
-        .idea-add-card input, .idea-add-card textarea {
-            padding: 8px 12px;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            outline: none;
-            font-size: 13px;
-            background: var(--bg-color);
-            color: var(--text-main);
-        }
-
-        .idea-add-card textarea {
-            resize: none;
-            height: 60px;
-        }
-
-        .idea-add-btn {
-            background: var(--warning);
-            color: white;
-            border: none;
-            padding: 8px;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 13px;
-            cursor: pointer;
-        }
-
-        .idea-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .idea-card {
-            background: var(--card-bg);
-            padding: 12px 14px;
-            border-radius: 12px;
-            border-left: 4px solid var(--warning);
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .idea-card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .idea-card-title {
-            font-weight: 600;
-            font-size: 14px;
-            color: var(--text-main);
-        }
-
-        .idea-card-tag {
-            font-size: 10px;
-            background: #fef3c7;
-            color: #d97706;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-weight: 600;
-        }
-
-        .idea-card-desc {
-            font-size: 13px;
-            color: var(--text-sub);
-            line-height: 1.4;
-            word-break: break-all;
-        }
-
-        .idea-card-footer {
-            display: flex;
-            justify-content: flex-end;
-            gap: 8px;
+        .header p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
             margin-top: 4px;
         }
 
-        .idea-del-btn {
-            background: none;
-            border: none;
-            color: var(--danger);
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        /* 彈出式貼圖小鋪面板 */
-        .stickers-body {
-            flex: 1;
-            padding: 16px;
-            overflow-y: auto;
+        .input-section {
+            padding: 15px;
+            background-color: #161616;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
-            gap: 14px;
-            background: var(--bg-color);
+            gap: 8px;
         }
 
-        .sticker-add-card {
-            background: var(--card-bg);
-            padding: 12px 14px;
-            border-radius: 12px;
+        .input-row {
             display: flex;
             gap: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
 
-        .sticker-add-card input {
-            padding: 8px 12px;
-            border: 1px solid var(--border-color);
+        input, select {
+            flex: 1;
+            padding: 10px 12px;
             border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background-color: #252525;
+            color: var(--text-primary);
+            font-size: 0.9rem;
             outline: none;
-            font-size: 13px;
-            background: var(--bg-color);
-            color: var(--text-main);
         }
 
-        .sticker-add-btn {
-            background: var(--purple);
-            color: white;
-            border: none;
-            padding: 8px 16px;
+        input:focus, select:focus {
+            border-color: var(--accent-color);
+        }
+
+        button {
+            padding: 10px 16px;
             border-radius: 8px;
-            font-weight: 600;
-            font-size: 13px;
+            border: none;
+            background-color: var(--accent-color);
+            color: #121212;
+            font-weight: bold;
+            font-size: 0.9rem;
             cursor: pointer;
-            white-space: nowrap;
+            transition: background 0.2s;
         }
 
-        .sticker-grid-container {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
+        button:hover {
+            background-color: var(--accent-hover);
         }
 
-        .sticker-card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 14px;
+        .list-section {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
-            position: relative;
-            cursor: pointer;
-            transition: transform 0.1s, border-color 0.1s;
+            gap: 10px;
         }
 
-        .sticker-card:hover {
-            border-color: var(--purple);
-            transform: translateY(-2px);
-        }
-
-        .sticker-emoji {
-            font-size: 38px;
-        }
-
-        .sticker-name {
-            font-size: 12px;
-            color: var(--text-sub);
-            font-weight: 600;
-        }
-
-        .sticker-del-btn {
-            position: absolute;
-            top: 4px;
-            right: 6px;
-            background: none;
-            border: none;
-            color: var(--danger);
-            font-size: 12px;
-            cursor: pointer;
-            padding: 2px 4px;
-        }
-
-        /* 底部 LINE 風格導覽列 */
-        nav.tab-bar {
-            height: 65px;
-            background-color: var(--card-bg);
-            border-top: 1px solid var(--border-color);
+        .friend-card {
+            background-color: #252525;
+            padding: 12px 15px;
+            border-radius: 10px;
             display: flex;
-            justify-content: space-around;
+            justify-content: space-between;
             align-items: center;
-            padding-bottom: 4px;
+            border-left: 4px solid var(--accent-color);
+            animation: fadeIn 0.3s ease;
         }
 
-        .tab-item {
-            flex: 1;
-            text-align: center;
-            font-size: 11px;
-            color: var(--text-sub);
-            cursor: pointer;
-        }
-
-        .tab-item.active {
-            color: var(--primary);
-            font-weight: 600;
-        }
-
-        .tab-item .icon {
-            font-size: 20px;
+        .friend-info h3 {
+            font-size: 0.95rem;
             margin-bottom: 2px;
+        }
+
+        .friend-info p {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .delete-btn {
+            background: transparent;
+            color: var(--danger-color);
+            border: none;
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .delete-btn:hover {
+            color: #ff8093;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: var(--text-secondary);
+            margin-top: 40px;
+            font-size: 0.85rem;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
 
     <div class="phone-container">
+        <div class="header">
+            <h1>黑曜石計畫 🛡️ 好友名單</h1>
+            <p>Local Storage 狀態同步中</p>
+        </div>
 
-        <!-- 1. 主頁分頁 -->
-        <div id="page-home" class="page-content active">
-            <div class="home-header">
-                <div class="home-top-icons">
-                    <span>📑</span>
-                    <span>🔔</span>
-                    <span>➕</span>
-                    <span>⚙️</span>
-                </div>
+        <div class="input-section">
+            <div class="input-row">
+                <input type="text" id="friendName" placeholder="好友暱稱 / 代號" autocomplete="off">
+                <select id="friendGroup">
+                    <option value="核心戰友">核心戰友</option>
+                    <option value="技術交流">技術交流</option>
+                    <option value="日常夥伴">日常夥伴</option>
+                </select>
             </div>
-
-            <div class="profile-section">
-                <div class="profile-left">
-                    <h1 id="displayName">慶</h1>
-                    <div class="profile-status" id="displayStatus" onclick="editStatus()">輸入狀態消息</div>
-                    
-                    <!-- 音樂標籤與設定按鈕 -->
-                    <div class="profile-music-wrapper">
-                        <a href="#" id="musicLink" class="profile-music" target="_blank" title="點擊前往聆聽音樂">
-                            <span id="musicIcon">🎵</span>
-                            <span id="musicTitleText">黑曜石計畫 - 核心運行中</span>
-                        </a>
-                        <button class="music-settings-btn" onclick="configureMusic()" title="設定音樂名稱與連結">⚙️</button>
-                    </div>
-                </div>
-                <div class="profile-avatar-group">
-                    <div class="main-avatar">👨‍💻</div>
-                    <div class="sub-avatar">柔</div>
-                </div>
-            </div>
-
-            <div class="search-container">
-                <div class="search-box">
-                    <span>🔍</span>
-                    <input type="text" placeholder="搜尋好友、群組、黑曜石筆記...">
-                </div>
-            </div>
-
-            <div class="section-divider"></div>
-
-            <!-- 好友名單區 -->
-            <div class="list-section">
-                <div class="list-header">
-                    <div class="list-title">好友名單</div>
-                    <div class="list-more">顯示全部</div>
-                </div>
-
-                <div class="list-item">
-                    <div class="list-item-avatar" style="background: var(--primary-light); color: var(--primary);">⭐</div>
-                    <div class="list-item-info">
-                        <div class="list-item-name">我的最愛</div>
-                        <div class="list-item-desc">黑曜石架構團隊</div>
-                    </div>
-                    <div class="list-item-count">1 &gt;</div>
-                </div>
-
-                <div class="list-item">
-                    <div class="list-item-avatar">👥</div>
-                    <div class="list-item-info">
-                        <div class="list-item-name">好友</div>
-                        <div class="list-item-desc">專屬夥伴與聯絡人</div>
-                    </div>
-                    <div class="list-item-count">3 &gt;</div>
-                </div>
-
-                <div class="list-item">
-                    <div class="list-item-avatar">🏛️</div>
-                    <div class="list-item-info">
-                        <div class="list-item-name">群組</div>
-                        <div class="list-item-desc">黑曜石計畫開發群</div>
-                    </div>
-                    <div class="list-item-count">1 &gt;</div>
-                </div>
-            </div>
-
-            <div class="section-divider"></div>
-
-            <!-- 服務區 -->
-            <div class="list-section">
-                <div class="list-header">
-                    <div class="list-title">服務</div>
-                    <div class="list-more">顯示全部</div>
-                </div>
-
-                <div class="services-grid">
-                    <div class="service-icon-box" onclick="openStickers()">
-                        <div class="service-icon">🎨</div>
-                        <div class="service-name">貼圖小鋪</div>
-                    </div>
-                    <div class="service-icon-box" onclick="openIdeas()">
-                        <div class="service-icon">💡</div>
-                        <div class="service-name">靈感小鋪</div>
-                    </div>
-                    <div class="service-icon-box" onclick="openShortcuts()">
-                        <div class="service-icon">🛠️</div>
-                        <div class="service-name">工具捷徑</div>
-                    </div>
-                    <div class="service-icon-box" onclick="alert('雲端同步狀態：正常運行中')">
-                        <div class="service-icon">☁</div>
-                        <div class="service-name">雲端同步</div>
-                    </div>
-                    <div class="service-icon-box" onclick="openMemo()">
-                        <div class="service-icon">📌</div>
-                        <div class="service-name">備忘錄</div>
-                    </div>
-                </div>
+            <div class="input-row">
+                <input type="text" id="friendNote" placeholder="備註（例：專精架構/除錯）" autocomplete="off">
+                <button onclick="addFriend()">新增</button>
             </div>
         </div>
 
-        <!-- 2. 聊天分頁 -->
-        <div id="page-chat" class="page-content">
-            <div class="chat-list-header">
-                <span>聊天</span>
-                <span style="font-size: 16px; cursor: pointer;">➕</span>
-            </div>
-            <div class="chat-item" onclick="openChatRoom()">
-                <div class="chat-avatar">柔</div>
-                <div class="chat-info">
-                    <div class="chat-name-row">
-                        <span class="chat-name">柔 (專屬夥伴)</span>
-                        <span class="chat-time">上午 08:00</span>
-                    </div>
-                    <div class="chat-preview" id="lastMsgPreview">小黑哥，「貼圖小鋪」已經正式開張囉！點擊聊天室裡的快捷貼圖傳送看看吧。</div>
-                </div>
-            </div>
+        <div class="list-section" id="friendList">
+            <!-- 動態載入好友清單 -->
         </div>
-
-        <!-- 3. 其他分頁預留 -->
-        <div id="page-explore" class="page-content" style="align-items: center; justify-content: center; color: var(--text-sub);">
-            <p>精簡版：無廣告逛逛專區</p>
-        </div>
-        <div id="page-today" class="page-content" style="align-items: center; justify-content: center; color: var(--text-sub);">
-            <p>精簡版：TODAY 記事</p>
-        </div>
-        <div id="page-wallet" class="page-content" style="align-items: center; justify-content: center; color: var(--text-sub);">
-            <p>精簡版：憑證與數據錢包</p>
-        </div>
-
-        <!-- 獨立聊天室視窗 -->
-        <div id="chat-room-pane" class="sub-pane" style="z-index: 50; display: none;">
-            <div class="chatroom-top">
-                <span style="cursor: pointer;" onclick="closeChatRoom()">❮</span>
-                <span>柔 (專屬夥伴)</span>
-            </div>
-            <div class="chatroom-messages" id="chatMessagesBox"></div>
-            
-            <!-- 聊天室專屬快捷貼圖列 -->
-            <div class="chatroom-quick-stickers" id="chatQuickStickersBar"></div>
-
-            <div class="chatroom-input-area">
-                <div class="chatroom-input">
-                    <input type="text" id="chatInputText" placeholder="輸入訊息..." onkeypress="handleEnterKey(event)">
-                    <button onclick="sendMsg()">傳送</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- 彈出式備忘錄面板 -->
-        <div id="memo-pane" class="sub-pane">
-            <div class="sub-pane-top">
-                <span style="cursor: pointer;" onclick="closeMemo()">❮ 返回</span>
-                <span>黑曜石隨身備忘錄</span>
-                <span style="width: 40px;"></span>
-            </div>
-            <div class="memo-content-area">
-                <textarea id="memoTextArea" placeholder="在此輸入您的靈感、程式碼片段或代辦事項...（會自動存檔）" oninput="autoSaveMemo()"></textarea>
-            </div>
-            <div class="memo-footer">
-                <span id="memoSaveStatus">已自動儲存</span>
-                <button class="memo-save-btn" onclick="closeMemo()">完成</button>
-            </div>
-        </div>
-
-        <!-- 彈出式工具捷徑面板 -->
-        <div id="shortcuts-pane" class="sub-pane">
-            <div class="sub-pane-top">
-                <span style="cursor: pointer;" onclick="closeShortcuts()">❮ 返回</span>
-                <span>黑曜石工具捷徑</span>
-                <span style="width: 40px;"></span>
-            </div>
-            <div class="shortcuts-body">
-                <div class="shortcut-add-box">
-                    <input type="text" id="shortcutNameInput" placeholder="捷徑名稱 (例如: GitHub)">
-                    <input type="text" id="shortcutUrlInput" placeholder="網址 (例如: https://github.com)">
-                    <button class="shortcut-add-btn" onclick="addShortcut()">＋ 新增捷徑</button>
-                </div>
-                <div class="shortcut-list" id="shortcutListContainer"></div>
-            </div>
-        </div>
-
-        <!-- 彈出式靈感小鋪面板 -->
-        <div id="ideas-pane" class="sub-pane">
-            <div class="sub-pane-top">
-                <span style="cursor: pointer;" onclick="closeIdeas()">❮ 返回</span>
-                <span>💡 黑曜石靈感小鋪</span>
-                <span style="width: 40px;"></span>
-            </div>
-            <div class="ideas-body">
-                <div class="idea-add-card">
-                    <input type="text" id="ideaTitleInput" placeholder="點子標題 (例如: 手機版自動同步)">
-                    <input type="text" id="ideaTagInput" placeholder="分類標籤 (例如: 架構 / 點子)">
-                    <textarea id="ideaDescInput" placeholder="詳細描述或構思內容..."></textarea>
-                    <button class="idea-add-btn" onclick="addIdea()">＋ 記錄靈感卡片</button>
-                </div>
-                <div class="idea-list" id="ideaListContainer"></div>
-            </div>
-        </div>
-
-        <!-- 彈出式貼圖小鋪面板 -->
-        <div id="stickers-pane" class="sub-pane">
-            <div class="sub-pane-top">
-                <span style="cursor: pointer;" onclick="closeStickers()">❮ 返回</span>
-                <span>🎨 黑曜石貼圖小鋪</span>
-                <span style="width: 40px;"></span>
-            </div>
-            <div class="stickers-body">
-                <div class="sticker-add-card">
-                    <input type="text" id="stickerEmojiInput" placeholder="貼圖符號 (例如: 🚀)" style="width: 80px; text-align: center;">
-                    <input type="text" id="stickerNameInput" placeholder="貼圖名稱 (例如: 🚀 發射)" style="flex: 1;">
-                    <button class="sticker-add-btn" onclick="addSticker()">＋ 新增</button>
-                </div>
-                <div class="sticker-grid-container" id="stickerGridContainer"></div>
-            </div>
-        </div>
-
-        <!-- 底部 LINE 風格導覽列 -->
-        <nav class="tab-bar">
-            <div class="tab-item active" onclick="switchTab('home', this)">
-                <div class="icon">🏠</div>
-                主頁
-            </div>
-            <div class="tab-item" onclick="switchTab('chat', this)">
-                <div class="icon">💬</div>
-                聊天
-            </div>
-            <div class="tab-item" onclick="switchTab('explore', this)">
-                <div class="icon">🛍️</div>
-                逛逛
-            </div>
-            <div class="tab-item" onclick="switchTab('today', this)">
-                <div class="icon">📰</div>
-                TODAY
-            </div>
-            <div class="tab-item" onclick="switchTab('wallet', this)">
-                <div class="icon">👛</div>
-                錢包
-            </div>
-        </nav>
     </div>
 
     <script>
-        // 資料初始化與 LocalStorage 存檔
-        let statusText = localStorage.getItem('obsidian_user_status') || '輸入狀態消息';
-        document.getElementById('displayStatus').innerText = statusText;
+        // 初始化載入 LocalStorage 資料
+        let friends = JSON.parse(localStorage.getItem('obsidian_friends')) || [];
 
-        let musicName = localStorage.getItem('obsidian_music_name') || '黑曜石計畫 - 核心運行中';
-        let musicUrl = localStorage.getItem('obsidian_music_url') || 'https://www.youtube.com';
-        
-        document.getElementById('musicTitleText').innerText = musicName;
-        document.getElementById('musicLink').href = musicUrl;
+        function renderFriends() {
+            const listContainer = document.getElementById('friendList');
+            listContainer.innerHTML = '';
 
-        // 載入備忘錄內容
-        const savedMemo = localStorage.getItem('obsidian_memo_content') || '';
-        document.getElementById('memoTextArea').value = savedMemo;
-
-        // 載入工具捷徑
-        let shortcuts = JSON.parse(localStorage.getItem('obsidian_shortcuts')) || [
-            { name: 'GitHub 專案', url: 'https://github.com' },
-            { name: 'Vercel 部署主控台', url: 'https://vercel.com' }
-        ];
-
-        // 載入靈感小鋪點子
-        let ideas = JSON.parse(localStorage.getItem('obsidian_ideas')) || [
-            { title: '黑曜石指揮中心', tag: '架構', desc: '整合通訊、備忘與工具的極簡手機版介面。' }
-        ];
-
-        // 載入貼圖小鋪資料
-        let stickers = JSON.parse(localStorage.getItem('obsidian_stickers')) || [
-            { emoji: '💻', name: 'coding 中' },
-            { emoji: '🚀', name: '全速發射' },
-            { emoji: '🔥', name: '熱血沸騰' },
-            { emoji: '☕', name: '咖啡充電' },
-            { emoji: '🎯', name: '完美命中' },
-            { emoji: '⭐', name: '黑曜石星' }
-        ];
-
-        // 編輯狀態訊息
-        function editStatus() {
-            const newStatus = prompt('請輸入新的狀態訊息：', statusText);
-            if (newStatus !== null) {
-                statusText = newStatus.trim() || '輸入狀態消息';
-                document.getElementById('displayStatus').innerText = statusText;
-                localStorage.setItem('obsidian_user_status', statusText);
-            }
-        }
-
-        // 設定音樂名稱與外連網址
-        function configureMusic() {
-            const name = prompt('請輸入音樂／心情顯示名稱：', musicName);
-            if (name === null) return;
-            const url = prompt('請輸入音樂的外部連結 (例如 YouTube 網址)：', musicUrl);
-            if (url === null) return;
-
-            musicName = name.trim() || '黑曜石計畫 - 核心運行中';
-            musicUrl = url.trim() || 'https://www.youtube.com';
-
-            document.getElementById('musicTitleText').innerText = musicName;
-            document.getElementById('musicLink').href = musicUrl;
-
-            localStorage.setItem('obsidian_music_name', musicName);
-            localStorage.setItem('obsidian_music_url', musicUrl);
-
-            alert('音樂連結設定成功！');
-        }
-
-        // 開啟/關閉備忘錄
-        function openMemo() {
-            document.getElementById('memo-pane').style.display = 'flex';
-        }
-
-        function closeMemo() {
-            document.getElementById('memo-pane').style.display = 'none';
-        }
-
-        function autoSaveMemo() {
-            const content = document.getElementById('memoTextArea').value;
-            localStorage.setItem('obsidian_memo_content', content);
-            const statusEl = document.getElementById('memoSaveStatus');
-            statusEl.innerText = '已自動儲存';
-            setTimeout(() => {
-                if (statusEl.innerText === '已自動儲存') {
-                    statusEl.innerText = 'LocalStorage 同步中';
-                }
-            }, 1500);
-        }
-
-        // 開啟/關閉工具捷徑
-        function openShortcuts() {
-            document.getElementById('shortcuts-pane').style.display = 'flex';
-            renderShortcuts();
-        }
-
-        function closeShortcuts() {
-            document.getElementById('shortcuts-pane').style.display = 'none';
-        }
-
-        function renderShortcuts() {
-            const container = document.getElementById('shortcutListContainer');
-            container.innerHTML = '';
-            if (shortcuts.length === 0) {
-                container.innerHTML = '<div style="font-size: 13px; color: var(--text-sub); text-align: center; padding: 10px;">目前尚無捷徑，請在上方新增！</div>';
-                return;
-            }
-            shortcuts.forEach((s, index) => {
-                const item = document.createElement('div');
-                item.className = 'shortcut-item';
-                item.innerHTML = `
-                    <a href="${s.url}" target="_blank" class="shortcut-info">
-                        <div class="shortcut-name">${s.name}</div>
-                        <div class="shortcut-url">${s.url}</div>
-                    </a>
-                    <button class="shortcut-del" onclick="deleteShortcut(${index})">刪除</button>
-                `;
-                container.appendChild(item);
-            });
-        }
-
-        function addShortcut() {
-            const nameInput = document.getElementById('shortcutNameInput');
-            const urlInput = document.getElementById('shortcutUrlInput');
-            const name = nameInput.value.trim();
-            const url = urlInput.value.trim();
-
-            if (!name || !url) {
-                alert('請完整輸入捷徑名稱與網址！');
+            if (friends.length === 0) {
+                listContainer.innerHTML = `<div class="empty-state">目前還沒有記錄任何好友，趕快把夥伴加入陣營吧！</div>`;
                 return;
             }
 
-            let validUrl = url;
-            if (!validUrl.startsWith('http://') && !validUrl.startsWith('https://')) {
-                validUrl = 'https://' + validUrl;
-            }
-
-            shortcuts.push({ name: name, url: validUrl });
-            localStorage.setItem('obsidian_shortcuts', JSON.stringify(shortcuts));
-
-            nameInput.value = '';
-            urlInput.value = '';
-            renderShortcuts();
-        }
-
-        function deleteShortcut(index) {
-            if (confirm('確定要刪除這個捷徑嗎？')) {
-                shortcuts.splice(index, 1);
-                localStorage.setItem('obsidian_shortcuts', JSON.stringify(shortcuts));
-                renderShortcuts();
-            }
-        }
-
-        // 開啟/關閉靈感小鋪
-        function openIdeas() {
-            document.getElementById('ideas-pane').style.display = 'flex';
-            renderIdeas();
-        }
-
-        function closeIdeas() {
-            document.getElementById('ideas-pane').style.display = 'none';
-        }
-
-        function renderIdeas() {
-            const container = document.getElementById('ideaListContainer');
-            container.innerHTML = '';
-            if (ideas.length === 0) {
-                container.innerHTML = '<div style="font-size: 13px; color: var(--text-sub); text-align: center; padding: 10px;">目前尚無靈感卡片，快來記錄第一個點子吧！</div>';
-                return;
-            }
-            ideas.forEach((item, index) => {
+            friends.forEach((friend, index) => {
                 const card = document.createElement('div');
-                card.className = 'idea-card';
+                card.className = 'friend-card';
                 card.innerHTML = `
-                    <div class="idea-card-header">
-                        <span class="idea-card-title">${item.title}</span>
-                        <span class="idea-card-tag">${item.tag || '靈感'}</span>
+                    <div class="friend-info">
+                        <h3>${escapeHtml(friend.name)} <span style="font-size: 0.7rem; color: var(--accent-color);">[${escapeHtml(friend.group)}]</span></h3>
+                        <p>${escapeHtml(friend.note || '無特別備註')}</p>
                     </div>
-                    <div class="idea-card-desc">${item.desc}</div>
-                    <div class="idea-card-footer">
-                        <button class="idea-del-btn" onclick="deleteIdea(${index})">刪除</button>
-                    </div>
+                    <button class="delete-btn" onclick="removeFriend(${index})" title="刪除">✕</button>
                 `;
-                container.appendChild(card);
+                listContainer.appendChild(card);
             });
         }
 
-        function addIdea() {
-            const titleInput = document.getElementById('ideaTitleInput');
-            const tagInput = document.getElementById('ideaTagInput');
-            const descInput = document.getElementById('ideaDescInput');
+        function addFriend() {
+            const nameInput = document.getElementById('friendName');
+            const groupInput = document.getElementById('friendGroup');
+            const noteInput = document.getElementById('friendNote');
 
-            const title = titleInput.value.trim();
-            const tag = tagInput.value.trim() || '靈感';
-            const desc = descInput.value.trim();
-
-            if (!title || !desc) {
-                alert('請完整輸入點子標題與描述內容！');
-                return;
-            }
-
-            ideas.unshift({ title, tag, desc });
-            localStorage.setItem('obsidian_ideas', JSON.stringify(ideas));
-
-            titleInput.value = '';
-            tagInput.value = '';
-            descInput.value = '';
-            renderIdeas();
-        }
-
-        function deleteIdea(index) {
-            if (confirm('確定要刪除這張靈感卡片嗎？')) {
-                ideas.splice(index, 1);
-                localStorage.setItem('obsidian_ideas', JSON.stringify(ideas));
-                renderIdeas();
-            }
-        }
-
-        // 開啟/關閉貼圖小鋪
-        function openStickers() {
-            document.getElementById('stickers-pane').style.display = 'flex';
-            renderStickers();
-        }
-
-        function closeStickers() {
-            document.getElementById('stickers-pane').style.display = 'none';
-        }
-
-        function renderStickers() {
-            const container = document.getElementById('stickerGridContainer');
-            container.innerHTML = '';
-            if (stickers.length === 0) {
-                container.innerHTML = '<div style="font-size: 13px; color: var(--text-sub); text-align: center; grid-column: span 3; padding: 10px;">目前尚無貼圖，快在上方新增！</div>';
-                return;
-            }
-            stickers.forEach((s, index) => {
-                const card = document.createElement('div');
-                card.className = 'sticker-card';
-                card.innerHTML = `
-                    <button class="sticker-del-btn" onclick="event.stopPropagation(); deleteSticker(${index})">✕</button>
-                    <div class="sticker-emoji">${s.emoji}</div>
-                    <div class="sticker-name">${s.name}</div>
-                `;
-                card.onclick = () => {
-                    sendStickerMessage(s.emoji);
-                    closeStickers();
-                    openChatRoom();
-                };
-                container.appendChild(card);
-            });
-        }
-
-        function addSticker() {
-            const emojiInput = document.getElementById('stickerEmojiInput');
-            const nameInput = document.getElementById('stickerNameInput');
-            const emoji = emojiInput.value.trim();
             const name = nameInput.value.trim();
+            const group = groupInput.value;
+            const note = noteInput.value.trim();
 
-            if (!emoji || !name) {
-                alert('請完整輸入貼圖符號與名稱！');
+            if (!name) {
+                alert('夥伴，名字總得填一個吧！');
                 return;
             }
 
-            stickers.push({ emoji, name });
-            localStorage.setItem('obsidian_stickers', JSON.stringify(stickers));
+            friends.push({ name, group, note });
+            saveAndRender();
 
-            emojiInput.value = '';
+            // 清空輸入框
             nameInput.value = '';
-            renderStickers();
-            renderChatQuickStickers();
+            noteInput.value = '';
+            nameInput.focus();
         }
 
-        function deleteSticker(index) {
-            if (confirm('確定要刪除這個貼圖嗎？')) {
-                stickers.splice(index, 1);
-                localStorage.setItem('obsidian_stickers', JSON.stringify(stickers));
-                renderStickers();
-                renderChatQuickStickers();
-            }
+        function removeFriend(index) {
+            friends.splice(index, 1);
+            saveAndRender();
         }
 
-        // 渲染聊天室快捷貼圖列
-        function renderChatQuickStickers() {
-            const bar = document.getElementById('chatQuickStickersBar');
-            bar.innerHTML = '';
-            stickers.forEach(s => {
-                const btn = document.createElement('button');
-                btn.className = 'quick-sticker-btn';
-                btn.title = s.name;
-                btn.innerText = s.emoji;
-                btn.onclick = () => sendStickerMessage(s.emoji);
-                bar.appendChild(btn);
-            });
+        function saveAndRender() {
+            localStorage.setItem('obsidian_friends', JSON.stringify(friends));
+            renderFriends();
         }
 
-        function sendStickerMessage(emoji) {
-            messages.push({ sender: 'user', text: emoji, isSticker: true });
-            renderChat();
-            updatePreview(`[貼圖] ${emoji}`);
-            saveChat();
-
-            setTimeout(() => {
-                messages.push({ sender: 'bot', text: `收到你的超讚貼圖 ${emoji}！這指揮中心越來越有靈魂了！`, isSticker: false });
-                renderChat();
-                updatePreview(`收到貼圖 ${emoji}`);
-                saveChat();
-            }, 600);
+        // 防止 XSS 攻擊的小工具
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
 
-        // 分頁切換
-        function switchTab(pageId, element) {
-            document.querySelectorAll('.page-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
-            element.classList.add('active');
-
-            document.getElementById(`page-${pageId}`).classList.add('active');
-        }
-
-        // 開啟/關閉聊天室
-        let messages = JSON.parse(localStorage.getItem('obsidian_chat_data')) || [
-            { sender: 'bot', text: '小黑哥，「貼圖小鋪」已經正式開張囉！點擊聊天室裡的快捷貼圖傳送看看吧。', isSticker: false }
-        ];
-
-        function openChatRoom() {
-            document.getElementById('chat-room-pane').style.display = 'flex';
-            renderChat();
-            renderChatQuickStickers();
-        }
-
-        function closeChatRoom() {
-            document.getElementById('chat-room-pane').style.display = 'none';
-        }
-
-        function renderChat() {
-            const box = document.getElementById('chatMessagesBox');
-            box.innerHTML = '';
-            messages.forEach(m => {
-                const div = document.createElement('div');
-                if (m.isSticker) {
-                    div.className = `msg-bubble msg-sticker ${m.sender}`;
-                } else {
-                    div.className = `msg-bubble ${m.sender}`;
-                }
-                div.innerText = m.text;
-                box.appendChild(div);
-            });
-            box.scrollTop = box.scrollHeight;
-        }
-
-        function sendMsg() {
-            const input = document.getElementById('chatInputText');
-            const txt = input.value.trim();
-            if (!txt) return;
-
-            messages.push({ sender: 'user', text: txt, isSticker: false });
-            input.value = '';
-            renderChat();
-            updatePreview(txt);
-            saveChat();
-
-            setTimeout(() => {
-                messages.push({ sender: 'bot', text: `收到：「${txt}」。我們的黑曜石指揮中心越來越完整囉！`, isSticker: false });
-                renderChat();
-                updatePreview(`收到：「${txt}」`);
-                saveChat();
-            }, 600);
-        }
-
-        function handleEnterKey(e) {
-            if (e.key === 'Enter') sendMsg();
-        }
-
-        function updatePreview(txt) {
-            document.getElementById('lastMsgPreview').innerText = txt;
-        }
-
-        function saveChat() {
-            localStorage.setItem('obsidian_chat_data', JSON.stringify(messages));
-        }
-
-        // 初始化載入聊天室快捷貼圖
-        renderChatQuickStickers();
+        // 頁面載入時渲染
+        renderFriends();
     </script>
 </body>
 </html>
