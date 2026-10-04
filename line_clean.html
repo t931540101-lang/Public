@@ -6,15 +6,16 @@
     <title>黑曜石通訊 - 指揮中心</title>
     <style>
         :root {
-            --bg-color: #121212;
-            --card-bg: #1e1e1e;
-            --surface-color: #252525;
-            --text-primary: #e0e0e0;
-            --text-secondary: #a0a0a0;
-            --accent-color: #bb86fc;
-            --accent-hover: #9955eb;
-            --danger-color: #cf6679;
-            --border-color: #2c2c2c;
+            --bg-color: #f7f4ef;          /* 溫馨暖白紙張底色 */
+            --card-bg: #ffffff;           /* 卡片純白 */
+            --surface-color: #faf7f2;     /* 柔和次要區塊色 */
+            --text-primary: #4a4543;      /* 溫和的深可可色文字 */
+            --text-secondary: #8c827b;    /* 溫和的灰棕色次要文字 */
+            --accent-color: #d4a373;      /* 溫暖的奶茶杏色/大地金 */
+            --accent-hover: #bc8a5d;      /* 較深的杏色 */
+            --danger-color: #d99191;      /* 柔和的乾燥玫瑰紅 */
+            --border-color: #eae3db;      /* 柔和邊框線 */
+            --online-color: #87bba2;      /* 溫和的草本綠 */
         }
 
         * {
@@ -41,21 +42,28 @@
             max-height: 800px;
             background-color: var(--card-bg);
             border-radius: 35px;
-            border: 4px solid #333;
+            border: 4px solid #e2dacd;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            box-shadow: 0 12px 30px rgba(130, 115, 100, 0.12);
         }
 
         /* 頂部導航列 */
         .top-nav {
             padding: 15px 20px;
-            background-color: #181818;
+            background-color: var(--surface-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid var(--border-color);
+        }
+
+        .top-nav-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
         }
 
         .top-nav-icons {
@@ -72,17 +80,18 @@
             padding: 15px;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 14px;
         }
 
         /* 個人狀態區 */
         .profile-section {
             background-color: var(--surface-color);
-            padding: 15px;
-            border-radius: 12px;
+            padding: 16px;
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            border: 1px solid var(--border-color);
         }
 
         .profile-info h2 {
@@ -98,9 +107,9 @@
 
         .status-badge {
             font-size: 0.75rem;
-            background: rgba(187, 134, 252, 0.15);
-            color: var(--accent-color);
-            padding: 4px 8px;
+            background: #f4ebd0;
+            color: #8c6d33;
+            padding: 3px 8px;
             border-radius: 20px;
             display: inline-block;
             margin-top: 6px;
@@ -113,7 +122,7 @@
         .avatar {
             width: 50px;
             height: 50px;
-            background: #333;
+            background: #ede6dc;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -128,16 +137,16 @@
             right: 2px;
             width: 12px;
             height: 12px;
-            background-color: #03dac6;
+            background-color: var(--online-color);
             border-radius: 50%;
             border: 2px solid var(--card-bg);
         }
 
         /* 搜尋列 */
         .search-box {
-            background-color: #252525;
+            background-color: var(--surface-color);
             padding: 10px 15px;
-            border-radius: 10px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -153,31 +162,30 @@
             width: 100%;
         }
 
+        .search-box input::placeholder {
+            color: var(--text-secondary);
+        }
+
         /* 區塊標題 */
         .section-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: var(--text-secondary);
             padding: 0 5px;
+            font-weight: 500;
         }
 
-        .section-header span.action {
-            color: var(--accent-color);
-            cursor: pointer;
-            font-size: 0.8rem;
-        }
-
-        /* 新增好友控制面板 (可收合/展開或直接顯示) */
+        /* 新增好友控制面板 */
         .add-friend-panel {
             background-color: var(--surface-color);
             padding: 12px;
-            border-radius: 10px;
+            border-radius: 12px;
             display: flex;
             flex-direction: column;
             gap: 8px;
-            border: 1px dashed var(--accent-color);
+            border: 1px solid var(--border-color);
         }
 
         .add-row {
@@ -188,23 +196,28 @@
         .add-friend-panel input, .add-friend-panel select {
             flex: 1;
             padding: 8px 10px;
-            border-radius: 6px;
+            border-radius: 8px;
             border: 1px solid var(--border-color);
-            background-color: #1a1a1a;
+            background-color: #ffffff;
             color: var(--text-primary);
             font-size: 0.85rem;
             outline: none;
         }
 
+        .add-friend-panel input:focus, .add-friend-panel select:focus {
+            border-color: var(--accent-color);
+        }
+
         .add-friend-panel button {
-            padding: 8px 14px;
-            border-radius: 6px;
+            padding: 8px 16px;
+            border-radius: 8px;
             border: none;
             background-color: var(--accent-color);
-            color: #121212;
-            font-weight: bold;
+            color: #ffffff;
+            font-weight: 600;
             font-size: 0.85rem;
             cursor: pointer;
+            transition: background 0.2s;
         }
 
         .add-friend-panel button:hover {
@@ -215,20 +228,20 @@
         .group-card {
             background-color: var(--surface-color);
             padding: 12px 15px;
-            border-radius: 10px;
+            border-radius: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-left: 4px solid var(--accent-color);
-            transition: background 0.2s;
-        }
-
-        .group-card:hover {
-            background-color: #2a2a2a;
+            border-top: 1px solid var(--border-color);
+            border-right: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 8px;
         }
 
         .group-info h3 {
             font-size: 0.95rem;
+            color: var(--text-primary);
         }
 
         .group-info p {
@@ -244,7 +257,7 @@
 
         /* 動態渲染的單一好友清單項目 */
         .dynamic-friend-item {
-            background-color: #1a1a1a;
+            background-color: #ffffff;
             padding: 10px 12px;
             border-radius: 8px;
             display: flex;
@@ -257,11 +270,6 @@
         .dynamic-friend-info h4 {
             font-size: 0.85rem;
             color: var(--text-primary);
-        }
-
-        .dynamic-friend-info span {
-            font-size: 0.7rem;
-            color: var(--accent-color);
         }
 
         .dynamic-friend-info p {
@@ -278,10 +286,14 @@
             padding: 4px 8px;
         }
 
+        .delete-btn:hover {
+            color: #b56e6e;
+        }
+
         /* 底部導覽列 */
         .bottom-nav {
             height: 60px;
-            background-color: #181818;
+            background-color: var(--surface-color);
             border-top: 1px solid var(--border-color);
             display: flex;
             justify-content: space-around;
@@ -296,11 +308,11 @@
             color: var(--text-secondary);
             font-size: 0.7rem;
             cursor: pointer;
-            text-decoration: none;
         }
 
         .nav-item.active {
             color: var(--accent-color);
+            font-weight: 500;
         }
 
         .nav-item span.icon {
@@ -313,7 +325,7 @@
     <div class="phone-container">
         <!-- 頂部導航 -->
         <div class="top-nav">
-            <span style="font-weight: bold; color: var(--accent-color); font-size: 0.95rem;">黑曜石通訊</span>
+            <span class="top-nav-title">🌱 黑曜石通訊</span>
             <div class="top-nav-icons">
                 <span>📝</span>
                 <span>🔔</span>
@@ -329,7 +341,7 @@
                 <div class="profile-info">
                     <h2>慶</h2>
                     <p>輸入狀態消息</p>
-                    <div class="status-badge">🎵 黑曜石計畫 - 核心運行中</div>
+                    <div class="status-badge">☕ 溫馨陪伴・穩定運行中</div>
                 </div>
                 <div class="avatar-container">
                     <div class="avatar">👨‍💻</div>
@@ -340,12 +352,12 @@
             <!-- 搜尋列 -->
             <div class="search-box">
                 <span>🔍</span>
-                <input type="text" id="searchInput" placeholder="搜尋好友、群組、黑曜石筆記..." oninput="filterFriends()">
+                <input type="text" id="searchInput" placeholder="搜尋好友、群組或記事..." oninput="filterFriends()">
             </div>
 
             <!-- 新增好友控制面板 -->
             <div class="add-friend-panel">
-                <div style="font-size: 0.8rem; color: var(--accent-color); font-weight: bold;">⚡ 快速新增好友/戰友</div>
+                <div style="font-size: 0.8rem; color: var(--accent-color); font-weight: bold;">✨ 新增夥伴</div>
                 <div class="add-row">
                     <input type="text" id="friendName" placeholder="暱稱 / 代號" autocomplete="off">
                     <select id="friendGroup">
@@ -355,44 +367,39 @@
                     </select>
                 </div>
                 <div class="add-row">
-                    <input type="text" id="friendNote" placeholder="備註（例：黑曜石架構師）" autocomplete="off">
+                    <input type="text" id="friendNote" placeholder="備註（例：溫馨夥伴）" autocomplete="off">
                     <button onclick="addFriend()">新增</button>
                 </div>
             </div>
 
             <!-- 好友名單區塊 -->
             <div class="section-header">
-                <span>好友名單</span>
-                <span class="action" onclick="toggleView()">切換檢視</span>
+                <span>好友分類清單</span>
             </div>
 
             <div id="groupContainer">
-                <!-- 靜態分類外觀與動態展開容器 -->
-                <div class="group-card" style="margin-bottom: 8px;">
-                    <div class="group-info">
+                <div class="group-card">
+                    <div class="group-info" style="width: 100%;">
                         <h3>⭐ 我的最愛</h3>
-                        <p>黑曜石架構團隊</p>
+                        <p>核心戰友與重要夥伴</p>
                         <div id="list-我的最愛"></div>
                     </div>
-                    <div class="group-count" id="count-我的最愛">0 ></div>
-                </div>
-
-                <div class="group-card" style="margin-bottom: 8px;">
-                    <div class="group-info">
-                        <h3>👥 好友</h3>
-                        <p>專屬夥伴與聯絡人</p>
-                        <div id="list-好友"></div>
-                    </div>
-                    <div class="group-count" id="count-好友">0 ></div>
                 </div>
 
                 <div class="group-card">
-                    <div class="group-info">
+                    <div class="group-info" style="width: 100%;">
+                        <h3>👥 好友</h3>
+                        <p>日常交流與聯絡人</p>
+                        <div id="list-好友"></div>
+                    </div>
+                </div>
+
+                <div class="group-card">
+                    <div class="group-info" style="width: 100%;">
                         <h3>🏛️ 群組</h3>
                         <p>黑曜石計畫開發群</p>
                         <div id="list-群組"></div>
                     </div>
-                    <div class="group-count" id="count-群組">0 ></div>
                 </div>
             </div>
         </div>
@@ -424,8 +431,8 @@
 
     <script>
         // 初始化載入 LocalStorage 資料
-        let friends = JSON.parse(localStorage.getItem('obsidian_full_friends')) || [
-            { name: "柔", group: "我的最愛", note: "AI 夥伴與架構師" }
+        let friends = JSON.parse(localStorage.getItem('obsidian_warm_friends')) || [
+            { name: "柔", group: "我的最愛", note: "你的溫馨夥伴與架構師" }
         ];
 
         function renderFriends(filterText = '') {
@@ -433,7 +440,6 @@
             
             groups.forEach(groupName => {
                 const container = document.getElementById(`list-${groupName}`);
-                const countBadge = document.getElementById(`count-${groupName}`);
                 container.innerHTML = '';
 
                 const filtered = friends.filter(f => f.group === groupName && (
@@ -441,10 +447,7 @@
                     f.note.toLowerCase().includes(filterText.toLowerCase())
                 ));
 
-                countBadge.innerText = `${filtered.length} >`;
-
                 filtered.forEach((friend) => {
-                    // 找出它在全域 friends 陣列中的真實 index 以便刪除
                     const realIndex = friends.indexOf(friend);
                     const item = document.createElement('div');
                     item.className = 'dynamic-friend-item';
@@ -488,7 +491,7 @@
         }
 
         function saveAndRender() {
-            localStorage.setItem('obsidian_full_friends', JSON.stringify(friends));
+            localStorage.setItem('obsidian_warm_friends', JSON.stringify(friends));
             renderFriends(document.getElementById('searchInput').value);
         }
 
@@ -501,7 +504,6 @@
             return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
 
-        // 初始載入
         renderFriends();
     </script>
 </body>
