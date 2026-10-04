@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>黑曜石計畫 - 好友名單</title>
+    <title>黑曜石通訊 - 指揮中心</title>
     <style>
         :root {
             --bg-color: #121212;
             --card-bg: #1e1e1e;
+            --surface-color: #252525;
             --text-primary: #e0e0e0;
             --text-secondary: #a0a0a0;
             --accent-color: #bb86fc;
@@ -36,108 +37,235 @@
         .phone-container {
             width: 100%;
             max-width: 400px;
-            height: 85vh;
-            max-height: 750px;
+            height: 88vh;
+            max-height: 800px;
             background-color: var(--card-bg);
-            border-radius: 30px;
+            border-radius: 35px;
             border: 4px solid #333;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
         }
 
-        .header {
-            padding: 20px;
+        /* 頂部導航列 */
+        .top-nav {
+            padding: 15px 20px;
             background-color: #181818;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             border-bottom: 1px solid var(--border-color);
-            text-align: center;
         }
 
-        .header h1 {
-            font-size: 1.2rem;
-            color: var(--accent-color);
-            letter-spacing: 1px;
-        }
-
-        .header p {
-            font-size: 0.8rem;
+        .top-nav-icons {
+            display: flex;
+            gap: 15px;
+            font-size: 1.1rem;
             color: var(--text-secondary);
-            margin-top: 4px;
         }
 
-        .input-section {
-            padding: 15px;
-            background-color: #161616;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .input-row {
-            display: flex;
-            gap: 8px;
-        }
-
-        input, select {
-            flex: 1;
-            padding: 10px 12px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            background-color: #252525;
-            color: var(--text-primary);
-            font-size: 0.9rem;
-            outline: none;
-        }
-
-        input:focus, select:focus {
-            border-color: var(--accent-color);
-        }
-
-        button {
-            padding: 10px 16px;
-            border-radius: 8px;
-            border: none;
-            background-color: var(--accent-color);
-            color: #121212;
-            font-weight: bold;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        button:hover {
-            background-color: var(--accent-hover);
-        }
-
-        .list-section {
+        /* 內容滾動區 */
+        .content-scroll {
             flex: 1;
             overflow-y: auto;
             padding: 15px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 15px;
         }
 
-        .friend-card {
+        /* 個人狀態區 */
+        .profile-section {
+            background-color: var(--surface-color);
+            padding: 15px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .profile-info h2 {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+        }
+
+        .profile-info p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .status-badge {
+            font-size: 0.75rem;
+            background: rgba(187, 134, 252, 0.15);
+            color: var(--accent-color);
+            padding: 4px 8px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 6px;
+        }
+
+        .avatar-container {
+            position: relative;
+        }
+
+        .avatar {
+            width: 50px;
+            height: 50px;
+            background: #333;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            border: 2px solid var(--accent-color);
+        }
+
+        .online-dot {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 12px;
+            height: 12px;
+            background-color: #03dac6;
+            border-radius: 50%;
+            border: 2px solid var(--card-bg);
+        }
+
+        /* 搜尋列 */
+        .search-box {
             background-color: #252525;
+            padding: 10px 15px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid var(--border-color);
+        }
+
+        .search-box input {
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            outline: none;
+            width: 100%;
+        }
+
+        /* 區塊標題 */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            padding: 0 5px;
+        }
+
+        .section-header span.action {
+            color: var(--accent-color);
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        /* 新增好友控制面板 (可收合/展開或直接顯示) */
+        .add-friend-panel {
+            background-color: var(--surface-color);
+            padding: 12px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            border: 1px dashed var(--accent-color);
+        }
+
+        .add-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .add-friend-panel input, .add-friend-panel select {
+            flex: 1;
+            padding: 8px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            background-color: #1a1a1a;
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            outline: none;
+        }
+
+        .add-friend-panel button {
+            padding: 8px 14px;
+            border-radius: 6px;
+            border: none;
+            background-color: var(--accent-color);
+            color: #121212;
+            font-weight: bold;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        .add-friend-panel button:hover {
+            background-color: var(--accent-hover);
+        }
+
+        /* 好友群組卡片清單 */
+        .group-card {
+            background-color: var(--surface-color);
             padding: 12px 15px;
             border-radius: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-left: 4px solid var(--accent-color);
-            animation: fadeIn 0.3s ease;
+            transition: background 0.2s;
         }
 
-        .friend-info h3 {
+        .group-card:hover {
+            background-color: #2a2a2a;
+        }
+
+        .group-info h3 {
             font-size: 0.95rem;
-            margin-bottom: 2px;
         }
 
-        .friend-info p {
+        .group-info p {
             font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .group-count {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* 動態渲染的單一好友清單項目 */
+        .dynamic-friend-item {
+            background-color: #1a1a1a;
+            padding: 10px 12px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .dynamic-friend-info h4 {
+            font-size: 0.85rem;
+            color: var(--text-primary);
+        }
+
+        .dynamic-friend-info span {
+            font-size: 0.7rem;
+            color: var(--accent-color);
+        }
+
+        .dynamic-friend-info p {
+            font-size: 0.7rem;
             color: var(--text-secondary);
         }
 
@@ -145,80 +273,190 @@
             background: transparent;
             color: var(--danger-color);
             border: none;
-            font-size: 1.1rem;
             cursor: pointer;
-            padding: 5px;
+            font-size: 1rem;
+            padding: 4px 8px;
         }
 
-        .delete-btn:hover {
-            color: #ff8093;
+        /* 底部導覽列 */
+        .bottom-nav {
+            height: 60px;
+            background-color: #181818;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
         }
 
-        .empty-state {
-            text-align: center;
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
             color: var(--text-secondary);
-            margin-top: 40px;
-            font-size: 0.85rem;
+            font-size: 0.7rem;
+            cursor: pointer;
+            text-decoration: none;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
+        .nav-item.active {
+            color: var(--accent-color);
+        }
+
+        .nav-item span.icon {
+            font-size: 1.1rem;
         }
     </style>
 </head>
 <body>
 
     <div class="phone-container">
-        <div class="header">
-            <h1>黑曜石計畫 🛡️ 好友名單</h1>
-            <p>Local Storage 狀態同步中</p>
-        </div>
-
-        <div class="input-section">
-            <div class="input-row">
-                <input type="text" id="friendName" placeholder="好友暱稱 / 代號" autocomplete="off">
-                <select id="friendGroup">
-                    <option value="核心戰友">核心戰友</option>
-                    <option value="技術交流">技術交流</option>
-                    <option value="日常夥伴">日常夥伴</option>
-                </select>
-            </div>
-            <div class="input-row">
-                <input type="text" id="friendNote" placeholder="備註（例：專精架構/除錯）" autocomplete="off">
-                <button onclick="addFriend()">新增</button>
+        <!-- 頂部導航 -->
+        <div class="top-nav">
+            <span style="font-weight: bold; color: var(--accent-color); font-size: 0.95rem;">黑曜石通訊</span>
+            <div class="top-nav-icons">
+                <span>📝</span>
+                <span>🔔</span>
+                <span>➕</span>
+                <span>⚙️</span>
             </div>
         </div>
 
-        <div class="list-section" id="friendList">
-            <!-- 動態載入好友清單 -->
+        <!-- 內容滾動區 -->
+        <div class="content-scroll">
+            <!-- 個人狀態區 -->
+            <div class="profile-section">
+                <div class="profile-info">
+                    <h2>慶</h2>
+                    <p>輸入狀態消息</p>
+                    <div class="status-badge">🎵 黑曜石計畫 - 核心運行中</div>
+                </div>
+                <div class="avatar-container">
+                    <div class="avatar">👨‍💻</div>
+                    <div class="online-dot"></div>
+                </div>
+            </div>
+
+            <!-- 搜尋列 -->
+            <div class="search-box">
+                <span>🔍</span>
+                <input type="text" id="searchInput" placeholder="搜尋好友、群組、黑曜石筆記..." oninput="filterFriends()">
+            </div>
+
+            <!-- 新增好友控制面板 -->
+            <div class="add-friend-panel">
+                <div style="font-size: 0.8rem; color: var(--accent-color); font-weight: bold;">⚡ 快速新增好友/戰友</div>
+                <div class="add-row">
+                    <input type="text" id="friendName" placeholder="暱稱 / 代號" autocomplete="off">
+                    <select id="friendGroup">
+                        <option value="我的最愛">我的最愛</option>
+                        <option value="好友">好友</option>
+                        <option value="群組">群組</option>
+                    </select>
+                </div>
+                <div class="add-row">
+                    <input type="text" id="friendNote" placeholder="備註（例：黑曜石架構師）" autocomplete="off">
+                    <button onclick="addFriend()">新增</button>
+                </div>
+            </div>
+
+            <!-- 好友名單區塊 -->
+            <div class="section-header">
+                <span>好友名單</span>
+                <span class="action" onclick="toggleView()">切換檢視</span>
+            </div>
+
+            <div id="groupContainer">
+                <!-- 靜態分類外觀與動態展開容器 -->
+                <div class="group-card" style="margin-bottom: 8px;">
+                    <div class="group-info">
+                        <h3>⭐ 我的最愛</h3>
+                        <p>黑曜石架構團隊</p>
+                        <div id="list-我的最愛"></div>
+                    </div>
+                    <div class="group-count" id="count-我的最愛">0 ></div>
+                </div>
+
+                <div class="group-card" style="margin-bottom: 8px;">
+                    <div class="group-info">
+                        <h3>👥 好友</h3>
+                        <p>專屬夥伴與聯絡人</p>
+                        <div id="list-好友"></div>
+                    </div>
+                    <div class="group-count" id="count-好友">0 ></div>
+                </div>
+
+                <div class="group-card">
+                    <div class="group-info">
+                        <h3>🏛️ 群組</h3>
+                        <p>黑曜石計畫開發群</p>
+                        <div id="list-群組"></div>
+                    </div>
+                    <div class="group-count" id="count-群組">0 ></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部導覽列 -->
+        <div class="bottom-nav">
+            <div class="nav-item active">
+                <span class="icon">🏠</span>
+                <span>主頁</span>
+            </div>
+            <div class="nav-item">
+                <span class="icon">💬</span>
+                <span>聊天</span>
+            </div>
+            <div class="nav-item">
+                <span class="icon">🧭</span>
+                <span>逛逛</span>
+            </div>
+            <div class="nav-item">
+                <span class="icon">⭐</span>
+                <span>TODAY</span>
+            </div>
+            <div class="nav-item">
+                <span class="icon">👛</span>
+                <span>錢包</span>
+            </div>
         </div>
     </div>
 
     <script>
         // 初始化載入 LocalStorage 資料
-        let friends = JSON.parse(localStorage.getItem('obsidian_friends')) || [];
+        let friends = JSON.parse(localStorage.getItem('obsidian_full_friends')) || [
+            { name: "柔", group: "我的最愛", note: "AI 夥伴與架構師" }
+        ];
 
-        function renderFriends() {
-            const listContainer = document.getElementById('friendList');
-            listContainer.innerHTML = '';
+        function renderFriends(filterText = '') {
+            const groups = ['我的最愛', '好友', '群組'];
+            
+            groups.forEach(groupName => {
+                const container = document.getElementById(`list-${groupName}`);
+                const countBadge = document.getElementById(`count-${groupName}`);
+                container.innerHTML = '';
 
-            if (friends.length === 0) {
-                listContainer.innerHTML = `<div class="empty-state">目前還沒有記錄任何好友，趕快把夥伴加入陣營吧！</div>`;
-                return;
-            }
+                const filtered = friends.filter(f => f.group === groupName && (
+                    f.name.toLowerCase().includes(filterText.toLowerCase()) || 
+                    f.note.toLowerCase().includes(filterText.toLowerCase())
+                ));
 
-            friends.forEach((friend, index) => {
-                const card = document.createElement('div');
-                card.className = 'friend-card';
-                card.innerHTML = `
-                    <div class="friend-info">
-                        <h3>${escapeHtml(friend.name)} <span style="font-size: 0.7rem; color: var(--accent-color);">[${escapeHtml(friend.group)}]</span></h3>
-                        <p>${escapeHtml(friend.note || '無特別備註')}</p>
-                    </div>
-                    <button class="delete-btn" onclick="removeFriend(${index})" title="刪除">✕</button>
-                `;
-                listContainer.appendChild(card);
+                countBadge.innerText = `${filtered.length} >`;
+
+                filtered.forEach((friend) => {
+                    // 找出它在全域 friends 陣列中的真實 index 以便刪除
+                    const realIndex = friends.indexOf(friend);
+                    const item = document.createElement('div');
+                    item.className = 'dynamic-friend-item';
+                    item.innerHTML = `
+                        <div class="dynamic-friend-info">
+                            <h4>${escapeHtml(friend.name)}</h4>
+                            <p>${escapeHtml(friend.note || '無特別備註')}</p>
+                        </div>
+                        <button class="delete-btn" onclick="removeFriend(${realIndex})" title="刪除">✕</button>
+                    `;
+                    container.appendChild(item);
+                });
             });
         }
 
@@ -239,7 +477,6 @@
             friends.push({ name, group, note });
             saveAndRender();
 
-            // 清空輸入框
             nameInput.value = '';
             noteInput.value = '';
             nameInput.focus();
@@ -251,16 +488,20 @@
         }
 
         function saveAndRender() {
-            localStorage.setItem('obsidian_friends', JSON.stringify(friends));
-            renderFriends();
+            localStorage.setItem('obsidian_full_friends', JSON.stringify(friends));
+            renderFriends(document.getElementById('searchInput').value);
         }
 
-        // 防止 XSS 攻擊的小工具
+        function filterFriends() {
+            const query = document.getElementById('searchInput').value;
+            renderFriends(query);
+        }
+
         function escapeHtml(text) {
             return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
         }
 
-        // 頁面載入時渲染
+        // 初始載入
         renderFriends();
     </script>
 </body>
