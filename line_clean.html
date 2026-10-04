@@ -15,6 +15,7 @@
             --border-color: #f0f0f0;
             --danger: #ef4444;
             --warning: #f59e0b;
+            --purple: #8b5cf6;
         }
 
         * {
@@ -455,12 +456,29 @@
             box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
 
-        .chatroom-input {
+        /* 聊天室專屬貼圖訊息樣式 */
+        .msg-sticker {
+            font-size: 42px;
+            padding: 4px 8px;
+            align-self: flex-end;
+            background: transparent;
+            box-shadow: none;
+        }
+        .msg-sticker.bot {
+            align-self: flex-start;
+        }
+
+        .chatroom-input-area {
             background: var(--card-bg);
+            display: flex;
+            flex-direction: column;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .chatroom-input {
             padding: 10px 16px;
             display: flex;
             gap: 8px;
-            border-top: 1px solid var(--border-color);
         }
 
         .chatroom-input input {
@@ -480,6 +498,31 @@
             border-radius: 20px;
             font-weight: 600;
             cursor: pointer;
+        }
+
+        /* 聊天室內快捷貼圖抽屜 */
+        .chatroom-quick-stickers {
+            display: flex;
+            gap: 10px;
+            padding: 8px 16px;
+            overflow-x: auto;
+            background: var(--bg-color);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .quick-sticker-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 20px;
+            padding: 4px 8px;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: transform 0.1s;
+        }
+
+        .quick-sticker-btn:active {
+            transform: scale(0.9);
         }
 
         /* 彈出式通用面板共用樣式 */
@@ -741,6 +784,97 @@
             font-size: 12px;
         }
 
+        /* 彈出式貼圖小鋪面板 */
+        .stickers-body {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            background: var(--bg-color);
+        }
+
+        .sticker-add-card {
+            background: var(--card-bg);
+            padding: 12px 14px;
+            border-radius: 12px;
+            display: flex;
+            gap: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .sticker-add-card input {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            outline: none;
+            font-size: 13px;
+            background: var(--bg-color);
+            color: var(--text-main);
+        }
+
+        .sticker-add-btn {
+            background: var(--purple);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .sticker-grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .sticker-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.1s, border-color 0.1s;
+        }
+
+        .sticker-card:hover {
+            border-color: var(--purple);
+            transform: translateY(-2px);
+        }
+
+        .sticker-emoji {
+            font-size: 38px;
+        }
+
+        .sticker-name {
+            font-size: 12px;
+            color: var(--text-sub);
+            font-weight: 600;
+        }
+
+        .sticker-del-btn {
+            position: absolute;
+            top: 4px;
+            right: 6px;
+            background: none;
+            border: none;
+            color: var(--danger);
+            font-size: 12px;
+            cursor: pointer;
+            padding: 2px 4px;
+        }
+
         /* 底部 LINE 風格導覽列 */
         nav.tab-bar {
             height: 65px;
@@ -860,7 +994,7 @@
                 </div>
 
                 <div class="services-grid">
-                    <div class="service-icon-box" onclick="alert('貼圖小鋪功能建置中...')">
+                    <div class="service-icon-box" onclick="openStickers()">
                         <div class="service-icon">🎨</div>
                         <div class="service-name">貼圖小鋪</div>
                     </div>
@@ -897,7 +1031,7 @@
                         <span class="chat-name">柔 (專屬夥伴)</span>
                         <span class="chat-time">上午 08:00</span>
                     </div>
-                    <div class="chat-preview" id="lastMsgPreview">小黑哥，「靈感小鋪」已經正式開張囉！隨時記錄你的點子卡片吧。</div>
+                    <div class="chat-preview" id="lastMsgPreview">小黑哥，「貼圖小鋪」已經正式開張囉！點擊聊天室裡的快捷貼圖傳送看看吧。</div>
                 </div>
             </div>
         </div>
@@ -920,9 +1054,15 @@
                 <span>柔 (專屬夥伴)</span>
             </div>
             <div class="chatroom-messages" id="chatMessagesBox"></div>
-            <div class="chatroom-input">
-                <input type="text" id="chatInputText" placeholder="輸入訊息..." onkeypress="handleEnterKey(event)">
-                <button onclick="sendMsg()">傳送</button>
+            
+            <!-- 聊天室專屬快捷貼圖列 -->
+            <div class="chatroom-quick-stickers" id="chatQuickStickersBar"></div>
+
+            <div class="chatroom-input-area">
+                <div class="chatroom-input">
+                    <input type="text" id="chatInputText" placeholder="輸入訊息..." onkeypress="handleEnterKey(event)">
+                    <button onclick="sendMsg()">傳送</button>
+                </div>
             </div>
         </div>
 
@@ -977,6 +1117,23 @@
             </div>
         </div>
 
+        <!-- 彈出式貼圖小鋪面板 -->
+        <div id="stickers-pane" class="sub-pane">
+            <div class="sub-pane-top">
+                <span style="cursor: pointer;" onclick="closeStickers()">❮ 返回</span>
+                <span>🎨 黑曜石貼圖小鋪</span>
+                <span style="width: 40px;"></span>
+            </div>
+            <div class="stickers-body">
+                <div class="sticker-add-card">
+                    <input type="text" id="stickerEmojiInput" placeholder="貼圖符號 (例如: 🚀)" style="width: 80px; text-align: center;">
+                    <input type="text" id="stickerNameInput" placeholder="貼圖名稱 (例如: 🚀 發射)" style="flex: 1;">
+                    <button class="sticker-add-btn" onclick="addSticker()">＋ 新增</button>
+                </div>
+                <div class="sticker-grid-container" id="stickerGridContainer"></div>
+            </div>
+        </div>
+
         <!-- 底部 LINE 風格導覽列 -->
         <nav class="tab-bar">
             <div class="tab-item active" onclick="switchTab('home', this)">
@@ -1026,6 +1183,16 @@
         // 載入靈感小鋪點子
         let ideas = JSON.parse(localStorage.getItem('obsidian_ideas')) || [
             { title: '黑曜石指揮中心', tag: '架構', desc: '整合通訊、備忘與工具的極簡手機版介面。' }
+        ];
+
+        // 載入貼圖小鋪資料
+        let stickers = JSON.parse(localStorage.getItem('obsidian_stickers')) || [
+            { emoji: '💻', name: 'coding 中' },
+            { emoji: '🚀', name: '全速發射' },
+            { emoji: '🔥', name: '熱血沸騰' },
+            { emoji: '☕', name: '咖啡充電' },
+            { emoji: '🎯', name: '完美命中' },
+            { emoji: '⭐', name: '黑曜石星' }
         ];
 
         // 編輯狀態訊息
@@ -1206,6 +1373,97 @@
             }
         }
 
+        // 開啟/關閉貼圖小鋪
+        function openStickers() {
+            document.getElementById('stickers-pane').style.display = 'flex';
+            renderStickers();
+        }
+
+        function closeStickers() {
+            document.getElementById('stickers-pane').style.display = 'none';
+        }
+
+        function renderStickers() {
+            const container = document.getElementById('stickerGridContainer');
+            container.innerHTML = '';
+            if (stickers.length === 0) {
+                container.innerHTML = '<div style="font-size: 13px; color: var(--text-sub); text-align: center; grid-column: span 3; padding: 10px;">目前尚無貼圖，快在上方新增！</div>';
+                return;
+            }
+            stickers.forEach((s, index) => {
+                const card = document.createElement('div');
+                card.className = 'sticker-card';
+                card.innerHTML = `
+                    <button class="sticker-del-btn" onclick="event.stopPropagation(); deleteSticker(${index})">✕</button>
+                    <div class="sticker-emoji">${s.emoji}</div>
+                    <div class="sticker-name">${s.name}</div>
+                `;
+                card.onclick = () => {
+                    sendStickerMessage(s.emoji);
+                    closeStickers();
+                    openChatRoom();
+                };
+                container.appendChild(card);
+            });
+        }
+
+        function addSticker() {
+            const emojiInput = document.getElementById('stickerEmojiInput');
+            const nameInput = document.getElementById('stickerNameInput');
+            const emoji = emojiInput.value.trim();
+            const name = nameInput.value.trim();
+
+            if (!emoji || !name) {
+                alert('請完整輸入貼圖符號與名稱！');
+                return;
+            }
+
+            stickers.push({ emoji, name });
+            localStorage.setItem('obsidian_stickers', JSON.stringify(stickers));
+
+            emojiInput.value = '';
+            nameInput.value = '';
+            renderStickers();
+            renderChatQuickStickers();
+        }
+
+        function deleteSticker(index) {
+            if (confirm('確定要刪除這個貼圖嗎？')) {
+                stickers.splice(index, 1);
+                localStorage.setItem('obsidian_stickers', JSON.stringify(stickers));
+                renderStickers();
+                renderChatQuickStickers();
+            }
+        }
+
+        // 渲染聊天室快捷貼圖列
+        function renderChatQuickStickers() {
+            const bar = document.getElementById('chatQuickStickersBar');
+            bar.innerHTML = '';
+            stickers.forEach(s => {
+                const btn = document.createElement('button');
+                btn.className = 'quick-sticker-btn';
+                btn.title = s.name;
+                btn.innerText = s.emoji;
+                btn.onclick = () => sendStickerMessage(s.emoji);
+                bar.appendChild(btn);
+            });
+        }
+
+        function sendStickerMessage(emoji) {
+            messages.push({ sender: 'user', text: emoji, isSticker: true });
+            renderChat();
+            updatePreview(`[貼圖] ${emoji}`);
+            saveChat();
+
+            setTimeout(() => {
+                messages.push({ sender: 'bot', text: `收到你的超讚貼圖 ${emoji}！這指揮中心越來越有靈魂了！`, isSticker: false });
+                renderChat();
+                updatePreview(`收到貼圖 ${emoji}`);
+                saveChat();
+            }, 600);
+        }
+
         // 分頁切換
         function switchTab(pageId, element) {
             document.querySelectorAll('.page-content').forEach(el => el.classList.remove('active'));
@@ -1217,12 +1475,13 @@
 
         // 開啟/關閉聊天室
         let messages = JSON.parse(localStorage.getItem('obsidian_chat_data')) || [
-            { sender: 'bot', text: '小黑哥，「靈感小鋪」已經正式開張囉！隨時記錄你的點子卡片吧。' }
+            { sender: 'bot', text: '小黑哥，「貼圖小鋪」已經正式開張囉！點擊聊天室裡的快捷貼圖傳送看看吧。', isSticker: false }
         ];
 
         function openChatRoom() {
             document.getElementById('chat-room-pane').style.display = 'flex';
             renderChat();
+            renderChatQuickStickers();
         }
 
         function closeChatRoom() {
@@ -1234,7 +1493,11 @@
             box.innerHTML = '';
             messages.forEach(m => {
                 const div = document.createElement('div');
-                div.className = `msg-bubble ${m.sender}`;
+                if (m.isSticker) {
+                    div.className = `msg-bubble msg-sticker ${m.sender}`;
+                } else {
+                    div.className = `msg-bubble ${m.sender}`;
+                }
                 div.innerText = m.text;
                 box.appendChild(div);
             });
@@ -1246,14 +1509,14 @@
             const txt = input.value.trim();
             if (!txt) return;
 
-            messages.push({ sender: 'user', text: txt });
+            messages.push({ sender: 'user', text: txt, isSticker: false });
             input.value = '';
             renderChat();
             updatePreview(txt);
             saveChat();
 
             setTimeout(() => {
-                messages.push({ sender: 'bot', text: `收到：「${txt}」。我們的黑曜石指揮中心越來越完整囉！` });
+                messages.push({ sender: 'bot', text: `收到：「${txt}」。我們的黑曜石指揮中心越來越完整囉！`, isSticker: false });
                 renderChat();
                 updatePreview(`收到：「${txt}」`);
                 saveChat();
@@ -1271,6 +1534,9 @@
         function saveChat() {
             localStorage.setItem('obsidian_chat_data', JSON.stringify(messages));
         }
+
+        // 初始化載入聊天室快捷貼圖
+        renderChatQuickStickers();
     </script>
 </body>
 </html>
