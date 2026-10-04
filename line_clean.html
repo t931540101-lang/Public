@@ -14,6 +14,7 @@
             --text-sub: #888888;
             --border-color: #f0f0f0;
             --danger: #ef4444;
+            --warning: #f59e0b;
         }
 
         * {
@@ -481,8 +482,8 @@
             cursor: pointer;
         }
 
-        /* 彈出式備忘錄面板 */
-        #memo-pane {
+        /* 彈出式通用面板共用樣式 */
+        .sub-pane {
             position: absolute;
             top: 0;
             left: 0;
@@ -494,7 +495,7 @@
             z-index: 60;
         }
 
-        .memo-top {
+        .sub-pane-top {
             padding: 14px 16px;
             display: flex;
             align-items: center;
@@ -504,6 +505,7 @@
             font-size: 16px;
         }
 
+        /* 彈出式備忘錄面板 */
         .memo-content-area {
             flex: 1;
             padding: 16px;
@@ -545,28 +547,6 @@
         }
 
         /* 彈出式工具捷徑面板 */
-        #shortcuts-pane {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--card-bg);
-            display: none;
-            flex-direction: column;
-            z-index: 60;
-        }
-
-        .shortcuts-top {
-            padding: 14px 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid var(--border-color);
-            font-weight: 600;
-            font-size: 16px;
-        }
-
         .shortcuts-body {
             flex: 1;
             padding: 16px;
@@ -652,6 +632,113 @@
             cursor: pointer;
             font-size: 14px;
             padding: 4px 8px;
+        }
+
+        /* 彈出式靈感小鋪面板 */
+        .ideas-body {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: var(--bg-color);
+        }
+
+        .idea-add-card {
+            background: var(--card-bg);
+            padding: 14px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .idea-add-card input, .idea-add-card textarea {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            outline: none;
+            font-size: 13px;
+            background: var(--bg-color);
+            color: var(--text-main);
+        }
+
+        .idea-add-card textarea {
+            resize: none;
+            height: 60px;
+        }
+
+        .idea-add-btn {
+            background: var(--warning);
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .idea-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .idea-card {
+            background: var(--card-bg);
+            padding: 12px 14px;
+            border-radius: 12px;
+            border-left: 4px solid var(--warning);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .idea-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .idea-card-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--text-main);
+        }
+
+        .idea-card-tag {
+            font-size: 10px;
+            background: #fef3c7;
+            color: #d97706;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .idea-card-desc {
+            font-size: 13px;
+            color: var(--text-sub);
+            line-height: 1.4;
+            word-break: break-all;
+        }
+
+        .idea-card-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .idea-del-btn {
+            background: none;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+            font-size: 12px;
         }
 
         /* 底部 LINE 風格導覽列 */
@@ -777,7 +864,7 @@
                         <div class="service-icon">🎨</div>
                         <div class="service-name">貼圖小鋪</div>
                     </div>
-                    <div class="service-icon-box" onclick="alert('靈感小鋪功能建置中...')">
+                    <div class="service-icon-box" onclick="openIdeas()">
                         <div class="service-icon">💡</div>
                         <div class="service-name">靈感小鋪</div>
                     </div>
@@ -808,9 +895,9 @@
                 <div class="chat-info">
                     <div class="chat-name-row">
                         <span class="chat-name">柔 (專屬夥伴)</span>
-                        <span class="chat-time">上午 07:57</span>
+                        <span class="chat-time">上午 08:00</span>
                     </div>
-                    <div class="chat-preview" id="lastMsgPreview">小黑哥，工具捷徑面板已經成功加進去了！隨時可以管理你的常用網址。</div>
+                    <div class="chat-preview" id="lastMsgPreview">小黑哥，「靈感小鋪」已經正式開張囉！隨時記錄你的點子卡片吧。</div>
                 </div>
             </div>
         </div>
@@ -827,7 +914,7 @@
         </div>
 
         <!-- 獨立聊天室視窗 -->
-        <div id="chat-room-pane">
+        <div id="chat-room-pane" class="sub-pane" style="z-index: 50; display: none;">
             <div class="chatroom-top">
                 <span style="cursor: pointer;" onclick="closeChatRoom()">❮</span>
                 <span>柔 (專屬夥伴)</span>
@@ -840,8 +927,8 @@
         </div>
 
         <!-- 彈出式備忘錄面板 -->
-        <div id="memo-pane">
-            <div class="memo-top">
+        <div id="memo-pane" class="sub-pane">
+            <div class="sub-pane-top">
                 <span style="cursor: pointer;" onclick="closeMemo()">❮ 返回</span>
                 <span>黑曜石隨身備忘錄</span>
                 <span style="width: 40px;"></span>
@@ -856,8 +943,8 @@
         </div>
 
         <!-- 彈出式工具捷徑面板 -->
-        <div id="shortcuts-pane">
-            <div class="shortcuts-top">
+        <div id="shortcuts-pane" class="sub-pane">
+            <div class="sub-pane-top">
                 <span style="cursor: pointer;" onclick="closeShortcuts()">❮ 返回</span>
                 <span>黑曜石工具捷徑</span>
                 <span style="width: 40px;"></span>
@@ -868,9 +955,25 @@
                     <input type="text" id="shortcutUrlInput" placeholder="網址 (例如: https://github.com)">
                     <button class="shortcut-add-btn" onclick="addShortcut()">＋ 新增捷徑</button>
                 </div>
-                <div class="shortcut-list" id="shortcutListContainer">
-                    <!-- 動態載入捷徑清單 -->
+                <div class="shortcut-list" id="shortcutListContainer"></div>
+            </div>
+        </div>
+
+        <!-- 彈出式靈感小鋪面板 -->
+        <div id="ideas-pane" class="sub-pane">
+            <div class="sub-pane-top">
+                <span style="cursor: pointer;" onclick="closeIdeas()">❮ 返回</span>
+                <span>💡 黑曜石靈感小鋪</span>
+                <span style="width: 40px;"></span>
+            </div>
+            <div class="ideas-body">
+                <div class="idea-add-card">
+                    <input type="text" id="ideaTitleInput" placeholder="點子標題 (例如: 手機版自動同步)">
+                    <input type="text" id="ideaTagInput" placeholder="分類標籤 (例如: 架構 / 點子)">
+                    <textarea id="ideaDescInput" placeholder="詳細描述或構思內容..."></textarea>
+                    <button class="idea-add-btn" onclick="addIdea()">＋ 記錄靈感卡片</button>
                 </div>
+                <div class="idea-list" id="ideaListContainer"></div>
             </div>
         </div>
 
@@ -918,6 +1021,11 @@
         let shortcuts = JSON.parse(localStorage.getItem('obsidian_shortcuts')) || [
             { name: 'GitHub 專案', url: 'https://github.com' },
             { name: 'Vercel 部署主控台', url: 'https://vercel.com' }
+        ];
+
+        // 載入靈感小鋪點子
+        let ideas = JSON.parse(localStorage.getItem('obsidian_ideas')) || [
+            { title: '黑曜石指揮中心', tag: '架構', desc: '整合通訊、備忘與工具的極簡手機版介面。' }
         ];
 
         // 編輯狀態訊息
@@ -1033,6 +1141,71 @@
             }
         }
 
+        // 開啟/關閉靈感小鋪
+        function openIdeas() {
+            document.getElementById('ideas-pane').style.display = 'flex';
+            renderIdeas();
+        }
+
+        function closeIdeas() {
+            document.getElementById('ideas-pane').style.display = 'none';
+        }
+
+        function renderIdeas() {
+            const container = document.getElementById('ideaListContainer');
+            container.innerHTML = '';
+            if (ideas.length === 0) {
+                container.innerHTML = '<div style="font-size: 13px; color: var(--text-sub); text-align: center; padding: 10px;">目前尚無靈感卡片，快來記錄第一個點子吧！</div>';
+                return;
+            }
+            ideas.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'idea-card';
+                card.innerHTML = `
+                    <div class="idea-card-header">
+                        <span class="idea-card-title">${item.title}</span>
+                        <span class="idea-card-tag">${item.tag || '靈感'}</span>
+                    </div>
+                    <div class="idea-card-desc">${item.desc}</div>
+                    <div class="idea-card-footer">
+                        <button class="idea-del-btn" onclick="deleteIdea(${index})">刪除</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function addIdea() {
+            const titleInput = document.getElementById('ideaTitleInput');
+            const tagInput = document.getElementById('ideaTagInput');
+            const descInput = document.getElementById('ideaDescInput');
+
+            const title = titleInput.value.trim();
+            const tag = tagInput.value.trim() || '靈感';
+            const desc = descInput.value.trim();
+
+            if (!title || !desc) {
+                alert('請完整輸入點子標題與描述內容！');
+                return;
+            }
+
+            ideas.unshift({ title, tag, desc });
+            localStorage.setItem('obsidian_ideas', JSON.stringify(ideas));
+
+            titleInput.value = '';
+            tagInput.value = '';
+            descInput.value = '';
+            renderIdeas();
+        }
+
+        function deleteIdea(index) {
+            if (confirm('確定要刪除這張靈感卡片嗎？')) {
+                ideas.splice(index, 1);
+                localStorage.setItem('obsidian_ideas', JSON.stringify(ideas));
+                renderIdeas();
+            }
+        }
+
         // 分頁切換
         function switchTab(pageId, element) {
             document.querySelectorAll('.page-content').forEach(el => el.classList.remove('active'));
@@ -1044,7 +1217,7 @@
 
         // 開啟/關閉聊天室
         let messages = JSON.parse(localStorage.getItem('obsidian_chat_data')) || [
-            { sender: 'bot', text: '小黑哥，工具捷徑面板已經成功加進去了！隨時可以管理你的常用網址。' }
+            { sender: 'bot', text: '小黑哥，「靈感小鋪」已經正式開張囉！隨時記錄你的點子卡片吧。' }
         ];
 
         function openChatRoom() {
