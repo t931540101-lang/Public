@@ -226,3 +226,567 @@
       justify-content: center;
       align-items: flex-end;
     }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--card);
+      width: 100%;
+      max-height: 85vh;
+      border-radius: 20px 20px 0 0;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .modal-header h2 {
+      font-size: 1.2rem;
+    }
+
+    .template-list {
+      list-style: none;
+    }
+
+    .template-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .color-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .template-info {
+      flex: 1;
+    }
+
+    .template-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .template-time {
+      font-size: 0.8rem;
+      color: var(--secondary);
+    }
+
+    .template-actions button {
+      background: none;
+      border: none;
+      font-size: 0.9rem;
+      color: var(--secondary);
+      padding: 6px 8px;
+      cursor: pointer;
+    }
+
+    .add-btn {
+      width: 100%;
+      margin-top: 16px;
+      padding: 14px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* 編輯表單 */
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--secondary);
+      margin-bottom: 6px;
+    }
+
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 1rem;
+    }
+
+    .color-picker {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .color-option {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 3px solid transparent;
+    }
+
+    .color-option.selected {
+      border-color: #333;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .form-actions button {
+      flex: 1;
+      padding: 14px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-cancel {
+      background: #f3f4f6;
+      color: #333;
+    }
+
+    .btn-save {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-delete {
+      background: #fee2e2;
+      color: #dc2626;
+      margin-top: 12px;
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <button class="icon-btn" onclick="openTemplateModal()">☰</button>
+  <h1>ShiftPlan</h1>
+  <button class="icon-btn" onclick="goToday()">今</button>
+</header>
+
+<div class="month-nav">
+  <button onclick="changeMonth(-1)">‹</button>
+  <div class="month-title" id="monthTitle"></div>
+  <button onclick="changeMonth(1)">›</button>
+</div>
+
+<div class="shift-btns" id="shiftBtns"></div>
+
+<div class="calendar">
+  <div class="weekdays">
+    <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+  </div>
+  <div class="days" id="daysGrid"></div>
+</div>
+
+<div class="salary-bar">
+  <div>
+    <div class="salary-label">本月已賺</div>
+    <div class="salary-amount" id="salaryAmount">NT$ 0</div>
+  </div>
+</div>
+
+<!-- 班次管理 Modal -->
+<div class="modal" id="templateModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>班次管理</h2>
+      <button class="icon-btn" onclick="closeTemplateModal()">✕</button>
+    </div>
+    <ul class="template-list" id="templateList"></ul>
+    <button class="add-btn" onclick="openEditForm()">＋ 新增班次</button>
+  </div>
+</div>
+
+<!-- 編輯班次 Modal -->
+<div class="modal" id="editModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="editTitle">新增班次</h2>
+      <button class="icon-btn" onclick="closeEditForm()">✕</button>
+    </div>
+
+    <div class="form-group">
+      <label>班次名稱</label>
+      <input type="text" id="formName" placeholder="例如：早班" />
+    </div>
+
+    <div class="form-group">
+      <label>顏色</label>
+      <div class="color-picker" id="colorPicker"></div>
+    </div>
+
+    <div class="form-group">
+      <label>開始時間</label>
+      <div style="display:flex;gap:8px;">
+        <select id="formStartHour"></select>
+        <select id="formStartMin"></select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>結束時間</label>
+      <div style="display:flex;gap:8px;">
+        <select id="formEndHour"></select>
+        <select id="formEndMin"></select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>時薪 (NT$)</label>
+      <input type="number" id="formRate" value="200" min="0" step="10" />
+    </div>
+
+    <div class="form-actions">
+      <button class="btn-cancel" onclick="closeEditForm()">取消</button>
+      <button class="btn-save" onclick="saveTemplate()">儲存</button>
+    </div>
+
+    <button class="btn-delete" id="deleteBtn" style="display:none;" onclick="deleteTemplate()">刪除這個班次</button>
+  </div>
+</div>
+
+<script>
+  // ===================== 資料 =====================
+  const STORAGE_KEY = 'shiftplan_data_v1';
+  const COLORS = ['#4A90E2','#7ED321','#F5A623','#D0021B','#BD10E0','#50E3C2','#9013FE','#B8E986'];
+
+  let templates = [];
+  let records = {};          // key: 'YYYY-MM-DD' → templateId
+  let currentYear, currentMonth;
+  let selectedTemplateId = null;
+  let editingId = null;
+
+  // ===================== 初始化 =====================
+  function init() {
+    loadData();
+    if (templates.length === 0) {
+      templates = [
+        { id: uid(), name: '早班', color: '#4A90E2', startH: 8, startM: 0, endH: 16, endM: 0, rate: 200 },
+        { id: uid(), name: '中班', color: '#7ED321', startH: 16, startM: 0, endH: 24, endM: 0, rate: 200 },
+        { id: uid(), name: '晚班', color: '#F5A623', startH: 0, startM: 0, endH: 8, endM: 0, rate: 220 },
+        { id: uid(), name: '休假', color: '#BD10E0', startH: 0, startM: 0, endH: 0, endM: 0, rate: 0 }
+      ];
+      saveData();
+    }
+
+    const now = new Date();
+    currentYear = now.getFullYear();
+    currentMonth = now.getMonth();
+
+    buildTimeSelects();
+    buildColorPicker();
+    renderShiftButtons();
+    renderCalendar();
+    updateSalary();
+  }
+
+  function uid() {
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  }
+
+  function loadData() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        const data = JSON.parse(raw);
+        templates = data.templates || [];
+        records = data.records || {};
+      }
+    } catch (e) {}
+  }
+
+  function saveData() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ templates, records }));
+  }
+
+  // ===================== 畫面渲染 =====================
+  function renderShiftButtons() {
+    const container = document.getElementById('shiftBtns');
+    container.innerHTML = templates.map(t => `
+      <button class="shift-btn ${selectedTemplateId === t.id ? 'active' : ''}"
+              style="background:${selectedTemplateId === t.id ? t.color : t.color + '40'}; 
+                     color:${selectedTemplateId === t.id ? '#fff' : '#333'}"
+              onclick="selectTemplate('${t.id}')">
+        ${t.name}
+      </button>
+    `).join('');
+  }
+
+  function selectTemplate(id) {
+    selectedTemplateId = (selectedTemplateId === id) ? null : id;
+    renderShiftButtons();
+  }
+
+  function renderCalendar() {
+    const title = document.getElementById('monthTitle');
+    title.textContent = `${currentYear} 年 ${currentMonth + 1} 月`;
+
+    const grid = document.getElementById('daysGrid');
+    grid.innerHTML = '';
+
+    const firstDay = new Date(currentYear, currentMonth, 1);
+    const startWeekday = firstDay.getDay();
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    const today = new Date();
+
+    // 空白格子
+    for (let i = 0; i < startWeekday; i++) {
+      grid.innerHTML += `<div class="day empty"></div>`;
+    }
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dateStr = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const isToday = today.getFullYear() === currentYear &&
+                      today.getMonth() === currentMonth &&
+                      today.getDate() === d;
+
+      const templateId = records[dateStr];
+      const template = templates.find(t => t.id === templateId);
+
+      let tagHtml = '';
+      if (template) {
+        tagHtml = `<div class="shift-tag" style="background:${template.color}">${template.name}</div>`;
+      }
+
+      grid.innerHTML += `
+        <div class="day ${isToday ? 'today' : ''}" onclick="tapDay('${dateStr}')">
+          <div class="day-num">${d}</div>
+          ${tagHtml}
+        </div>
+      `;
+    }
+  }
+
+  function tapDay(dateStr) {
+    if (!selectedTemplateId) return;
+
+    if (records[dateStr] === selectedTemplateId) {
+      delete records[dateStr];          // 再點一次取消
+    } else {
+      records[dateStr] = selectedTemplateId;
+    }
+    saveData();
+    renderCalendar();
+    updateSalary();
+  }
+
+  function changeMonth(delta) {
+    currentMonth += delta;
+    if (currentMonth > 11) {
+      currentMonth = 0;
+      currentYear++;
+    } else if (currentMonth < 0) {
+      currentMonth = 11;
+      currentYear--;
+    }
+    renderCalendar();
+    updateSalary();
+  }
+
+  function goToday() {
+    const now = new Date();
+    currentYear = now.getFullYear();
+    currentMonth = now.getMonth();
+    renderCalendar();
+    updateSalary();
+  }
+
+  function updateSalary() {
+    let total = 0;
+    const prefix = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}`;
+
+    for (const [date, tid] of Object.entries(records)) {
+      if (!date.startsWith(prefix)) continue;
+      const t = templates.find(x => x.id === tid);
+      if (!t || t.rate === 0) continue;
+
+      let hours = (t.endH + t.endM/60) - (t.startH + t.startM/60);
+      if (hours <= 0) hours += 24;   // 跨日
+      total += hours * t.rate;
+    }
+
+    document.getElementById('salaryAmount').textContent =
+      'NT$ ' + Math.round(total).toLocaleString();
+  }
+
+  // ===================== 班次管理 =====================
+  function openTemplateModal() {
+    renderTemplateList();
+    document.getElementById('templateModal').classList.add('show');
+  }
+
+  function closeTemplateModal() {
+    document.getElementById('templateModal').classList.remove('show');
+  }
+
+  function renderTemplateList() {
+    const list = document.getElementById('templateList');
+    list.innerHTML = templates.map(t => `
+      <li class="template-item">
+        <div class="color-dot" style="background:${t.color}"></div>
+        <div class="template-info">
+          <div class="template-name">${t.name}</div>
+          <div class="template-time">${pad(t.startH)}:${pad(t.startM)} - ${pad(t.endH)}:${pad(t.endM)}　$${t.rate}/hr</div>
+        </div>
+        <div class="template-actions">
+          <button onclick="openEditForm('${t.id}')">編輯</button>
+        </div>
+      </li>
+    `).join('');
+  }
+
+  function openEditForm(id = null) {
+    editingId = id;
+    const form = document.getElementById('editModal');
+    document.getElementById('editTitle').textContent = id ? '編輯班次' : '新增班次';
+    document.getElementById('deleteBtn').style.display = id ? 'block' : 'none';
+
+    if (id) {
+      const t = templates.find(x => x.id === id);
+      document.getElementById('formName').value = t.name;
+      document.getElementById('formStartHour').value = t.startH;
+      document.getElementById('formStartMin').value = t.startM;
+      document.getElementById('formEndHour').value = t.endH;
+      document.getElementById('formEndMin').value = t.endM;
+      document.getElementById('formRate').value = t.rate;
+      selectedColor = t.color;
+    } else {
+      document.getElementById('formName').value = '';
+      document.getElementById('formStartHour').value = 9;
+      document.getElementById('formStartMin').value = 0;
+      document.getElementById('formEndHour').value = 18;
+      document.getElementById('formEndMin').value = 0;
+      document.getElementById('formRate').value = 200;
+      selectedColor = COLORS[0];
+    }
+    updateColorSelection();
+    form.classList.add('show');
+  }
+
+  function closeEditForm() {
+    document.getElementById('editModal').classList.remove('show');
+  }
+
+  let selectedColor = COLORS[0];
+
+  function buildColorPicker() {
+    const box = document.getElementById('colorPicker');
+    box.innerHTML = COLORS.map(c => `
+      <div class="color-option ${c === selectedColor ? 'selected' : ''}"
+           style="background:${c}"
+           onclick="selectColor('${c}')"></div>
+    `).join('');
+  }
+
+  function selectColor(c) {
+    selectedColor = c;
+    updateColorSelection();
+  }
+
+  function updateColorSelection() {
+    document.querySelectorAll('.color-option').forEach(el => {
+      el.classList.toggle('selected', el.style.background === selectedColor || el.style.backgroundColor === selectedColor);
+    });
+  }
+
+  function buildTimeSelects() {
+    const hours = Array.from({length: 25}, (_, i) => i); // 0~24
+    const mins = [0, 15, 30, 45];
+
+    ['formStartHour','formEndHour'].forEach(id => {
+      const sel = document.getElementById(id);
+      sel.innerHTML = hours.map(h => `<option value="${h}">${pad(h)}</option>`).join('');
+    });
+    ['formStartMin','formEndMin'].forEach(id => {
+      const sel = document.getElementById(id);
+      sel.innerHTML = mins.map(m => `<option value="${m}">${pad(m)}</option>`).join('');
+    });
+  }
+
+  function pad(n) {
+    return String(n).padStart(2, '0');
+  }
+
+  function saveTemplate() {
+    const name = document.getElementById('formName').value.trim();
+    if (!name) {
+      alert('請輸入班次名稱');
+      return;
+    }
+
+    const data = {
+      name,
+      color: selectedColor,
+      startH: +document.getElementById('formStartHour').value,
+      startM: +document.getElementById('formStartMin').value,
+      endH: +document.getElementById('formEndHour').value,
+      endM: +document.getElementById('formEndMin').value,
+      rate: +document.getElementById('formRate').value || 0
+    };
+
+    if (editingId) {
+      const idx = templates.findIndex(t => t.id === editingId);
+      templates[idx] = { ...templates[idx], ...data };
+    } else {
+      templates.push({ id: uid(), ...data });
+    }
+
+    saveData();
+    renderShiftButtons();
+    renderCalendar();
+    updateSalary();
+    closeEditForm();
+    renderTemplateList();
+  }
+
+  function deleteTemplate() {
+    if (!confirm('確定要刪除這個班次嗎？已填寫的班表也會一起清除。')) return;
+
+    // 清除相關 records
+    for (const date in records) {
+      if (records[date] === editingId) delete records[date];
+    }
+
+    templates = templates.filter(t => t.id !== editingId);
+    if (selectedTemplateId === editingId) selectedTemplateId = null;
+
+    saveData();
+    renderShiftButtons();
+    renderCalendar();
+    updateSalary();
+    closeEditForm();
+    renderTemplateList();
+  }
+
+  // 啟動
+  init();
+</script>
+</body>
+</html>
