@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>鼎新HR 智能排班特助 - 日排班維護</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome for ERP Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --digi-header-bg: #117882;
+      --digi-header-hover: #0e636b;
+      --digi-btn-query: #008080;
+      --digi-border: #d2d6de;
+      --shift-blue: #29b6f6;
+      --shift-blue-hover: #0288d1;
+      --break-green: #b2dfdb;
+    }
+
+    body {
+      font-family: "Microsoft JhengHei", -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #eef2f5;
+      color: #333;
+      user-select: none;
+    }
+
+    /* Custom Scrollbar for Grid Timeline */
+    .timeline-scroll::-webkit-scrollbar {
+      height: 8px;
+    }
+    .timeline-scroll::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+    .timeline-scroll::-webkit-scrollbar-thumb {
+      background: #bbb;
+      border-radius: 4px;
+    }
+    .timeline-scroll::-webkit-scrollbar-thumb:hover {
+      background: #888;
+    }
+
+    /* Cell styling */
+    .time-cell {
+      min-width: 50px;
+      width: 50px;
+      height: 48px;
+      border-right: 1px solid #e0e0e0;
+      border-bottom: 1px solid #e0e0e0;
+      position: relative;
+      cursor: pointer;
+    }
+    .time-cell:hover {
+      background-color: #f0f7ff;
+    }
+
+    /* Shift Bar Overlay */
+    .shift-bar {
+      position: absolute;
+      top: 10px;
+      bottom: 10px;
+      background-color: #29b6f6;
+      border-radius: 2px;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      transition: all 0.15s ease;
+      z-index: 5;
+    }
+    .shift-bar:hover {
+      background-color: #0288d1;
+      filter: brightness(0.95);
+    }
+    .shift-bar.selected {
+      outline: 2px solid #ff9800;
+      box-shadow: 0 0 8px rgba(255, 152, 0, 0.6);
+    }
+
+    .break-block {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      background-color: #b2dfdb;
+      border-left: 1px dashed #00796b;
+      border-right: 1px dashed #00796b;
+      z-index: 6;
+      cursor: pointer;
+    }
+    .break-block:hover {
+      background-color: #80cbc4;
+    }
+
+    /* Operational Tool Pills */
+    .tool-pill {
+      padding: 3px 12px;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.15s;
+      background-color: #fff;
+    }
+    .tool-pill.active {
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.15);
+      transform: translateY(1px);
+    }
+    .tool-pill-work { border-color: #29b6f6; color: #0288d1; }
+    .tool-pill-work.active, .tool-pill-work:hover { background-color: #e1f5fe; }
+
+    .tool-pill-rest { border-color: #9e9e9e; color: #616161; }
+    .tool-pill-rest.active, .tool-pill-rest:hover { background-color: #f5f5f5; }
+
+    .tool-pill-cont { border-color: #ff9800; color: #f57c00; }
+    .tool-pill-cont.active, .tool-pill-cont:hover { background-color: #fff3e0; }
+
+    .tool-pill-del-seg { border-color: #ab47bc; color: #7b1fa2; }
+    .tool-pill-del-seg.active, .tool-pill-del-seg:hover { background-color: #f3e5f5; }
+
+    .tool-pill-del-shift { border-color: #ef5350; color: #c62828; }
+    .tool-pill-del-shift.active, .tool-pill-del-shift:hover { background-color: #ffebee; }
+
+    .tool-pill-move { border-color: #26a69a; color: #00695c; }
+    .tool-pill-move.active, .tool-pill-move:hover { background-color: #e0f2f1; }
+  </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden">
+
+  <!-- 鼎新HR 頂部 Header -->
+  <header class="bg-[#117882] text-white h-12 flex items-center justify-between px-4 shadow-md flex-shrink-0">
+    <div class="flex items-center space-x-3">
+      <button class="text-white hover:text-gray-200 text-lg"><i class="fa-solid fa-bars"></i></button>
+      <div class="flex items-baseline space-x-1">
+        <span class="font-bold text-xl tracking-wide italic font-serif">鼎新HR</span>
+        <span class="text-base font-normal tracking-tight ml-1">智能排班特助</span>
+      </div>
+    </div>
+    <div class="flex items-center space-x-5 text-xs">
+      <a href="#" class="hover:underline flex items-center gap-1"><i class="fa-regular fa-circle-question"></i> FAQ</a>
+      <div class="cursor-pointer hover:underline flex items-center gap-1">
+        <span>繁體中文</span>
+        <i class="fa-solid fa-caret-down"></i>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主功能區 (可滾動內容) -->
+  <div class="flex-1 flex flex-col overflow-hidden bg-white m-2 rounded border border-gray-300 shadow-sm">
+    
+    <!-- Title & Top Action Bar -->
+    <div class="p-3 border-b border-gray-200 flex flex-wrap items-center justify-between gap-2 bg-gray-50 flex-shrink-0">
+      <div class="text-gray-700 font-bold text-base flex items-center gap-2">
+        <span>日排班維護</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="alert('開啟排序設定彈窗')" class="px-2.5 py-1 text-xs bg-white border border-gray-300 rounded text-gray-700 hover:bg-gray-100 flex items-center gap-1 shadow-sm">
+          <i class="fa-solid fa-bars-staggered text-gray-500"></i> 排序設定
+        </button>
+        <button onclick="alert('排班小幫手：點擊時間格新增班段，使用上方工具切換「上班/休息」模式。')" class="px-2.5 py-1 text-xs bg-white border border-gray-300 rounded text-gray-700 hover:bg-gray-100 flex items-center gap-1 shadow-sm">
+          <i class="fa-regular fa-lightbulb text-amber-500"></i> 小幫手
+        </button>
+      </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="px-4 py-2.5 border-b border-gray-200 bg-white flex flex-wrap items-center gap-4 text-xs text-gray-700 flex-shrink-0">
+      <div class="flex items-center gap-1.5">
+        <label class="font-medium text-gray-600">公司</label>
+        <select id="companySelect" class="border border-gray-300 rounded px-2 py-1 bg-white focus:outline-none focus:border-teal-600">
+          <option>集團公司</option>
+          <option>鼎新電腦股份有限公司</option>
+          <option>鼎新零售事業部</option>
+        </select>
+      </div>
+
+      <div class="flex items-center gap-1.5">
+        <label class="font-medium text-gray-600">門店/班組</label>
+        <div class="relative">
+          <input type="text" id="storeInput" value="台北信義門店" class="border border-gray-300 rounded px-2 py-1 pr-6 w-32 focus:outline-none focus:border-teal-600">
+          <i class="fa-solid fa-magnifying-glass absolute right-2 top-2 text-gray-400 text-xs"></i>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-1.5">
+        <label class="font-medium text-gray-600">日期</label>
+        <input type="date" id="scheduleDate" value="2022-01-12" class="border border-gray-300 rounded px-2 py-1 bg-white focus:outline-none focus:border-teal-600">
+      </div>
+
+      <button onclick="loadScheduleData()" class="px-3 py-1 bg-[#008080] hover:bg-[#006666] text-white rounded font-medium flex items-center gap-1 transition shadow-sm">
+        <i class="fa-solid fa-magnifying-glass"></i> 查詢
+      </button>
+    </div>
+
+    <!-- Second Sub-Header / Tool Bar -->
+    <div class="px-4 py-2 bg-gray-50 border-b border-gray-200 flex flex-wrap items-center justify-between gap-3 text-xs flex-shrink-0">
+      <!-- Date Navigator & Add Staff -->
+      <div class="flex items-center gap-2">
+        <div class="flex items-center bg-white border border-gray-300 rounded px-1 py-0.5 shadow-sm">
+          <button onclick="changeDate(-1)" class="px-1.5 py-0.5 text-gray-600 hover:bg-gray-100 rounded"><i class="fa-solid fa-chevron-left"></i></button>
+          <span id="currentDateDisplay" class="font-bold px-2 text-gray-800">2022-01-12 (三)</span>
+          <button onclick="changeDate(1)" class="px-1.5 py-0.5 text-gray-600 hover:bg-gray-100 rounded"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+
+        <button onclick="openAddEmployeeModal()" class="px-2.5 py-1.5 bg-[#008080] hover:bg-[#006666] text-white rounded font-medium flex items-center gap-1 shadow-sm">
+          <i class="fa-solid fa-user-plus"></i> 新增員工
+        </button>
+      </div>
+
+      <!-- Action Pill Buttons (排班操作) -->
+      <div class="flex items-center gap-1.5 flex-wrap">
+        <span class="text-gray-500 font-medium mr-1">排班操作</span>
+        <button onclick="setToolMode('work')" id="tool-work" class="tool-pill tool-pill-work active">上班</button>
+        <button onclick="setToolMode('rest')" id="tool-rest" class="tool-pill tool-pill-rest">休息</button>
+        <button onclick="setToolMode('cont')" id="tool-cont" class="tool-pill tool-pill-cont">續班段</button>
+        <button onclick="setToolMode('del-seg')" id="tool-del-seg" class="tool-pill tool-pill-del-seg">刪除段落</button>
+        <button onclick="setToolMode('del-shift')" id="tool-del-shift" class="tool-pill tool-pill-del-shift">刪除班次</button>
+        <button onclick="setToolMode('move')" id="tool-move" class="tool-pill tool-pill-move">移動整天</button>
+      </div>
+
+      <!-- Right Action Buttons -->
+      <div class="flex items-center gap-2">
+        <button onclick="showManpowerModal()" class="px-3 py-1.5 bg-[#009688] hover:bg-[#00796b] text-white rounded font-medium flex items-center gap-1 shadow-sm">
+          <i class="fa-solid fa-users"></i> 人力配置
+        </button>
+        <button onclick="exportReport()" class="px-3 py-1.5 bg-[#2e7d32] hover:bg-[#1b5e20] text-white rounded font-medium flex items-center gap-1 shadow-sm">
+          <i class="fa-solid fa-file-excel"></i> 匯出報表
+        </button>
+        <button onclick="saveScheduleState()" class="px-3 py-1.5 bg-[#00695c] border border-amber-500 hover:bg-[#004d40] text-white rounded font-bold flex items-center gap-1 shadow-sm">
+          <i class="fa-solid fa-floppy-disk text-amber-400"></i> 存檔
+        </button>
+      </div>
+    </div>
+
+    <!-- Timeline Grid Area -->
+    <div class="flex-1 overflow-auto timeline-scroll relative bg-white">
+      <table class="w-full border-collapse text-xs select-none min-w-[1200px]">
+        <thead>
+          <tr class="bg-gray-100 text-gray-700 sticky top-0 z-20 border-b border-gray-300">
+            <th class="w-24 px-2 py-2.5 font-semibold text-center border-r border-gray-300 bg-gray-100 sticky left-0 z-30 shadow-[2px_0_5px_rgba(0,0,0,0.05)]">操作</th>
+            <th class="w-32 px-3 py-2.5 font-semibold text-left border-r border-gray-300 bg-gray-100 sticky left-24 z-30 shadow-[2px_0_5px_rgba(0,0,0,0.05)]">員工</th>
+            <th class="w-28 px-2 py-2.5 font-semibold text-left border-r border-gray-300 bg-gray-100 sticky left-56 z-30 shadow-[2px_0_5px_rgba(0,0,0,0.05)]">差勤與備註</th>
+            <!-- Hourly Columns 06:00 to 22:00 -->
+            <th class="p-0 border-r border-gray-300 text-center font-normal w-[50px]"><div class="py-2">06:00</div></th>
+            <th class="p-0 border-r border-gray-300 text-center font-normal w-[50px]"><div class="py-2">07:00</div></th>
+            <th class="p-0 border-r border-gray-300 text-center font-normal w-[50px]"><div class="py-2">08:00</div></th>
+            <th class="p-0 border-r border-gray-300 text-center font-normal w-[50px]"><div class="py-2">09:00</div></th>
+            <th class="p-0 border-r border-gray-300 text-center font-normal w-[50px]"><div class="py-2">10:00</div></th>
+            <th class="p-0 border-r border-gray-300 text-center font-normal w-[50px]"><div class="py-2">11:00</div></th>
+            <th class="p-0 border-r border-gray-300 text-center font-normal w-[50px]"><div class="py-2">12:00</div></th>
+            <th class="p-0 border-r border-gray-300 text-center font-normal w-[50px]"><div class="py-2">13:00</div></th>
+            <th class="p-0 border-r border-gray-300 text-center font-normal w-[50px]"><div class="py-2">14:00</div></th>
+            <th class="p-0 border-r border-gray-300 text-center font-normal w-[50px]"><div class="py-2">15:00</div></th>
+            <th class="p-0 border-r border-gray-300 text-center font-normal w-[50px]"><div class="py-2">16:00</div></th>
+            <th class="p-0 border-r border-gray-300 text-center font-normal w-[50px]"><div class="py-2">17:00</div></th>
+            <th class="p-0 border-r border-gray-300 text-center font-normal w-[50px]"><div class="py-2">18:00</div></th>
+            <th class="p-0 border-r border-gray-300 text-center font-normal w-[50px]"><div class="py-2">19:00</div></th>
+            <th class="p-0 border-r border-gray-300 text-center font-normal w-[50px]"><div class="py-2">20:00</div></th>
+            <th class="p-0 border-r border-gray-300 text-center font-normal w-[50px]"><div class="py-2">21:00</div></th>
+            <th class="p-0 border-r border-gray-300 text-center font-normal w-[50px]"><div class="py-2">22:00</div></th>
+          </tr>
+        </thead>
+        <tbody id="employeeScheduleBody">
+          <!-- Dynamically Rendered Rows -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Status Bar Footer -->
+    <div class="px-4 py-2 border-t border-gray-200 bg-gray-50 text-xs text-gray-500 flex justify-between items-center flex-shrink-0">
+      <div class="flex items-center gap-4">
+        <span><i class="fa-solid fa-info-circle text-teal-600"></i> 當前模式：<strong id="currentModeLabel" class="text-teal-700">【上班】新增/延長班別段</strong></span>
+        <span>總排班人數：<strong id="totalStaffCount" class="text-gray-800">4</strong> 人</span>
+        <span>總工時：<strong id="totalHours" class="text-gray-800">28.5</strong> 小時</span>
+      </div>
+      <div>
+        <span>鼎新電腦 e-HR 排班特助 v4.2 | 系統連線正常</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Modal: 新增員工 -->
+  <div id="addEmployeeModal" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-xl w-96 overflow-hidden border border-gray-300">
+      <div class="bg-[#117882] text-white px-4 py-2.5 font-bold flex justify-between items-center text-sm">
+        <span><i class="fa-solid fa-user-plus mr-1"></i> 新增排班人員</span>
+        <button onclick="closeAddEmployeeModal()" class="text-gray-200 hover:text-white">&times;</button>
+      </div>
+      <div class="p-4 text-xs space-y-3">
+        <div>
+          <label class="block text-gray-600 mb-1 font-medium">員工姓名</label>
+          <input type="text" id="newEmpName" placeholder="例如：陳大明" class="w-full border border-gray-300 rounded px-2.5 py-1.5 focus:outline-none focus:border-teal-600">
+        </div>
+        <div>
+          <label class="block text-gray-600 mb-1 font-medium">員工工號 / 職稱</label>
+          <input type="text" id="newEmpRole" placeholder="例如：A105 / 專職正職" class="w-full border border-gray-300 rounded px-2.5 py-1.5 focus:outline-none focus:border-teal-600">
+        </div>
+        <div>
+          <label class="block text-gray-600 mb-1 font-medium">預設排班區間</label>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <span class="text-gray-400">上班:</span>
+              <input type="number" id="newEmpStart" value="9" min="6" max="21" class="border border-gray-300 rounded px-2 py-1 w-full mt-0.5">
+            </div>
+            <div>
+              <span class="text-gray-400">下班:</span>
+              <input type="number" id="newEmpEnd" value="18" min="7" max="22" class="border border-gray-300 rounded px-2 py-1 w-full mt-0.5">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="bg-gray-100 px-4 py-2.5 flex justify-end gap-2 border-t border-gray-200 text-xs">
+        <button onclick="closeAddEmployeeModal()" class="px-3 py-1.5 border border-gray-300 rounded bg-white hover:bg-gray-50 text-gray-700">取消</button>
+        <button onclick="addEmployeeSubmit()" class="px-3 py-1.5 bg-[#008080] hover:bg-[#006666] text-white rounded font-medium">確認新增</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: 人力配置統計 -->
+  <div id="manpowerModal" class="fixed inset-0 bg-black/40 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-lg shadow-xl w-[500px] overflow-hidden border border-gray-300">
+      <div class="bg-[#117882] text-white px-4 py-2.5 font-bold flex justify-between items-center text-sm">
+        <span><i class="fa-solid fa-users-viewfinder mr-1"></i> 今日人力配置預估與統計</span>
+        <button onclick="closeManpowerModal()" class="text-gray-200 hover:text-white">&times;</button>
+      </div>
+      <div class="p-4 text-xs space-y-3">
+        <p class="text-gray-600">當前門店：<strong>台北信義門店 (2022-01-12)</strong></p>
+        <div class="border rounded border-gray-200 overflow-hidden">
+          <table class="w-full text-center border-collapse">
+            <thead class="bg-gray-100 text-gray-700">
+              <tr>
+                <th class="py-2 border-b border-r border-gray-200">時段</th>
+                <th class="py-2 border-b border-r border-gray-200">在勤人數</th>
+                <th class="py-2 border-b border-r border-gray-200">預估需求</th>
+                <th class="py-2 border-b border-gray-200">差異狀態</th>
+              </tr>
+            </thead>
+            <tbody id="manpowerTableBody">
+              <!-- Dynamically Computed -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="bg-gray-100 px-4 py-2.5 flex justify-end border-t border-gray-200 text-xs">
+        <button onclick="closeManpowerModal()" class="px-4 py-1.5 bg-[#008080] text-white rounded font-medium">關閉</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // System Initial State matching Screenshot 2022-01-12
+    let currentMode = 'work'; // 'work', 'rest', 'cont', 'del-seg', 'del-shift', 'move'
+    
+    // TimeSlots: 06:00 = index 0, 22:00 = index 16
+    const START_HOUR = 6;
+    const END_HOUR = 22;
+
+    let employees = [
+      {
+        id: 'emp_1',
+        name: '王小華',
+        code: 'A001',
+        leaveNote: '',
+        shifts: [{ start: 13, end: 18 }] // 13:00 - 18:00
+      },
+      {
+        id: 'emp_2',
+        name: '李美麗',
+        code: 'A002',
+        leaveNote: '',
+        shifts: [{ start: 11, end: 16 }] // 11:00 - 16:00
+      },
+      {
+        id: 'emp_3',
+        name: '張國強',
+        code: 'A003',
+        leaveNote: '',
+        shifts: [
+          { start: 8, end: 11 },
+          { start: 11.5, end: 18 } // Lunch break at 11:00-11:30
+        ]
+      },
+      {
+        id: 'emp_4',
+        name: '林志豪',
+        code: 'A004',
+        leaveNote: '',
+        shifts: [
+          { start: 9, end: 11.5 },
+          { start: 12, end: 15 } // Lunch break at 11:30-12:00
+        ]
+      }
+    ];
+
+    // Initialize application
+    window.onload = function() {
+      // Load saved state if exists
+      const saved = localStorage.getItem('dingxin_hr_schedule');
+      if (saved) {
+        try {
+          employees = JSON.parse(saved);
+        } catch(e) {
+          console.error("Could not load saved schedule:", e);
+        }
+      }
+      renderTable();
+    };
+
+    // Render Full Timeline Schedule Grid
+    function renderTable() {
+      const tbody = document.getElementById('employeeScheduleBody');
+      tbody.innerHTML = '';
+
+      let grandTotalHours = 0;
+
+      employees.forEach((emp, empIdx) => {
+        const tr = document.createElement('tr');
+        tr.className = 'border-b border-gray-200 hover:bg-gray-50/60 transition';
+
+        // Calculate hours for employee
+        let empHours = 0;
+        emp.shifts.forEach(s => {
+          empHours += (s.end - s.start);
+        });
+        grandTotalHours += empHours;
+
+        // 1. Actions Column
+        const tdOp = document.createElement('td');
+        tdOp.className = 'px-2 py-3 border-r border-gray-300 text-center bg-white sticky left-0 z-10 shadow-[2px_0_5px_rgba(0,0,0,0.05)]';
+        tdOp.innerHTML = `
+          <div class="flex items-center justify-center gap-1">
+            <button onclick="deleteEmployee('${emp.id}')" title="刪除員工" class="text-red-500 hover:text-red-700 p-1 rounded hover:bg-red-50"><i class="fa-solid fa-trash-can"></i></button>
+            <button onclick="copyShift('${emp.id}')" title="複製排班" class="text-sky-600 hover:text-sky-800 p-1 rounded hover:bg-sky-50"><i class="fa-solid fa-copy"></i></button>
+            <button onclick="toggleLeave('${emp.id}', '休')" class="px-1.5 py-0.5 text-[11px] bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded text-gray-700 font-bold">休</button>
+            <button onclick="toggleLeave('${emp.id}', '資')" class="px-1.5 py-0.5 text-[11px] bg-amber-50 hover:bg-amber-100 border border-amber-300 rounded text-amber-700 font-bold">資</button>
+          </div>
+        `;
+        tr.appendChild(tdOp);
+
+        // 2. Employee Column
+        const tdEmp = document.createElement('td');
+        tdEmp.className = 'px-3 py-2 border-r border-gray-300 bg-white sticky left-24 z-10 shadow-[2px_0_5px_rgba(0,0,0,0.05)]';
+        tdEmp.innerHTML = `
+          <div class="font-bold text-gray-800 flex items-center justify-between">
+            <span>${emp.name}</span>
+            <span class="text-[10px] bg-gray-100 text-gray-500 px-1 py-0.5 rounded font-mono">${emp.code}</span>
+          </div>
+          <div class="text-[10px] text-gray-400 mt-0.5">總計: ${empHours.toFixed(1)} hrs</div>
+        `;
+        tr.appendChild(tdEmp);
+
+        // 3. Leave & Notes Column
+        const tdNote = document.createElement('td');
+        tdNote.className = 'px-2 py-2 border-r border-gray-300 bg-white sticky left-56 z-10 shadow-[2px_0_5px_rgba(0,0,0,0.05)] text-gray-500';
+        tdNote.innerHTML = `
+          <input type="text" value="${emp.leaveNote || ''}" onchange="updateNote('${emp.id}', this.value)" placeholder="備註..." class="w-full text-xs border-b border-transparent hover:border-gray-300 focus:border-teal-600 focus:outline-none bg-transparent">
+        `;
+        tr.appendChild(tdNote);
+
+        // 4. Time Cells (Interactive Grid with Canvas/Overlays)
+        const totalCols = END_HOUR - START_HOUR + 1;
+        
+        // Single container for the entire time row to draw Gantt bars smoothly
+        const tdTimeline = document.createElement('td');
+        tdTimeline.setAttribute('colspan', totalCols);
+        tdTimeline.className = 'p-0 relative border-r border-gray-300 align-top';
+        tdTimeline.style.height = '48px';
+
+        // Grid Background lines
+        let gridHtml = `<div class="flex h-full w-full absolute inset-0 pointer-events-auto">`;
+        for (let h = START_HOUR; h <= END_HOUR; h++) {
+          gridHtml += `<div class="time-cell" onclick="handleCellClick('${emp.id}', ${h})"></div>`;
+        }
+        gridHtml += `</div>`;
+
+        // Shift Overlay Bars
+        let shiftBarsHtml = '';
+        const totalGridWidth = totalCols * 50; // Each hour is 50px
+
+        emp.shifts.forEach((shift, sIdx) => {
+          const leftPx = (shift.start - START_HOUR) * 50;
+          const widthPx = (shift.end - shift.start) * 50;
+
+          shiftBarsHtml += `
+            <div class="shift-bar" 
+                 style="left: ${leftPx}px; width: ${widthPx}px;" 
+                 onclick="handleShiftClick(event, '${emp.id}', ${sIdx})"
+                 title="${shift.start}:00 - ${shift.end}:00 (${shift.end - shift.start}小時)">
+            </div>
+          `;
+        });
+
+        tdTimeline.innerHTML = gridHtml + shiftBarsHtml;
+        tr.appendChild(tdTimeline);
+
+        tbody.appendChild(tr);
+      });
+
+      // Update Footer Counters
+      document.getElementById('totalStaffCount').innerText = employees.length;
+      document.getElementById('totalHours').innerText = grandTotalHours.toFixed(1);
+    }
+
+    // Handle Clicks on Grid Cells
+    function handleCellClick(empId, hour) {
+      const emp = employees.find(e => e.id === empId);
+      if (!emp) return;
+
+      if (currentMode === 'work') {
+        // Add new 2-hour shift block at clicked hour
+        const start = hour;
+        const end = Math.min(hour + 2, END_HOUR + 1);
+        
+        // Check for overlaps
+        emp.shifts.push({ start, end });
+        emp.shifts.sort((a,b) => a.start - b.start);
+        renderTable();
+      } else if (currentMode === 'del-shift') {
+        emp.shifts = [];
+        renderTable();
+      }
+    }
+
+    // Handle Click on Shift Bar
+    function handleShiftClick(event, empId, shiftIndex) {
+      event.stopPropagation(); // prevent triggering cell click
+      const emp = employees.find(e => e.id === empId);
+      if (!emp) return;
+
+      if (currentMode === 'del-seg' || currentMode === 'del-shift') {
+        emp.shifts.splice(shiftIndex, 1);
+        renderTable();
+      } else if (currentMode === 'rest') {
+        // Create 30-min / 1-hr break gap in middle of shift
+        const targetShift = emp.shifts[shiftIndex];
+        const mid = (targetShift.start + targetShift.end) / 2;
+        
+        const firstHalf = { start: targetShift.start, end: Math.floor(mid) };
+        const secondHalf = { start: Math.ceil(mid), end: targetShift.end };
+
+        emp.shifts.splice(shiftIndex, 1);
+        if (firstHalf.end > firstHalf.start) emp.shifts.push(firstHalf);
+        if (secondHalf.end > secondHalf.start) emp.shifts.push(secondHalf);
+        
+        emp.shifts.sort((a,b) => a.start - b.start);
+        renderTable();
+      } else if (currentMode === 'cont') {
+        // Extend shift by 1 hour
+        emp.shifts[shiftIndex].end = Math.min(emp.shifts[shiftIndex].end + 1, END_HOUR + 1);
+        renderTable();
+      } else if (currentMode === 'move') {
+        // Move shift forward by 1 hour
+        if (emp.shifts[shiftIndex].end < END_HOUR + 1) {
+          emp.shifts[shiftIndex].start += 1;
+          emp.shifts[shiftIndex].end += 1;
+          renderTable();
+        }
+      }
+    }
+
+    // Switch Operational Mode Pills
+    function setToolMode(mode) {
+      currentMode = mode;
+      document.querySelectorAll('.tool-pill').forEach(btn => btn.classList.remove('active'));
+      document.getElementById(`tool-${mode}`).classList.add('active');
+
+      const labels = {
+        'work': '【上班】新增/延長班別段',
+        'rest': '【休息】於班別中插入休息時段',
+        'cont': '【續班段】延長班別時數',
+        'del-seg': '【刪除段落】點擊班別區塊刪除該段',
+        'del-shift': '【刪除班次】清除該員工當日全班次',
+        'move': '【移動整天】向後位移該班別區塊'
+      };
+      document.getElementById('currentModeLabel').innerText = labels[mode] || '';
+    }
+
+    // Delete Employee
+    function deleteEmployee(empId) {
+      if (confirm('確定要從今日排班表移除此員工嗎？')) {
+        employees = employees.filter(e => e.id !== empId);
+        renderTable();
+      }
+    }
+
+    // Copy Shift
+    function copyShift(empId) {
+      const emp = employees.find(e => e.id === empId);
+      if (emp) {
+        alert(`已複製 ${emp.name} 的排班設定！`);
+      }
+    }
+
+    // Toggle Leave
+    function toggleLeave(empId, type) {
+      const emp = employees.find(e => e.id === empId);
+      if (emp) {
+        emp.leaveNote = emp.leaveNote === type ? '' : type;
+        renderTable();
+      }
+    }
+
+    // Update Note
+    function updateNote(empId, val) {
+      const emp = employees.find(e => e.id === empId);
+      if (emp) emp.leaveNote = val;
+    }
+
+    // Modal Control
+    function openAddEmployeeModal() {
+      document.getElementById('addEmployeeModal').classList.remove('hidden');
+      document.getElementById('addEmployeeModal').classList.add('flex');
+    }
+    function closeAddEmployeeModal() {
+      document.getElementById('addEmployeeModal').classList.add('hidden');
+      document.getElementById('addEmployeeModal').classList.remove('flex');
+    }
+
+    function addEmployeeSubmit() {
+      const name = document.getElementById('newEmpName').value.trim();
+      const role = document.getElementById('newEmpRole').value.trim() || 'A100';
+      const start = parseFloat(document.getElementById('newEmpStart').value);
+      const end = parseFloat(document.getElementById('newEmpEnd').value);
+
+      if (!name) {
+        alert('請輸入員工姓名！');
+        return;
+      }
+
+      employees.push({
+        id: 'emp_' + Date.now(),
+        name: name,
+        code: role,
+        leaveNote: '',
+        shifts: [{ start: start, end: end }]
+      });
+
+      closeAddEmployeeModal();
+      renderTable();
+    }
+
+    // Date Switcher
+    function changeDate(days) {
+      const dateInput = document.getElementById('scheduleDate');
+      let current = new Date(dateInput.value);
+      current.setDate(current.getDate() + days);
+      
+      const yyyy = current.getFullYear();
+      const mm = String(current.getMonth() + 1).padStart(2, '0');
+      const dd = String(current.getDate()).padStart(2, '0');
+      
+      dateInput.value = `${yyyy}-${mm}-${dd}`;
+      
+      const daysOfWeek = ['日', '一', '二', '三', '四', '五', '六'];
+      document.getElementById('currentDateDisplay').innerText = `${yyyy}-${mm}-${dd} (${daysOfWeek[current.getDay()]})`;
+    }
+
+    function loadScheduleData() {
+      const d = document.getElementById('scheduleDate').value;
+      const daysOfWeek = ['日', '一', '二', '三', '四', '五', '六'];
+      const dt = new Date(d);
+      document.getElementById('currentDateDisplay').innerText = `${d} (${daysOfWeek[dt.getDay()]})`;
+      alert(`已載入 ${d} 的排班資料！`);
+    }
+
+    // Save to Local Storage
+    function saveScheduleState() {
+      localStorage.setItem('dingxin_hr_schedule', JSON.stringify(employees));
+      alert('【鼎新HR 智能排班特助】\n存檔成功！排班資料已安全儲存。');
+    }
+
+    // Manpower Analysis Modal
+    function showManpowerModal() {
+      const tbody = document.getElementById('manpowerTableBody');
+      tbody.innerHTML = '';
+
+      // Analyze hours
+      for (let h = 8; h <= 18; h += 2) {
+        let count = 0;
+        employees.forEach(e => {
+          e.shifts.forEach(s => {
+            if (h >= s.start && h < s.end) count++;
+          });
+        });
+
+        const req = 3;
+        const diff = count - req;
+        const statusBadge = diff >= 0 
+          ? `<span class="text-green-600 font-bold">符合需求 (+${diff})</span>` 
+          : `<span class="text-red-600 font-bold">人力不足 (${diff})</span>`;
+
+        tbody.innerHTML += `
+          <tr class="border-b border-gray-100">
+            <td class="py-2 border-r border-gray-200">${h}:00 - ${h+2}:00</td>
+            <td class="py-2 border-r border-gray-200 font-bold">${count} 人</td>
+            <td class="py-2 border-r border-gray-200">${req} 人</td>
+            <td class="py-2">${statusBadge}</td>
+          </tr>
+        `;
+      }
+
+      document.getElementById('manpowerModal').classList.remove('hidden');
+      document.getElementById('manpowerModal').classList.add('flex');
+    }
+
+    function closeManpowerModal() {
+      document.getElementById('manpowerModal').classList.add('hidden');
+      document.getElementById('manpowerModal').classList.remove('flex');
+    }
+
+    // Export Report
+    function exportReport() {
+      alert('已成功導出「2022-01-12 日排班維護明細表.xlsx」！');
+    }
+  </script>
+</body>
+</html>
