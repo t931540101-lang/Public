@@ -2,282 +2,558 @@
 <html lang="zh-TW">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>E-GO 人事薪資管理系統 - 流程架構版</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>鼎新 e-GO 人事薪資管理系統 - 電腦辦公室專業版</title>
   <style>
     :root {
       --primary: #1e3c72;
       --secondary: #2a5298;
-      --bg: #f4f7f6;
+      --bg: #f0f2f5;
       --card-bg: #ffffff;
       --text: #333333;
-      --border: #e2e8f0;
+      --border: #dcdfe6;
       --accent: #27ae60;
-      --flow-color: #e6f0fa;
+      --hover-bg: #eef3f9;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: var(--bg); color: var(--text); padding-bottom: 70px; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Microsoft JhengHei", "Segoe UI", Roboto, sans-serif; }
+    body { background-color: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
 
+    /* 左側系統導覽列 (Sidebar) */
+    aside {
+      width: 260px;
+      background: #1b2a47;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+    }
+
+    .brand {
+      padding: 20px 15px;
+      background: #111a2e;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      text-align: center;
+    }
+    .brand h2 { font-size: 1.1rem; color: #fff; letter-spacing: 1px; }
+    .brand p { font-size: 0.75rem; color: #8a99ad; margin-top: 4px; }
+
+    .nav-menu { flex: 1; overflow-y: auto; padding: 10px 0; }
+    .nav-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 20px;
+      color: #b8c7ce;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border-left: 4px solid transparent;
+      transition: all 0.2s ease;
+    }
+    .nav-item:hover { background: rgba(255,255,255,0.05); color: #fff; }
+    .nav-item.active {
+      background: var(--primary);
+      color: #fff;
+      border-left-color: #409eff;
+      font-weight: bold;
+    }
+    .nav-item .step-num {
+      background: rgba(255,255,255,0.2);
+      border-radius: 50%;
+      width: 22px;
+      height: 22px;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 0.75rem;
+      margin-right: 10px;
+    }
+
+    /* 右側主工作區 (Main Content) */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* 頂部工具列 */
     header {
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      color: white; padding: 15px; text-align: center;
-      position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+      height: 55px;
+      background: white;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 25px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
     }
-    header h1 { font-size: 1.15rem; font-weight: 600; }
-    header p { font-size: 0.75rem; opacity: 0.85; margin-top: 3px; }
+    header h1 { font-size: 1.1rem; color: var(--primary); }
+    .user-info { font-size: 0.85rem; color: #666; }
 
-    /* 流程導覽列：可水平捲動，對應 7 大流程 */
-    nav { 
-      display: flex; background: white; border-bottom: 1px solid var(--border); 
-      overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch;
-      padding: 0 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    /* 主要內容滾動區 */
+    .content-body {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
     }
-    nav button {
-      padding: 12px 14px; border: none; background: none;
-      font-size: 0.82rem; color: #666; font-weight: bold; border-bottom: 3px solid transparent; 
-      cursor: pointer; flex-shrink: 0;
-    }
-    nav button.active { color: var(--primary); border-bottom-color: var(--primary); background: var(--flow-color); }
-
-    .container { padding: 12px; max-width: 600px; margin: 0 auto; }
 
     .tab-content { display: none; }
-    .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+    .tab-content.active { display: block; animation: fadeIn 0.2s ease; }
 
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
+    /* 卡片與表單佈局 (Grid) */
     .card {
-      background: var(--card-bg); border-radius: 8px; padding: 15px; margin-bottom: 12px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid var(--border);
+      background: var(--card-bg);
+      border-radius: 6px;
+      padding: 20px;
+      margin-bottom: 20px;
+      border: 1px solid var(--border);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
     }
-    .card h3 { font-size: 0.95rem; color: var(--primary); margin-bottom: 12px; border-bottom: 2px solid var(--flow-color); padding-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
-    .card h3 span { font-size: 0.7rem; color: #888; font-weight: normal; }
+    .card-title {
+      font-size: 1rem;
+      color: var(--primary);
+      font-weight: bold;
+      padding-bottom: 10px;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #eef2f8;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-    .form-group { margin-bottom: 10px; }
-    .form-group label { display: block; font-size: 0.78rem; font-weight: bold; margin-bottom: 3px; color: #555; }
-    .form-group input, .form-group select, .form-group textarea {
-      width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 0.85rem; background: #fff;
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 15px 20px;
     }
-    .checkbox-group { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; margin-top: 6px; }
+
+    .form-group { display: flex; flex-direction: column; }
+    .form-group label { font-size: 0.85rem; font-weight: 600; color: #444; margin-bottom: 5px; }
+    .form-group input, .form-group select, .form-group textarea {
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 0.9rem;
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus, .form-group select:focus {
+      border-color: #409eff;
+      outline: none;
+    }
+
+    .checkbox-container {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.88rem;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+
+    .btn-group {
+      margin-top: 15px;
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
 
     .btn {
-      width: 100%; padding: 10px; background: var(--primary); color: white; border: none;
-      border-radius: 4px; font-size: 0.88rem; font-weight: bold; cursor: pointer; margin-top: 8px;
-      box-shadow: 0 2px 4px rgba(30,60,114,0.2);
+      padding: 9px 20px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
     }
-    .btn:active { opacity: 0.9; transform: scale(0.99); }
+    .btn:hover { background: var(--secondary); }
+    .btn-secondary { background: #909399; }
+    .btn-secondary:hover { background: #73767a; }
 
-    .badge { background: #e2e8f0; color: #333; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; }
-    
-    .status-box { background: #f8fafc; border-left: 3px solid var(--primary); padding: 8px 10px; font-size: 0.8rem; margin-bottom: 10px; color: #555; }
+    /* 表格樣式 */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 0.88rem;
+    }
+    .data-table th, .data-table td {
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      text-align: left;
+    }
+    .data-table th { background: #f5f7fa; color: #606266; font-weight: bold; }
+    .data-table tr:hover { background: var(--hover-bg); }
+
+    /* 報表網格 */
+    .report-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 12px;
+    }
+    .report-card {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      padding: 12px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.88rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.2s;
+    }
+    .report-card:hover {
+      border-color: var(--primary);
+      background: white;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
   </style>
 </head>
 <body>
 
-  <header>
-    <h1>E-GO 人事薪資管理系統</h1>
-    <p>鼎新架構流程導向框架 v1.0</p>
-  </header>
+  <!-- 左側導覽列：鼎新 e-GO 人事薪資架構 -->
+  <aside>
+    <div class="brand">
+      <h2>E-GO 人事薪資系統</h2>
+      <p>鼎新系統整合 ‧ 企業辦公室版</p>
+    </div>
+    <div class="nav-menu">
+      <div class="nav-item active" onclick="switchTab('step1', this)">
+        <span class="step-num">1</span> 薪資條件設定
+      </div>
+      <div class="nav-item" onclick="switchTab('step2', this)">
+        <span class="step-num">2</span> 員工與異動/勞健保
+      </div>
+      <div class="nav-item" onclick="switchTab('step3', this)">
+        <span class="step-num">3</span> 出勤紀錄管理
+      </div>
+      <div class="nav-item" onclick="switchTab('step4', this)">
+        <span class="step-num">4</span> 津貼扣款建立
+      </div>
+      <div class="nav-item" onclick="switchTab('step5', this)">
+        <span class="step-num">5</span> 薪資發放管理
+      </div>
+      <div class="nav-item" onclick="switchTab('step6', this)">
+        <span class="step-num">6</span> 薪資轉存管理
+      </div>
+      <div class="nav-item" onclick="switchTab('step7', this)">
+        <span class="step-num">7</span> 薪資扣款媒體申報
+      </div>
+      <div class="nav-item" onclick="switchTab('reports', this)">
+        <span class="step-num">📊</span> 管理報表憑證中心
+      </div>
+    </div>
+  </aside>
 
-  <!-- 依照流程圖設計的 7 大步驟分頁導覽 -->
-  <nav id="flowNav">
-    <button class="nav-btn active" onclick="switchTab('step1', this)">1. 薪資條件設定</button>
-    <button class="nav-btn" onclick="switchTab('step2', this)">2. 員工與異動/勞保</button>
-    <button class="nav-btn" onclick="switchTab('step3', this)">3. 出勤紀錄管理</button>
-    <button class="nav-btn" onclick="switchTab('step4', this)">4. 津貼扣款建立</button>
-    <button class="nav-btn" onclick="switchTab('step5', this)">5. 薪資發放管理</button>
-    <button class="nav-btn" onclick="switchTab('step6', this)">6. 薪資轉存管理</button>
-    <button class="nav-btn" onclick="switchTab('step7', this)">7. 媒體與扣款申報</button>
-  </nav>
+  <!-- 右側主要工作區域 -->
+  <main>
+    <header>
+      <h1 id="pageTitle">1. 薪資條件設定</h1>
+      <div class="user-info">使用者：系統管理員（小黑哥） | 辦公室工作站</div>
+    </header>
 
-  <div class="container">
+    <div class="content-body">
 
-    <!-- 步驟 1：薪資條件設定 -->
-    <div id="step1" class="tab-content active">
-      <div class="card">
-        <h3>全勤與加班條件設定 <span>[流程起點]</span></h3>
-        <div class="form-group">
-          <label>全勤獎金金額</label>
-          <input type="number" id="s1_bonus" placeholder="例如: 2000">
-        </div>
-        <div class="checkbox-group">
-          <input type="checkbox" id="s1_late"> <label for="s1_late">遲到/早退條件扣全勤</label>
-        </div>
-        <div class="checkbox-group">
-          <input type="checkbox" id="s1_ot_base"> <label for="s1_ot_base">全勤獎金納入加班費計算基數</label>
-        </div>
-        <div class="form-group" style="margin-top:10px;">
-          <label>平日加班費率設定</label>
-          <div style="display:flex; gap:5px;">
-            <input type="number" id="s1_ot1" value="1.34" step="0.01" placeholder="前2小時">
-            <input type="number" id="s1_ot2" value="1.67" step="0.01" placeholder="後2小時">
+      <!-- 1. 薪資條件設定 -->
+      <div id="step1" class="tab-content active">
+        <div class="card">
+          <div class="card-title">全勤獎金與發放條件設定</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>全勤獎金預設金額 ($)</label>
+              <input type="number" id="s1_bonus" placeholder="例如: 2000">
+            </div>
+            <div class="form-group">
+              <label>遲到/早退扣款條件</label>
+              <select id="s1_late_rule">
+                <option value="all">每次扣除全勤 1/3</option>
+                <option value="full">累積滿 3 次全扣</option>
+                <option value="none">不扣全勤</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>請假扣除全勤條件</label>
+              <select id="s1_leave_rule">
+                <option value="sick">事假與病假皆扣</option>
+                <option value="personal">僅事假扣全勤</option>
+              </select>
+            </div>
+          </div>
+          <div class="checkbox-container">
+            <input type="checkbox" id="s1_ot_base">
+            <label for="s1_ot_base">將全勤獎金納入加班費計算基數（符合勞基法規定）</label>
           </div>
         </div>
-        <div class="form-group">
-          <label>勞基法免稅加班累積時數上限 (小時/月)</label>
-          <input type="number" id="s1_tax_hours" value="46">
-        </div>
-        <button class="btn" onclick="saveData('step1')">儲存薪資條件設定</button>
-      </div>
-    </div>
 
-    <!-- 步驟 2：員工資料管理 (整合人事異動與勞健保) -->
-    <div id="step2" class="tab-content">
-      <div class="card">
-        <h3>員工基本資料與核心管理 <span>[樞紐節點]</span></h3>
-        <div class="status-box">統合管理：員工基本資料、新進/離職/退休清冊、人事薪資異動管理、勞健保投保資料與異動明細。</div>
-        <div class="form-group">
-          <label>選擇/新增員工檔</label>
-          <input type="text" id="s2_name" placeholder="輸入員工姓名或代號">
-        </div>
-        <div class="form-group">
-          <label>人事異動狀態</label>
-          <select id="s2_status">
-            <option value="active">在職</option>
-            <option value="new">新進員工</option>
-            <option value="resigned">離職</option>
-            <option value="retired">退休</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>投保薪資級距 (勞健保)</label>
-          <input type="number" id="s2_insurance_salary" placeholder="例如: 27480">
-        </div>
-        <button class="btn" onclick="saveData('step2')">更新員工與勞健保資料</button>
-      </div>
-    </div>
-
-    <!-- 步驟 3：出勤紀錄管理 -->
-    <div id="step3" class="tab-content">
-      <div class="card">
-        <h3>出勤、班別與請假管理 <span>[考勤模組]</span></h3>
-        <div class="status-box">處理請假項目設定、特休統計、加班單憑證與出勤明細記錄。</div>
-        <div class="form-group">
-          <label>假別設定與扣款對應</label>
-          <select id="s3_leave_type">
-            <option value="personal">事假 (依條件扣底薪/全勤)</option>
-            <option value="sick">病假 (半薪/扣全勤)</option>
-            <option value="annual">特休假 (不扣薪)</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>當月請假天數 / 加班時數</label>
-          <div style="display:flex; gap:5px;">
-            <input type="number" id="s3_leave_days" placeholder="請假天數" step="0.5">
-            <input type="number" id="s3_ot_hours" placeholder="加班時數">
+        <div class="card">
+          <div class="card-title">加班費率與免稅時數設定</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>平日加班 前 2 小時費率</label>
+              <input type="number" id="s1_ot1" value="1.34" step="0.01">
+            </div>
+            <div class="form-group">
+              <label>平日加班 後 2 小時費率</label>
+              <input type="number" id="s1_ot2" value="1.67" step="0.01">
+            </div>
+            <div class="form-group">
+              <label>男女員工免扣所得稅加班累積上限 (小時/月)</label>
+              <input type="number" id="s1_tax_hours" value="46">
+            </div>
+          </div>
+          <div class="btn-group">
+            <button class="btn" onclick="saveData('step1')">儲存條件設定</button>
           </div>
         </div>
-        <button class="btn" onclick="saveData('step3')">儲存出勤與考勤紀錄</button>
       </div>
-    </div>
 
-    <!-- 步驟 4：津貼扣款建立 -->
-    <div id="step4" class="tab-content">
-      <div class="card">
-        <h3>自訂津貼與扣款項目設定 <span>[薪資架構]</span></h3>
-        <div class="form-group">
-          <label>項目名稱</label>
-          <input type="text" id="s4_item_name" placeholder="例如: 職務津貼 / 伙食津貼 / 勞健保代扣">
+      <!-- 2. 員工與異動/勞健保 -->
+      <div id="step2" class="tab-content">
+        <div class="card">
+          <div class="card-title">員工基本資料與勞健保維護 (樞紐模組)</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>員工編號 / 姓名</label>
+              <input type="text" id="s2_emp_code" placeholder="如: A001 張小明">
+            </div>
+            <div class="form-group">
+              <label>人事異動狀態</label>
+              <select id="s2_status">
+                <option value="active">在職中</option>
+                <option value="new">新進員工</option>
+                <option value="resigned">離職</option>
+                <option value="retired">退休</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>勞保投保薪資級距 ($)</label>
+              <input type="number" id="s2_labor_ins" placeholder="例如: 27480">
+            </div>
+            <div class="form-group">
+              <label>健保投保薪資級距 ($)</label>
+              <input type="number" id="s2_health_ins" placeholder="例如: 27480">
+            </div>
+          </div>
+          <div class="btn-group">
+            <button class="btn" onclick="saveData('step2')">儲存員工與保險資料</button>
+          </div>
         </div>
-        <div class="form-group">
-          <label>項目屬性</label>
-          <select id="s4_item_type">
-            <option value="allowance">津貼項目 (固定或變動)</option>
-            <option value="deduction">扣款項目</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>發放期別與稅務</label>
-          <select id="s4_timing">
-            <option value="full">全月/每月一次發放</option>
-            <option value="first">上半月發放</option>
-            <option value="second">下半月發放</option>
-          </select>
-        </div>
-        <div class="checkbox-group">
-          <input type="checkbox" id="s4_tax"> <label for="s4_tax">是否扣稅</label>
-        </div>
-        <div class="checkbox-group">
-          <input type="checkbox" id="s4_base"> <label for="s4_base">列入底薪基數</label>
-        </div>
-        <button class="btn" onclick="saveData('step4')">建立津貼/扣款項目</button>
       </div>
-    </div>
 
-    <!-- 步驟 5：薪資發放管理 -->
-    <div id="step5" class="tab-content">
-      <div class="card">
-        <h3>發薪作業與薪資冊/條 <span>[計算核心]</span></h3>
-        <div class="form-group">
-          <label>發薪週期模式</label>
-          <select id="s5_cycle">
-            <option value="monthly">每月一次發薪</option>
-            <option value="twice">每月二次發薪 (上半月預支/全月結算)</option>
-          </select>
+      <!-- 3. 出勤紀錄管理 -->
+      <div id="step3" class="tab-content">
+        <div class="card">
+          <div class="card-title">出勤、請假與加班單紀錄</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>選擇員工</label>
+              <input type="text" id="s3_emp" placeholder="輸入員工編號或姓名">
+            </div>
+            <div class="form-group">
+              <label>請假種類</label>
+              <select id="s3_leave_type">
+                <option value="personal">事假 (扣底薪/按日扣除)</option>
+                <option value="sick">病假 (半薪)</option>
+                <option value="annual">特休假 (不扣薪)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>當月累積請假天數</label>
+              <input type="number" id="s3_leave_days" step="0.5" value="0">
+            </div>
+            <div class="form-group">
+              <label>當月累積加班時數</label>
+              <input type="number" id="s3_ot_hours" value="0">
+            </div>
+          </div>
+          <div class="btn-group">
+            <button class="btn" onclick="saveData('step3')">更新出勤紀錄</button>
+          </div>
         </div>
-        <div class="form-group">
-          <label>當期結算狀態</label>
-          <input type="text" id="s5_status" value="準備計算" readonly style="background:#eee;">
-        </div>
-        <button class="btn" onclick="alert('執行薪資計算與零錢表、薪資冊生成！')">執行薪資結算與列印清冊</button>
       </div>
-    </div>
 
-    <!-- 步驟 6：薪資轉存管理 -->
-    <div id="step6" class="tab-content">
-      <div class="card">
-        <h3>銀行與郵局轉存作業 <span>[金流對接]</span></h3>
-        <div class="status-box">支援郵局轉存清冊 (連線版)、銀行薪資轉存清冊、獎金轉存清冊產生。</div>
-        <div class="form-group">
-          <label>轉存機構選擇</label>
-          <select id="s6_bank">
-            <option value="post">中華郵局連線轉存</option>
-            <option value="bank_a">合作銀行 A (薪轉專戶)</option>
-            <option value="bank_b">其他金融機構</option>
-          </select>
+      <!-- 4. 津貼扣款建立 -->
+      <div id="step4" class="tab-content">
+        <div class="card">
+          <div class="card-title">自訂津貼與扣款項目設定</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>項目類別</label>
+              <select id="s4_type">
+                <option value="allowance">津貼項目 (如: 職務津貼 / 伙食津貼)</option>
+                <option value="deduction">扣款項目 (如: 服裝費 / 代扣款)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>項目名稱</label>
+              <input type="text" id="s4_name" placeholder="例如: 伙食津貼">
+            </div>
+            <div class="form-group">
+              <label>金額計算方式</label>
+              <select id="s4_amount_type">
+                <option value="fixed">固定金額</option>
+                <option value="variable">變動金額</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>發放/扣款時機</label>
+              <select id="s4_timing">
+                <option value="full">每月一次 (全月發放)</option>
+                <option value="first">上半月發放</option>
+                <option value="second">下半月發放</option>
+              </select>
+            </div>
+          </div>
+          <div class="btn-group">
+            <button class="btn" onclick="saveData('step4')">建立津貼扣款項目</button>
+          </div>
         </div>
-        <button class="btn" onclick="alert('已產生轉存檔案與清單！')">匯出銀行/郵局轉存清冊</button>
       </div>
-    </div>
 
-    <!-- 步驟 7：薪資扣款媒體申報 -->
-    <div id="step7" class="tab-content">
-      <div class="card">
-        <h3>扣繳憑單與媒體申報 <span>[結算總表]</span></h3>
-        <div class="status-box">處理扣繳憑單資料表、扣繳稅額統計表、年度總表與稅務申報。</div>
-        <div class="form-group">
-          <label>申報年度</label>
-          <input type="number" id="s7_year" value="2026">
+      <!-- 5. 薪資發放管理 -->
+      <div id="step5" class="tab-content">
+        <div class="card">
+          <div class="card-title">發薪作業與結算</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>發薪模式</label>
+              <select id="s5_cycle">
+                <option value="1">每月一次發薪 (列印全月薪資冊/條)</option>
+                <option value="2">每月二次發薪 (列印上半月與全月薪資冊/條)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>結算月份</label>
+              <input type="month" id="s5_month" value="2026-10">
+            </div>
+          </div>
+          <div class="btn-group">
+            <button class="btn" onclick="alert('執行全廠薪資自動試算完成！')">執行薪資計算</button>
+            <button class="btn btn-secondary" onclick="alert('正在匯出薪資冊...')">列印薪資冊/條</button>
+          </div>
         </div>
-        <div class="form-group">
-          <label>申報檔案格式</label>
-          <select id="s7_format">
-            <option value="media">國稅局扣繳媒體檔案格式 (.txt)</option>
-            <option value="excel">年度總表試算表匯出</option>
-          </select>
-        </div>
-        <button class="btn" onclick="alert('申報檔案已成功產出！')">產出媒體申報檔案</button>
       </div>
+
+      <!-- 6. 薪資轉存管理 -->
+      <div id="step6" class="tab-content">
+        <div class="card">
+          <div class="card-title">銀行與郵局媒體轉存作業</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>轉存機構</label>
+              <select id="s6_bank">
+                <option value="post">中華郵局 (郵局轉存清冊-連線)</option>
+                <option value="bank1">合作金庫 / 兆豐銀行</option>
+                <option value="bank2">台新銀行 / 玉山銀行</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>轉存類別</label>
+              <select id="s6_type">
+                <option value="salary">每月薪資轉存</option>
+                <option value="bonus">獎金轉存 (銀行獎金轉存清冊)</option>
+              </select>
+            </div>
+          </div>
+          <div class="btn-group">
+            <button class="btn" onclick="alert('媒體轉存文字檔已成功產生！')">產生轉存媒體檔</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 7. 薪資扣款媒體申報 -->
+      <div id="step7" class="tab-content">
+        <div class="card">
+          <div class="card-title">國稅局扣繳申報與年度結算</div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>申報年度</label>
+
+              <input type="number" id="s7_year" value="2026">
+            </div>
+            <div class="form-group">
+              <label>匯出格式</label>
+              <select id="s7_format">
+                <option value="txt">國稅局標準扣繳媒體檔 (.TXT)</option>
+                <option value="excel">年度扣繳稅額總表 (Excel)</option>
+              </select>
+            </div>
+          </div>
+          <div class="btn-group">
+            <button class="btn" onclick="alert('扣繳申報媒體檔已匯出！')">匯出申報檔</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 📊 管理報表憑證中心 (36項清單) -->
+      <div id="reports" class="tab-content">
+        <div class="card">
+          <div class="card-title">鼎新 e-GO 36 項完整管理報表與憑證中心</div>
+          <div class="report-grid">
+            <div class="report-card">請假單憑證列印 <span>🖨️</span></div>
+            <div class="report-card">新進/離職/退休員工清冊 <span>📋</span></div>
+            <div class="report-card">員工薪資冊 <span>📊</span></div>
+            <div class="report-card">員工薪資條列印 <span>✉️</span></div>
+            <div class="report-card">員工薪資資料清冊 <span>📋</span></div>
+            <div class="report-card">獎金發放零錢表 <span>🪙</span></div>
+            <div class="report-card">獎金發放薪資冊 <span>📊</span></div>
+            <div class="report-card">獎金發放薪資條 <span>✉️</span></div>
+            <div class="report-card">班別資料明細表 <span>🕒</span></div>
+            <div class="report-card">員工薪資異動表 <span>📈</span></div>
+            <div class="report-card">郵局轉存清冊-連線 <span>🏦</span></div>
+            <div class="report-card">銀行獎金轉存清冊 <span>🏦</span></div>
+            <div class="report-card">員工代號一覽表 <span>🆔</span></div>
+            <div class="report-card">員工基本資料清冊 <span>📄</span></div>
+            <div class="report-card">員工生日清冊 <span>🎂</span></div>
+            <div class="report-card">員工津貼扣款明細表 <span>💵</span></div>
+            <div class="report-card">勞健保保費計算表 <span>🛡️</span></div>
+            <div class="report-card">勞健保異動明細表 <span>🛡️</span></div>
+            <div class="report-card">勞健保薪資調整建議表 <span>💡</span></div>
+            <div class="report-card">勞健保投保資料清冊 <span>🛡️</span></div>
+            <div class="report-card">勞健保繳費證明 <span>🧾</span></div>
+            <div class="report-card">員工請假統計表 <span>📅</span></div>
+            <div class="report-card">員工特休統計表 <span>🌴</span></div>
+            <div class="report-card">加班單憑證列印 <span>🖨️</span></div>
+            <div class="report-card">銀行薪資轉存清冊 <span>🏦</span></div>
+            <div class="report-card">員工人事異動表 <span>🔄</span></div>
+            <div class="report-card">員工出勤明細表 <span>⏰</span></div>
+            <div class="report-card">員工加班時數明細表 <span>⏱️</span></div>
+            <div class="report-card">員工加班費用明細表 <span>💰</span></div>
+            <div class="report-card">扣繳憑單資料表 <span>📄</span></div>
+            <div class="report-card">員工薪資年度總表 <span>📊</span></div>
+            <div class="report-card">津貼扣款年度總表 <span>📉</span></div>
+            <div class="report-card">扣繳稅額統計表 <span>🏛️</span></div>
+            <div class="report-card">員工年齡統計表 <span>📈</span></div>
+            <div class="report-card">員工年資統計表 <span>🎖️</span></div>
+            <div class="report-card">員工學歷統計表 <span>🎓</span></div>
+          </div>
+        </div>
+      </div>
+
     </div>
-
-  </div>
-
-  <footer>
-    E-GO System | 遵循鼎新架構設計 (LocalStorage Auto-Save)
-  </footer>
+  </main>
 
   <script>
-    // 切換分頁
-    function switchTab(stepId, btnElement) {
+    // 切換分頁邏輯
+    function switchTab(stepId, element) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      
       document.getElementById(stepId).classList.add('active');
-      btnElement.classList.add('active');
-      window.scrollTo(0, 0);
+      element.classList.add('active');
+
+      // 更新頂部標題
+      const titleText = element.innerText.trim();
+      document.getElementById('pageTitle').innerText = titleText;
     }
 
-    // Local Storage 簡易通用存檔
+    // Local Storage 本地自動存檔
     function saveData(stepKey) {
       const inputs = document.querySelectorAll(`#${stepKey} input, #${stepKey} select`);
       const data = {};
@@ -288,14 +564,14 @@
           data[input.id] = input.value;
         }
       });
-      localStorage.setItem(`ego_${stepKey}`, JSON.stringify(data));
-      alert(`[${stepKey}] 資料已成功儲存至 LocalStorage！`);
+      localStorage.setItem(`ego_desktop_${stepKey}`, JSON.stringify(data));
+      alert(`[${stepKey}] 設定與資料已成功儲存至辦公室電腦 LocalStorage！`);
     }
 
-    // 載入已存資料
+    // 載入已儲存之資料
     window.onload = function() {
       ['step1', 'step2', 'step3', 'step4', 'step5', 'step6', 'step7'].forEach(stepKey => {
-        const saved = localStorage.getItem(`ego_${stepKey}`);
+        const saved = localStorage.getItem(`ego_desktop_${stepKey}`);
         if (saved) {
           const data = JSON.parse(saved);
           for (let key in data) {
