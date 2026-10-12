@@ -3,27 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>黑創 e-GO 企業資訊入口系統 (EIP)</title>
+  <title>黑創 e-GO 企業資訊入口系統 (EIP All-in-One)</title>
   <style>
     :root {
       --primary: #1e3c72;
       --secondary: #2a5298;
       --bg: #f4f7f6;
       --card-bg: #ffffff;
-      --text: #333;
+      --text: #333333;
       --border: #e2e8f0;
       --accent-blue: #3498db;
       --accent-green: #2ecc71;
       --accent-orange: #e67e22;
       --accent-purple: #9b59b6;
+      --hover-bg: #eef3f9;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Microsoft JhengHei", sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: "Microsoft JhengHei", -apple-system, sans-serif; }
     body { background-color: var(--bg); color: var(--text); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
 
     /* 頂部 Header */
     header {
-      height: 60px;
+      height: 55px;
       background: linear-gradient(135deg, var(--primary), var(--secondary));
       color: white;
       display: flex;
@@ -31,102 +32,97 @@
       align-items: center;
       padding: 0 25px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+      flex-shrink: 0;
     }
-    .brand-title { display: flex; align-items: center; gap: 10px; }
-    .brand-title h1 { font-size: 1.25rem; font-weight: bold; letter-spacing: 1px; }
-    .brand-title span { background: rgba(255,255,255,0.2); padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; }
-    .user-panel { font-size: 0.88rem; display: flex; align-items: center; gap: 15px; }
+    .brand-title { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+    .brand-title h1 { font-size: 1.2rem; font-weight: bold; letter-spacing: 1px; }
+    .brand-title span { background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; }
+    .user-panel { font-size: 0.85rem; display: flex; align-items: center; gap: 15px; }
 
-    /* 主要內容區 Layout */
-    .main-container { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
+    /* 主要內容區 */
+    .main-container { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
 
-    /* 1. 五大系統快速入口卡片區 */
-    .section-title { font-size: 1rem; color: var(--primary); font-weight: bold; margin-bottom: 10px; border-left: 4px solid var(--primary); padding-left: 10px; }
+    /* 各模組 View 切換 */
+    .view-page { display: none; padding: 20px; }
+    .view-page.active { display: block; animation: fadeIn 0.25s ease; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* 儀表板入口卡片與 Grid */
+    .section-title { font-size: 1rem; color: var(--primary); font-weight: bold; margin-bottom: 12px; border-left: 4px solid var(--primary); padding-left: 10px; }
+    .system-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
     
-    .system-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 15px;
-    }
-
     .system-card {
-      background: var(--card-bg);
-      border-radius: 8px;
-      padding: 18px;
-      border: 1px solid var(--border);
-      box-shadow: 0 2px 4px rgba(0,0,0,0.03);
-      cursor: pointer;
-      transition: all 0.2s ease;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
+      background: var(--card-bg); border-radius: 8px; padding: 18px; border: 1px solid var(--border);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.03); cursor: pointer; transition: all 0.2s ease;
+      display: flex; flex-direction: column; justify-content: space-between;
     }
-    .system-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 5px 12px rgba(0,0,0,0.08);
-      border-color: var(--accent-blue);
-    }
-    .system-icon { font-size: 2rem; margin-bottom: 10px; }
-    .system-card h3 { font-size: 1rem; color: var(--primary); margin-bottom: 5px; }
+    .system-card:hover { transform: translateY(-3px); box-shadow: 0 5px 12px rgba(0,0,0,0.08); border-color: var(--accent-blue); }
+    .system-icon { font-size: 2rem; margin-bottom: 8px; }
+    .system-card h3 { font-size: 0.98rem; color: var(--primary); margin-bottom: 4px; }
     .system-card p { font-size: 0.8rem; color: #666; line-height: 1.3; }
 
-    /* 2. 儀表板看板 (KPI Dashboard) */
-    .dashboard-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px;
-    }
-
-    .widget-card {
-      background: var(--card-bg);
-      border-radius: 8px;
-      padding: 18px;
-      border: 1px solid var(--border);
-    }
+    .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+    .widget-card { background: var(--card-bg); border-radius: 8px; padding: 18px; border: 1px solid var(--border); }
     .widget-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; margin-bottom: 12px; border-bottom: 1px solid #f0f0f0; }
     .widget-header h4 { font-size: 0.95rem; color: var(--primary); }
-
     .kpi-num { font-size: 1.8rem; font-weight: bold; color: var(--secondary); margin: 5px 0; }
     
-    .list-item {
-      display: flex;
-      justify-content: space-between;
-      padding: 8px 0;
-      border-bottom: 1px dashed #eee;
-      font-size: 0.85rem;
-    }
-    .list-item:last-child { border-bottom: none; }
+    .list-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #eee; font-size: 0.85rem; }
     .tag { padding: 2px 6px; border-radius: 4px; font-size: 0.72rem; color: white; }
     .tag-orange { background: var(--accent-orange); }
     .tag-blue { background: var(--accent-blue); }
     .tag-green { background: var(--accent-green); }
 
-    footer { background: #fff; text-align: center; padding: 10px; font-size: 0.75rem; color: #888; border-top: 1px solid var(--border); }
+    /* 通用二級系統 Layout（側邊選單 + 工作區） */
+    .app-layout { display: flex; height: calc(100vh - 100px); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; background: white; }
+    .app-sidebar { width: 220px; background: #1a252f; color: white; flex-shrink: 0; display: flex; flex-direction: column; }
+    .app-sidebar-header { padding: 15px; background: #111a24; font-size: 0.9rem; font-weight: bold; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    .app-menu { flex: 1; overflow-y: auto; padding: 10px 0; }
+    .app-menu-item { padding: 10px 18px; font-size: 0.85rem; color: #bdc3c7; cursor: pointer; border-left: 3px solid transparent; }
+    .app-menu-item:hover { background: rgba(255,255,255,0.05); color: #fff; }
+    .app-menu-item.active { background: var(--accent-blue); color: #fff; border-left-color: #fff; font-weight: bold; }
+    .app-content { flex: 1; padding: 20px; overflow-y: auto; background: #fdfdfd; }
+
+    /* 通用 Card & Form */
+    .card { background: white; border-radius: 6px; padding: 18px; margin-bottom: 15px; border: 1px solid var(--border); }
+    .card-title { font-size: 0.95rem; color: var(--primary); font-weight: bold; padding-bottom: 8px; margin-bottom: 12px; border-bottom: 2px solid #f0f2f5; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px 18px; }
+    .form-group { display: flex; flex-direction: column; }
+    .form-group label { font-size: 0.82rem; font-weight: 600; color: #444; margin-bottom: 4px; }
+    .form-group input, .form-group select { padding: 7px 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 0.85rem; }
+    .btn { padding: 8px 16px; background: var(--primary); color: white; border: none; border-radius: 4px; font-size: 0.85rem; font-weight: bold; cursor: pointer; }
+    .btn:hover { opacity: 0.9; }
+
+    /* 回總入口按鈕 */
+    .back-btn { background: rgba(255,255,255,0.2); border: none; color: white; padding: 5px 12px; border-radius: 4px; font-size: 0.82rem; cursor: pointer; }
+    .back-btn:hover { background: rgba(255,255,255,0.3); }
+
+    footer { background: #fff; text-align: center; padding: 10px; font-size: 0.75rem; color: #888; border-top: 1px solid var(--border); flex-shrink: 0; }
   </style>
 </head>
 <body>
 
-  <!-- 頂部品牌 Header -->
+  <!-- 頂部 Header -->
   <header>
-    <div class="brand-title">
+    <div class="brand-title" onclick="showView('home')">
       <h1>黑創 e-GO</h1>
-      <span>企業資訊總入口 EIP</span>
+      <span>企業資訊整合平台 EIP</span>
     </div>
     <div class="user-panel">
+      <button class="back-btn" onclick="showView('home')">🏠 返回總入口</button>
       <div>歡迎登入，<strong>小黑哥 (系統架構師)</strong></div>
-      <button onclick="alert('系統已同步至最新狀態！')" style="padding: 5px 10px; border: none; border-radius: 4px; background: rgba(255,255,255,0.2); color: white; cursor: pointer;">↻ 資料同步</button>
+      <button onclick="alert('全系統資料連線同步完成！')" style="padding: 4px 10px; border: none; border-radius: 4px; background: #27ae60; color: white; font-size: 0.8rem; cursor: pointer;">↻ 資料同步</button>
     </div>
   </header>
 
-  <!-- 主要 Portal 區 -->
   <div class="main-container">
 
-    <!-- 1. 五大核心子系統快捷切換 -->
-    <div>
+    <!-- ================= 0. 主入口 EIP Portal View ================= -->
+    <div id="view-home" class="view-page active">
       <div class="section-title">黑創 e-GO 五大核心系統入口</div>
       <div class="system-grid">
-        
-        <div class="system-card" onclick="alert('進入：黑創 e-GO 生產與進銷存系統 (ERP)')">
+        <div class="system-card" onclick="showView('erp')">
           <div>
             <div class="system-icon">🏭</div>
             <h3>ERP 企業資源規劃</h3>
@@ -134,7 +130,7 @@
           </div>
         </div>
 
-        <div class="system-card" onclick="alert('進入：黑創 e-GO 人事薪資與排班系統 (HRM)')">
+        <div class="system-card" onclick="showView('hrm')">
           <div>
             <div class="system-icon">👥</div>
             <h3>HRM 人力資源管理</h3>
@@ -142,7 +138,7 @@
           </div>
         </div>
 
-        <div class="system-card" onclick="alert('進入：黑創 e-GO 線上電子簽核系統 (BPM)')">
+        <div class="system-card" onclick="showView('bpm')">
           <div>
             <div class="system-icon">✍️</div>
             <h3>BPM 流程簽核管理</h3>
@@ -150,7 +146,7 @@
           </div>
         </div>
 
-        <div class="system-card" onclick="alert('進入：黑創 e-GO 協作與公告平台 (EIP)')">
+        <div class="system-card" onclick="showView('eip')">
           <div>
             <div class="system-icon">📢</div>
             <h3>EIP 協作與公告入口</h3>
@@ -158,23 +154,17 @@
           </div>
         </div>
 
-        <div class="system-card" onclick="alert('進入：黑創 e-GO 品質與 ISO 文件管理 (ISO)')">
+        <div class="system-card" onclick="showView('iso')">
           <div>
             <div class="system-icon">📁</div>
             <h3>ISO 品質與文件管理</h3>
             <p>SOP 作業標準書、文件版本控管、調閱權限與稽核軌跡紀錄。</p>
           </div>
         </div>
-
       </div>
-    </div>
 
-    <!-- 2. 即時營運數據看板 (Dashboard) -->
-    <div>
       <div class="section-title">今日營運即時看板 (Real-Time Dashboard)</div>
       <div class="dashboard-grid">
-
-        <!-- 區塊 A：HRM 差勤概況 -->
         <div class="widget-card">
           <div class="widget-header">
             <h4>👥 人資差勤動態 (HRM)</h4>
@@ -187,50 +177,181 @@
           </div>
         </div>
 
-        <!-- 區塊 B：BPM 待辦與簽核 -->
         <div class="widget-card">
           <div class="widget-header">
             <h4>📋 待辦事項與簽核 (BPM)</h4>
             <span class="tag tag-orange">3 件待處理</span>
           </div>
-          <div class="list-item">
-            <span>[請假單] 張小明 - 特休 1 天</span>
-            <span class="tag tag-orange">待簽核</span>
-          </div>
-          <div class="list-item">
-            <span>[採購單] 原材料 MAT-01 採購申請</span>
-            <span class="tag tag-orange">待簽核</span>
-          </div>
-          <div class="list-item">
-            <span>[製令單] MO-2026101201 開單審核</span>
-            <span class="tag tag-green">已核准</span>
-          </div>
+          <div class="list-item"><span>[請假單] 張小明 - 特休 1 天</span><span class="tag tag-orange">待簽核</span></div>
+          <div class="list-item"><span>[採購單] 原材料 MAT-01 採購申請</span><span class="tag tag-orange">待簽核</span></div>
+          <div class="list-item"><span>[製令單] MO-2026101201 開單審核</span><span class="tag tag-green">已核准</span></div>
         </div>
 
-        <!-- 區塊 C：ERP 生產與庫存警示 -->
         <div class="widget-card">
           <div class="widget-header">
             <h4>⚠️ 庫存與生產警示 (ERP)</h4>
             <span class="tag tag-blue">即時連線</span>
           </div>
-          <div class="list-item">
-            <span>鋁合金外殼 (MAT-01) 存量過低</span>
-            <span style="color:red; font-weight:bold;">低於安全庫存</span>
-          </div>
-          <div class="list-item">
-            <span>託工進貨 SUR-2026101201</span>
-            <span style="color:green; font-weight:bold;">預計今日進貨</span>
+          <div class="list-item"><span>鋁合金外殼 (MAT-01) 存量過低</span><span style="color:red; font-weight:bold;">低於安全庫存</span></div>
+          <div class="list-item"><span>託工進貨 SUR-2026101201</span><span style="color:green; font-weight:bold;">預計今日進貨</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= 1. ERP 系統 (生產/進銷存) View ================= -->
+    <div id="view-erp" class="view-page">
+      <div class="app-layout">
+        <div class="app-sidebar">
+          <div class="app-sidebar-header">黑創 ERP 生產與進銷存</div>
+          <div class="app-menu">
+            <div class="app-menu-item active" onclick="switchSubTab('erp-inout', this)">銷貨與進貨作業</div>
+            <div class="app-menu-item" onclick="switchSubTab('erp-bom', this)">BOM 與 MRP 物料需求</div>
+            <div class="app-menu-item" onclick="switchSubTab('erp-mo', this)">製令單與領退料</div>
+            <div class="app-menu-item" onclick="switchSubTab('erp-sub', this)">託外加工管理</div>
+            <div class="app-menu-item" onclick="switchSubTab('erp-cost', this)">庫存盤點與生管成本</div>
           </div>
         </div>
+        <div class="app-content">
+          <div id="erp-inout" class="sub-tab-content" style="display:block;">
+            <div class="card">
+              <div class="card-title">銷貨單與進貨驗收建立</div>
+              <div class="form-grid">
+                <div class="form-group"><label>單據類型</label><select><option>銷貨單</option><option>進貨驗收單</option></select></div>
+                <div class="form-group"><label>單據編號</label><input type="text" value="ERP-2026101201" readonly></div>
+                <div class="form-group"><label>客戶/廠商名稱</label><input type="text" placeholder="輸入合作對象"></div>
+                <div class="form-group"><label>總金額 ($)</label><input type="number" placeholder="50000"></div>
+              </div>
+              <button class="btn" style="margin-top:12px;" onclick="saveEgoData('ERP單據已儲存並過帳庫存！')">儲存單據</button>
+            </div>
+          </div>
+          <div id="erp-bom" class="sub-tab-content" style="display:none;">
+            <div class="card">
+              <div class="card-title">BOM 產品結構與物料需求展算 (MRP)</div>
+              <div class="form-grid">
+                <div class="form-group"><label>主件產品</label><input type="text" value="PROD-001 標準控制盒總成"></div>
+                <div class="form-group"><label>生產數量</label><input type="number" value="100"></div>
+              </div>
+              <button class="btn" style="margin-top:12px;" onclick="alert('MRP 物料需求計算完成！子階物料充足。')">執行 MRP 展開</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
+    <!-- ================= 2. HRM 系統 (人事薪資/排班) View ================= -->
+    <div id="view-hrm" class="view-page">
+      <div class="app-layout">
+        <div class="app-sidebar">
+          <div class="app-sidebar-header">黑創 HRM 人事薪資排班</div>
+          <div class="app-menu">
+            <div class="app-menu-item active" onclick="switchSubTab('hrm-pay', this)">薪資計算與發放</div>
+            <div class="app-menu-item" onclick="switchSubTab('hrm-shift', this)">智能排班特助</div>
+            <div class="app-menu-item" onclick="switchSubTab('hrm-ins', this)">勞健保與人事異動</div>
+          </div>
+        </div>
+        <div class="app-content">
+          <div id="hrm-pay" class="sub-tab-content" style="display:block;">
+            <div class="card">
+              <div class="card-title">全廠薪資計算與規則</div>
+              <div class="form-grid">
+                <div class="form-group"><label>全勤獎金預設</label><input type="number" value="2000"></div>
+                <div class="form-group"><label>平日加班費率</label><input type="number" value="1.34" step="0.01"></div>
+                <div class="form-group"><label>結算月份</label><input type="month" value="2026-10"></div>
+              </div>
+              <button class="btn" style="margin-top:12px;" onclick="saveEgoData('薪資結算完成！已匯出薪資冊。')">執行全廠薪資計算</button>
+            </div>
+          </div>
+          <div id="hrm-shift" class="sub-tab-content" style="display:none;">
+            <div class="card">
+              <div class="card-title">日排班維護 (06:00 ~ 20:00)</div>
+              <p style="font-size:0.85rem; color:#666; margin-bottom:10px;">包含班段拖曳、人力配置與續班段設定。</p>
+              <button class="btn" onclick="alert('智能排班表已存檔至數據庫！')">儲存當日班表</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= 3. BPM 系統 (流程簽核) View ================= -->
+    <div id="view-bpm" class="view-page">
+      <div class="app-layout">
+        <div class="app-sidebar">
+          <div class="app-sidebar-header">黑創 BPM 電子簽核</div>
+          <div class="app-menu">
+            <div class="app-menu-item active">待簽核表單 (3)</div>
+            <div class="app-menu-item">我申請的表單</div>
+            <div class="app-menu-item">歷史簽核紀錄</div>
+          </div>
+        </div>
+        <div class="app-content">
+          <div class="card">
+            <div class="card-title">請假單線上簽核</div>
+            <p style="font-size:0.85rem;">申請人：張小明 | 事由：特休假 1 天 | 替代人：李大華</p>
+            <div style="margin-top:15px; display:flex; gap:10px;">
+              <button class="btn" style="background:#27ae60;" onclick="alert('已核准該請假單！')">✓ 同意核准</button>
+              <button class="btn" style="background:#e74c3c;" onclick="alert('已退回申請！')">✕ 退回修改</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= 4. EIP 系統 (協作與公告) View ================= -->
+    <div id="view-eip" class="view-page">
+      <div class="card">
+        <div class="card-title">📢 全廠最新公告</div>
+        <ul style="padding-left:20px; font-size:0.88rem; line-height:1.8;">
+          <li>[2026-10-12] 黑創 e-GO 企業資訊入口 (EIP) 全面上線通知。</li>
+          <li>[2026-10-15] 辦公室勞健保投保薪資申報提醒。</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ================= 5. ISO 系統 (品質與文件) View ================= -->
+    <div id="view-iso" class="view-page">
+      <div class="card">
+        <div class="card-title">📁 ISO 9001 標準作業程序 (SOP) 文件庫</div>
+        <div class="form-grid">
+          <div class="form-group"><label>SOP-MO-001</label><input type="text" value="生產線標準作業程序 v2.1" readonly></div>
+          <div class="form-group"><label>SOP-QC-002</label><input type="text" value="進貨進料管制檢驗規範 v1.4" readonly></div>
+        </div>
       </div>
     </div>
 
   </div>
 
   <footer>
-    黑創 e-GO 企業管理系統家族 v2.5 | 曜石計畫系統整合
+    黑創 e-GO 企業管理系統家族 v3.0 | 曜石計畫系統整合 (GitHub Pages Deployment)
   </footer>
 
+  <script>
+    // 模組 View 切換邏輯
+    function showView(viewId) {
+      document.querySelectorAll('.view-page').forEach(el => el.classList.remove('active'));
+      const target = document.getElementById(`view-${viewId}`);
+      if (target) {
+        target.classList.add('active');
+        window.scrollTo(0, 0);
+      }
+    }
+
+    // 二級子頁籤切換
+    function switchSubTab(subId, element) {
+      const parent = element.parentElement;
+      parent.querySelectorAll('.app-menu-item').forEach(el => el.classList.remove('active'));
+      element.classList.add('active');
+
+      const appContent = element.closest('.app-layout').querySelector('.app-content');
+      appContent.querySelectorAll('.sub-tab-content').forEach(el => el.style.display = 'none');
+      const targetSub = document.getElementById(subId);
+      if (targetSub) targetSub.style.display = 'block';
+    }
+
+    // 通用 LocalStorage 存檔提醒
+    function saveEgoData(msg) {
+      localStorage.setItem('ego_last_sync', new Date().toISOString());
+      alert(msg);
+    }
+  </script>
 </body>
 </html>
