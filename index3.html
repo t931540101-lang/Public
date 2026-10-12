@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR web service</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    body {
+      background-color: #f3f3f3;
+      color: #333;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* 頂部導覽列 */
+    header {
+      background-color: #2b2f33;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      color: #fff;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .logo-icon {
+      width: 20px;
+      height: 20px;
+      border: 2px solid #ccc;
+      border-radius: 50%;
+      position: relative;
+    }
+    .logo-icon::before {
+      content: '';
+      position: absolute;
+      top: 3px; left: 3px; right: 3px; bottom: 3px;
+      border: 1.5px solid #ccc;
+      border-radius: 50%;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 30px;
+      margin-left: 20px;
+    }
+
+    .nav-links a {
+      color: #d1d5db;
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover, .nav-links a.active {
+      color: #ffffff;
+    }
+
+    .lang-group {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .lang-badge {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background-color: #f97316;
+      color: white;
+      font-size: 11px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    /* 主要內容區 */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      padding: 40px 20px;
+    }
+
+    /* 左上角半透明灰色方塊 */
+    .bg-shape-topleft {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      width: 220px;
+      height: 180px;
+      background-color: rgba(200, 200, 200, 0.25);
+      transform: rotate(-15deg);
+      border-radius: 8px;
+      z-index: 1;
+    }
+
+    .hero-content {
+      text-align: center;
+      z-index: 2;
+      margin-bottom: 80px;
+    }
+
+    .hero-title {
+      font-size: 40px;
+      font-weight: bold;
+      color: #1f2937;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+
+    .hero-subtitle {
+      font-size: 16px;
+      color: #6b7280;
+    }
+
+    /* 精準縮小的右下角手機圖案 */
+    .phone-mockup {
+      position: absolute;
+      right: 30px;
+      bottom: -10px;
+      width: 170px;
+      height: 260px;
+      background-color: #2b2f33;
+      border-radius: 20px 20px 0 0;
+      transform: rotate(-18deg) translateY(30px);
+      box-shadow: -5px 10px 20px rgba(0,0,0,0.15);
+      border: 4px solid #1a1d20;
+      z-index: 1;
+    }
+
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      background-color: #3f4448;
+      border-radius: 16px 16px 0 0;
+    }
+
+    /* 頁尾資訊 */
+    footer {
+      padding: 20px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      z-index: 2;
+    }
+
+    .copyright {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: #888;
+    }
+
+    .toggle-btn {
+      background-color: #6366f1;
+      color: white;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 頂部導覽列 -->
+  <header>
+    <div class="nav-left">
+      <div class="logo-icon"></div>
+      <nav class="nav-links">
+        <a href="#" class="active">首頁</a>
+        <a href="#">請假單</a>
+        <a href="#">未刷單</a>
+      </nav>
+    </div>
+    <div class="lang-group">
+      <div class="lang-badge">TW</div>
+      <div class="lang-badge">TH</div>
+      <div class="lang-badge">ID</div>
+    </div>
+  </header>
+
+  <!-- 中央主視覺 -->
+  <main>
+    <div class="bg-shape-topleft"></div>
+
+    <div class="hero-content">
+      <h1 class="hero-title">HR web service</h1>
+      <p class="hero-subtitle">Designed for IT</p>
+    </div>
+
+    <!-- 右下角手機示意圖（微調縮小版） -->
+    <div class="phone-mockup">
+      <div class="phone-screen"></div>
+    </div>
+  </main>
+
+  <!-- 頁尾 -->
+  <footer>
+    <div class="copyright">
+      <span>⚙</span>
+      <span>© APEX DYNAMICS 2026</span>
+    </div>
+    <button class="toggle-btn">Toggle theme ▾</button>
+  </footer>
+
+</body>
+</html>
