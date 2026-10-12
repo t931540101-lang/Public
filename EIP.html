@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>EIP + BPM 原型</title>
+<style>
+:root{--bg:#f6f7f9;--fg:#1c2330;--mut:#667085;--card:#fff;--line:#e3e6eb;--ac:#2b6cb0;--ok:#2f855a;--no:#c53030;--wa:#b7791f;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12161d;--fg:#e8ebf0;--mut:#98a2b3;--card:#1b212b;--line:#2c3441;--ac:#63a4e8;--ok:#5fc08a;--no:#f08080;--wa:#f0c068}}
+:root[data-theme="dark"]{--bg:#12161d;--fg:#e8ebf0;--mut:#98a2b3;--card:#1b212b;--line:#2c3441;--ac:#63a4e8;--ok:#5fc08a;--no:#f08080;--wa:#f0c068}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.6 system-ui,"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif}
+.w{max-width:980px;margin:0 auto;padding:16px 16px 48px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+h1{font-size:20px;margin:0}
+.me{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--mut)}
+.me select{width:auto}
+.tabs{display:flex;gap:6px;margin:14px 0;overflow-x:auto}
+.tabs button{border:1px solid var(--line);background:var(--card);color:var(--fg);padding:8px 14px;border-radius:8px;cursor:pointer;white-space:nowrap;font:inherit}
+.tabs button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.c{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px}
+.c h3{margin:0 0 8px;font-size:16px}
+.big{font-size:28px;font-weight:700}
+.mut{color:var(--mut);font-size:13px}
+label{display:block;font-size:13px;color:var(--mut);margin:10px 0 3px}
+input,select,textarea{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:6px 8px;width:100%}
+button.p{background:var(--ac);color:#fff;border:0;border-radius:8px;padding:8px 16px;cursor:pointer;font:inherit;margin-top:12px}
+button.k{background:var(--ok);color:#fff;border:0;border-radius:8px;padding:6px 14px;cursor:pointer;font:inherit}
+button.r{background:var(--no);color:#fff;border:0;border-radius:8px;padding:6px 14px;cursor:pointer;font:inherit}
+.ch{display:flex;gap:4px;flex-wrap:wrap;align-items:center;margin:6px 0}
+.st{font-size:12px;padding:2px 8px;border-radius:6px;border:1px solid var(--line);color:var(--mut);white-space:nowrap}
+.st.dn{color:var(--ok);border-color:var(--ok)}.st.cu{color:var(--wa);border-color:var(--wa)}.st.rj{color:var(--no);border-color:var(--no)}
+.row{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;flex-wrap:wrap}
+.lg{font-size:12px;color:var(--mut);border-top:1px dashed var(--line);margin-top:6px;padding-top:6px}
+.an{padding:8px 0;border-top:1px solid var(--line)}.an:first-of-type{border-top:0}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:640px}
+th,td{text-align:left;padding:6px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{color:var(--mut);font-weight:600;font-size:13px}
+.er{color:var(--no);font-size:12px}
+.ok2{color:var(--ok);font-size:12px}
+.f4{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+</style>
+</head>
+<body>
+<div class="w">
+<div class="top"><h1>企業入口 EIP + 簽核 BPM(原型)</h1>
+<div class="me">目前身分:<select id="me"></select></div></div>
+<div class="tabs" id="tabs"></div>
+<div id="v"></div>
+<p class="mut" style="margin-top:20px">原型說明:資料只存在這台電腦的瀏覽器,用來示範流程與畫面;正式上線需要後端、資料庫,並與 HRM 同步組織資料。</p>
+</div>
+<script>
+var UN={"廠內":["員工","組長","課長","經理"],"辦公室":["員工","主任","副總","室經理"],"財務":["財務"],"董事長":["董事長"]},ALLT=["員工","組長","課長","經理","主任","副總","室經理","財務","董事長"],TL=ALLT;
+function lv(p){return UN[p.unit||"辦公室"].indexOf(p.title)}
+var TY={leave:"請假",expense:"費用報銷",purchase:"採購申請"};
+var AN=[["系統上線公告","新簽核系統試行中,請假與費用請改用線上申請。","10/12"],["資安提醒","請勿將公司帳號密碼提供他人,並定期更換密碼。","10/08"],["年度健康檢查","報名至本月底,請洽人資窗口。","10/01"]];
+var S={people:[{id:1,name:"周經理",unit:"廠內",title:"經理",dept:"廠務部",boss:11,off:false},{id:2,name:"陳課長",unit:"廠內",title:"課長",dept:"廠務部",boss:1,off:false},{id:3,name:"李組長",unit:"廠內",title:"組長",dept:"廠務部",boss:2,off:false},{id:4,name:"王小明",unit:"廠內",title:"員工",dept:"廠務部",boss:3,off:false},{id:5,name:"張小華",unit:"廠內",title:"員工",dept:"廠務部",boss:3,off:false},{id:6,name:"吳室經理",unit:"辦公室",title:"室經理",dept:"管理室",boss:11,off:false},{id:7,name:"趙副總",unit:"辦公室",title:"副總",dept:"管理室",boss:6,off:false},{id:8,name:"林主任",unit:"辦公室",title:"主任",dept:"管理室",boss:7,off:false},{id:9,name:"何小美",unit:"辦公室",title:"員工",dept:"管理室",boss:8,off:false},{id:10,name:"鄭財務",unit:"財務",title:"財務",dept:"財務部",boss:11,off:false},{id:11,name:"董事長",unit:"董事長",title:"董事長",dept:"董事會",boss:0,off:false}],fin:10,reqs:[],me:4},tab=0;
+try{var x=localStorage.getItem("eipbpm4");if(x)S=JSON.parse(x)}catch(e){}
+function save(){try{localStorage.setItem("eipbpm4",JSON.stringify(S))}catch(e){}}
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function now(){var d=new Date();return d.toLocaleDateString("zh-TW")+" "+d.toLocaleTimeString("zh-TW",{hour12:false,hour:"2-digit",minute:"2-digit"})}
+function P(id){return S.people.filter(function(p){return p.id===id})[0]}
+function nm(id){var p=P(id);return p?p.name:"(已刪除)"}
+function need(t,v){v=+v||0;if(t==="leave")return v<=2?1:2;return v<=10000?1:v<=50000?2:3}
+function route(pid,t,v){var cur=P(pid),n=need(t,v),ch=[];
+for(var i=0;i<n;i++){if(!cur||!cur.boss)break;var b=P(cur.boss);if(!b)return{err:"直屬主管資料不存在,請先修正組織主檔"};if(b.off)return{err:b.name+" 已離職,簽核路徑中斷,請先更新組織主檔"};if(b.unit==="董事長"&&ch.length)break;ch.push(b.id);cur=b}
+if(!ch.length)return{err:"此人沒有直屬主管,無法產生簽核路徑"};if(t!=="leave"){var f=P(S.fin);if(!f||f.off)return{err:"尚未設定財務簽核人或其已離職,請至組織主檔設定"};if(f.id===pid)return{err:"財務簽核人本人的單據需另訂流程"};if(ch.indexOf(f.id)<0)ch.push(f.id)}return{chain:ch}}
+function issues(p){var r=[],b=p.boss?P(p.boss):null;
+if(!p.boss&&p.unit!=="董事長")r.push("缺直屬主管");
+if(p.boss&&!b)r.push("主管不存在");
+if(b&&b.off&&!p.off)r.push("主管已離職");
+if(b&&(b.unit||"辦公室")===(p.unit||"辦公室")&&lv(b)<=lv(p))r.push("主管職級不高於本人");
+if(!p.dept)r.push("缺部門");if(lv(p)<0)r.push("職稱與單位不符");return r}
+function unit(r){return r.type==="leave"?r.val+" 天":"NT$ "+Number(r.val).toLocaleString()}
+function sc(r){return r.status==="已核准"?"dn":r.status==="已退回"?"rj":"cu"}
+function chainHtml(r){return'<div class="ch">'+r.chain.map(function(c,i){var d=r.status==="已核准"||i<r.step,cu=r.status==="簽核中"&&i===r.step;return'<span class="st '+(d?"dn":cu?"cu":"")+'">'+(d?"✓ ":"")+esc(nm(c))+'</span>'}).join(" → ")+'</div>'}
+function card(r,act){return'<div class="c"><div class="row"><div><b>'+TY[r.type]+'|'+esc(r.title)+'</b><div class="mut">申請人:'+esc(nm(r.by))+'|'+unit(r)+'|'+r.at+'</div></div><span class="st '+sc(r)+'">'+r.status+'</span></div>'+chainHtml(r)+'<div class="mut">事由:'+esc(r.reason||"-")+'</div>'+waitHtml(r)+(act||"")+'<div class="lg">'+r.log.map(esc).join("<br>")+'</div></div>'}
+function pend(){return S.reqs.filter(function(r){if(r.status!=="簽核中")return false;var a=r.chain[r.step],pa=P(a);return a===S.me||!!(pa&&pa.agent&&pa.agent===S.me)})}
+function sla(){return S.sla==null?24:S.sla}
+function hrs(r){return(Date.now()-(r.stepAt||Date.parse(r.at)||Date.now()))/36e5}
+function over(r){return r.status==="簽核中"&&hrs(r)>=sla()}
+function fmtH(h){return h<1?Math.max(1,Math.round(h*60))+" 分鐘":h<48?Math.round(h)+" 小時":Math.round(h/24)+" 天"}
+function waitHtml(r){if(r.status!=="簽核中")return"";var a=r.chain[r.step],pa=P(a),t='<div class="mut">目前停留在 '+esc(nm(a))+',已 '+fmtH(hrs(r))+(over(r)?' <span class="er">⚠ 已逾期</span>':'')+'</div>';if(a!==S.me&&pa&&pa.agent===S.me)t+='<div class="ok2">您是 '+esc(pa.name)+' 的代理人</div>';return t}
+function slaBar(){return'<div class="c"><div class="row"><div><b>逾期提醒</b><div class="mut">目前逾期單據:'+S.reqs.filter(over).length+' 件</div></div><div class="me">逾期門檻:<select id="sla">'+opts([[0,"0 小時(示範)"],[1,"1 小時"],[24,"24 小時"],[48,"48 小時"]],sla())+'</select></div></div></div>'}
+function opts(l,v){return l.map(function(o){return'<option value="'+o[0]+'"'+(String(o[0])===String(v)?" selected":"")+'>'+esc(o[1])+'</option>'}).join("")}
+function render(){
+var act=S.people.filter(function(p){return !p.off});
+if(!P(S.me)||P(S.me).off)S.me=act.length?act[0].id:0;
+document.getElementById("me").innerHTML=opts(act.map(function(p){return[p.id,p.name+"("+p.title+")"]}),S.me);
+var p=pend().length,od=pend().filter(over).length,bad=S.people.filter(function(q){return issues(q).length}).length;
+document.getElementById("tabs").innerHTML=["入口首頁","新增申請","待我簽核"+(p?"("+p+")":""),"流程紀錄","組織主檔"+(bad?"(⚠"+bad+")":"")].map(function(n,i){return'<button data-t="'+i+'" class="'+(i===tab?"on":"")+'">'+n+'</button>'}).join("");
+var h="",mine=S.reqs.filter(function(r){return r.by===S.me});
+if(tab===0){
+var ok=S.reqs.filter(function(r){return r.type==="leave"&&r.status==="已核准"});
+h='<div class="g"><div class="c"><h3>待我簽核</h3><div class="big">'+p+'</div><div class="mut">件'+(od?'|<span class="er">其中逾期 '+od+' 件</span>':'')+'</div></div><div class="c"><h3>我的申請</h3><div class="big">'+mine.length+'</div><div class="mut">簽核中 '+mine.filter(function(r){return r.status==="簽核中"}).length+'|已核准 '+mine.filter(function(r){return r.status==="已核准"}).length+'</div></div></div>'+
+'<div class="g"><div class="c"><h3>公告</h3>'+AN.map(function(a){return'<div class="an"><b>'+a[0]+'</b> <span class="mut">'+a[2]+'</span><div class="mut">'+a[1]+'</div></div>'}).join("")+'</div><div class="c"><h3>近期請假(已核准)</h3>'+(ok.length?ok.map(function(r){return'<div class="an">'+esc(nm(r.by))+'|'+r.val+' 天<div class="mut">'+esc(r.title)+'</div></div>'}).join(""):'<div class="mut">目前沒有資料</div>')+'</div></div>';
+}
+if(tab===1){
+h='<div class="c"><h3>新增申請(申請人:'+esc(nm(S.me))+')</h3><label>類型</label><select id="ty"><option value="leave">請假</option><option value="expense">費用報銷</option><option value="purchase">採購申請</option></select><label>主旨</label><input id="ti" placeholder="例如:10/20 特休、客戶拜訪交通費"><label>請假填天數,其餘填金額(NT$)</label><input id="vl" type="number" min="0" placeholder="例如 3 或 25000"><label>事由</label><textarea id="rs" rows="2"></textarea><div class="mut" style="margin-top:8px">簽核路徑(依組織主檔自動產生):<span id="pv">請先輸入數量</span></div><button class="p" data-sub="1">送出申請</button></div><h3>我的申請</h3>'+(mine.length?mine.slice().reverse().map(function(r){return card(r)}).join(""):'<div class="mut">尚無申請</div>');
+}
+if(tab===2){
+h=p?pend().map(function(r){return card(r,'<input id="n'+r.id+'" placeholder="簽核意見(退回必填)" style="margin:8px 0"><button class="k" data-ap="'+r.id+'" data-do="1">核准</button> <button class="r" data-ap="'+r.id+'" data-do="0">退回</button>')}).join(""):'<div class="c mut">目前沒有待簽核的單據。切換成主管身分(例如李主任)可查看。</div>';
+}
+if(tab===3){h=slaBar()+(S.reqs.length?S.reqs.slice().reverse().map(function(r){return card(r)}).join(""):'<div class="c mut">尚無紀錄</div>')+'<p class="mut">每筆單據都保留完整簽核軌跡,可用於稽核。</p>'}
+if(tab===4){
+var tl=TL.map(function(t){return[t,t]});
+h='<div class="c"><h3>財務簽核人</h3><select id="fin">'+opts(S.people.filter(function(o){return !o.off}).map(function(o){return[o.id,o.name+"("+o.title+")"]}),S.fin)+'</select><div class="mut">費用報銷與採購申請,最後一關由財務核簽。</div></div><div class="c"><h3>資料檢查</h3>'+(bad?'<span class="er">有 '+bad+' 位人員資料需處理,相關人員送單時會被擋下。</span>':'<span class="ok2">組織資料檢查通過</span>')+'<div class="mut">規則:除董事長外都要有直屬主管(廠內經理、辦公室室經理、財務向董事長報告);主管職級須高於本人;主管不可離職。簽核層數依單據類型與金額決定,從申請人往上逐層找,不會往上簽到董事長(只有經理、室經理本人的單據才由董事長簽)。</div></div>'+
+'<div class="c tw"><table><tr><th>姓名</th><th>單位</th><th>職稱</th><th>部門</th><th>直屬主管</th><th>代理人</th><th>在職</th><th>檢查</th></tr>'+S.people.map(function(q){var is=issues(q);return'<tr><td>'+esc(q.name)+'</td><td><select data-pf="unit" data-pid="'+q.id+'">'+opts(Object.keys(UN).map(function(u){return[u,u]}),q.unit||"辦公室")+'</select></td><td><select data-pf="title" data-pid="'+q.id+'">'+opts(UN[q.unit||"辦公室"].map(function(t){return[t,t]}),q.title)+'</select></td><td><input data-pf="dept" data-pid="'+q.id+'" value="'+esc(q.dept)+'"></td><td><select data-pf="boss" data-pid="'+q.id+'">'+opts([[0,"(無)"]].concat(S.people.filter(function(o){return o.id!==q.id}).map(function(o){return[o.id,o.name+"("+o.title+")"]})),q.boss)+'</select></td><td><select data-pf="agent" data-pid="'+q.id+'">'+opts([[0,"(無)"]].concat(S.people.filter(function(o){return o.id!==q.id&&!o.off}).map(function(o){return[o.id,o.name+"("+o.title+")"]})),q.agent||0)+'</select></td><td><select data-pf="off" data-pid="'+q.id+'">'+opts([["false","在職"],["true","離職"]],String(q.off))+'</select></td><td>'+(is.length?'<span class="er">⚠ '+is.join("、")+'</span>':'<span class="ok2">正常</span>')+'</td></tr>'}).join("")+'</table></div>'+
+'<div class="c"><h3>新增人員</h3><div class="f4"><input id="an" placeholder="姓名"><select id="au">'+opts(Object.keys(UN).map(function(u){return[u,u]}),"廠內")+'</select><select id="at">'+opts(ALLT.map(function(t){return[t,t]}),"員工")+'</select><input id="ad" placeholder="部門"><select id="ab">'+opts([[0,"(無)"]].concat(S.people.map(function(o){return[o.id,o.name+"("+o.title+")"]})),0)+'</select></div><button class="p" data-add="1">新增</button></div>';
+}
+document.getElementById("v").innerHTML=h}
+function pv(){var t=document.getElementById("ty"),v=document.getElementById("vl"),e=document.getElementById("pv");if(!t||!e)return;if(v.value===""){e.textContent="請先輸入數量";return}var r=route(S.me,t.value,v.value);e.textContent=r.err?"⚠ "+r.err:r.chain.map(nm).join(" → ")}
+document.addEventListener("click",function(e){
+var t=e.target.closest("[data-t]");if(t){tab=+t.dataset.t;render();return}
+if(e.target.dataset.add){var n=document.getElementById("an").value.trim();if(!n){alert("請填姓名");return}
+S.people.push({id:Date.now(),name:n,unit:document.getElementById("au").value,title:document.getElementById("at").value,dept:document.getElementById("ad").value.trim(),boss:+document.getElementById("ab").value,off:false});save();render();return}
+if(e.target.dataset.sub){var ti=document.getElementById("ti").value.trim(),vl=document.getElementById("vl").value,ty=document.getElementById("ty").value;
+if(!ti||vl===""||+vl<=0){alert("請填寫主旨與大於 0 的數量");return}
+var ro=route(S.me,ty,vl);if(ro.err){alert(ro.err);return}
+var r={id:Date.now(),type:ty,title:ti,val:+vl,reason:document.getElementById("rs").value.trim(),by:S.me,chain:ro.chain,step:0,status:"簽核中",stepAt:Date.now(),at:now(),log:[now()+" "+nm(S.me)+" 送出申請"]};
+S.reqs.push(r);save();tab=0;render();return}
+var id=e.target.dataset.ap;if(id){var r=S.reqs.filter(function(q){return String(q.id)===id})[0],ok=e.target.dataset.do==="1",n=document.getElementById("n"+id).value.trim();
+if(!ok&&!n){alert("退回請填寫意見");return}
+var ap=r.chain[r.step];r.log.push(now()+" "+nm(S.me)+(ap!==S.me?"(代理 "+nm(ap)+")":"")+(ok?" 核准":" 退回")+(n?":"+n:""));
+if(!ok)r.status="已退回";else{r.step++;if(r.step>=r.chain.length)r.status="已核准"}r.stepAt=Date.now();
+save();render()}});
+document.addEventListener("change",function(e){var t=e.target;
+if(t.id==="me"){S.me=+t.value;save();render();return}
+if(t.id==="ty"){pv();return}if(t.id==="sla"){S.sla=+t.value;save();render();return}if(t.id==="fin"){S.fin=+t.value;save();render();return}
+if(t.dataset.pf){var q=P(+t.dataset.pid),f=t.dataset.pf;q[f]=f==="boss"||f==="agent"?+t.value:f==="off"?t.value==="true":t.value;if(f==="unit"&&UN[q.unit].indexOf(q.title)<0)q.title=UN[q.unit][0];save();render()}});
+document.addEventListener("input",function(e){if(e.target.id==="vl")pv()});
+render();
+</script>
+</body>
+</html>
