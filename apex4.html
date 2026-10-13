@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apex HR web service</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background-color: #0d233a; /* 整體背景改為沈穩的深藍色底 */
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* 1. 頂部導覽列 (企業深藍) */
+    header {
+      background-color: #07192f;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      position: relative;
+      color: #fff;
+      z-index: 10;
+      border-bottom: 2px solid #1e3a5f;
+    }
+
+    .logo-icon {
+      position: absolute;
+      left: 26.5%;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #60a5fa;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .logo-icon::after {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border: 1.5px solid #60a5fa;
+      border-radius: 50%;
+    }
+
+    .nav-group {
+      position: absolute;
+      left: 37%;
+      display: flex;
+      align-items: center;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 130px;
+      align-items: center;
+      margin-right: 25px;
+    }
+
+    .nav-links a {
+      color: #93c5fd;
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 500;
+      white-space: nowrap;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: #ffffff;
+    }
+
+    .nav-links a.active {
+      color: #ffffff;
+      font-weight: 600;
+      text-shadow: 0 0 8px rgba(96, 165, 250, 0.6);
+    }
+
+    .lang-group {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .lang-badge {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background-color: #2563eb;
+      color: white;
+      font-size: 11px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+
+    /* 頁面切換控制 */
+    .page-section {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .page-section.active {
+      display: flex;
+    }
+
+    /* 2. 主 Banner 區塊 (深藍色調) */
+    .hero-banner {
+      width: 100%;
+      min-height: 270px;
+      background-color: #0b1d32;
+      margin-top: 15px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-top: 1px solid #1e3a5f;
+      border-bottom: 1px solid #1e3a5f;
+      padding: 30px 20px;
+    }
+
+    /* 左上角斜卡片裝飾 */
+    .bg-card-left {
+      position: absolute;
+      left: 35px;
+      top: -25px;
+      width: 170px;
+      height: 220px;
+      background-color: #162a45;
+      transform: rotate(-28deg);
+      border-radius: 10px;
+      opacity: 0.7;
+      pointer-events: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+
+    /* 右下角手機 Mockup */
+    .phone-mockup {
+      position: absolute;
+      right: 14%;
+      bottom: -45px;
+      width: 170px;
+      height: 250px;
+      background-color: #07192f;
+      border-radius: 24px 24px 0 0;
+      transform: rotate(26deg);
+      box-shadow: -6px 8px 18px rgba(0, 0, 0, 0.4);
+      padding: 8px 8px 0 8px;
+      pointer-events: none;
+      border: 1px solid #1e3a5f;
+    }
+
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      background-color: #112238;
+      border-radius: 18px 18px 0 0;
+    }
+
+    /* 首頁標題文字 */
+    .hero-text {
+      text-align: center;
+      z-index: 2;
+    }
+
+    .hero-title {
+      font-size: 44px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .hero-subtitle {
+      font-size: 16px;
+      color: #93c5fd;
+      font-weight: 400;
+    }
+
+    /* 3. 表單頁面容器 (深藍科技風格) */
+    .form-container {
+      width: 100%;
+      max-width: 760px;
+      margin: 0 auto;
+      z-index: 2;
+      position: relative;
+    }
+
+    .btn-record {
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      position: absolute;
+      left: 0;
+      top: 0;
+      transition: background-color 0.2s;
+    }
+    .btn-record:hover { background-color: #1d4ed8; }
+
+    .page-title {
+      text-align: center;
+      font-size: 26px;
+      font-weight: 600;
+      color: #ffffff;
+      margin-top: 10px;
+      margin-bottom: 30px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px 40px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group label {
+      font-size: 13px;
+      color: #cbd5e1;
+      font-weight: 500;
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .form-control {
+      width: 100%;
+      height: 38px;
+      padding: 0 12px;
+      border: 1px solid #2b4c7e;
+      border-radius: 4px;
+      background-color: #07192f;
+      font-size: 14px;
+      color: #fff;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-control:focus {
+      border-color: #60a5fa;
+      box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2);
+    }
+
+    .form-control:disabled, .form-control[readonly] {
+      background-color: #102642;
+      color: #94a3b8;
+      border-color: #1e3a5f;
+    }
+
+    .input-icon {
+      position: absolute;
+      right: 12px;
+      cursor: pointer;
+      color: #93c5fd;
+      font-size: 14px;
+      user-select: none;
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 30px;
+      grid-column: span 2;
+    }
+
+    .btn {
+      padding: 8px 30px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: background-color 0.2s;
+    }
+
+    .btn-query { background-color: #2563eb; color: white; }
+    .btn-query:hover { background-color: #1d4ed8; }
+
+    .btn-submit { background-color: #2563eb; color: white; width: 100%; height: 38px; }
+    .btn-submit:hover { background-color: #1d4ed8; }
+
+    /* 4. Footer 區塊 */
+    footer {
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: #94a3b8;
+      margin-top: auto;
+      position: relative;
+      background-color: #07192f;
+      border-top: 1px solid #1e3a5f;
+    }
+
+    .copyright-area {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: 210px;
+    }
+
+    .toggle-btn {
+      position: absolute;
+      right: 16px;
+      bottom: 12px;
+      background-color: #1e3a5f;
+      color: white;
+      border: none;
+      padding: 7px 16px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 頂部導覽列 -->
+  <header>
+    <div class="logo-icon" onclick="switchPage('home')"></div>
+
+    <div class="nav-group">
+      <nav class="nav-links">
+        <a id="nav-home" onclick="switchPage('home')" class="active">首頁</a>
+        <a id="nav-leave" onclick="switchPage('leave')">請假單</a>
+        <a id="nav-punch" onclick="switchPage('punch')">未刷單</a>
+      </nav>
+      
+      <div class="lang-group">
+        <div class="lang-badge">TW</div>
+        <div class="lang-badge">TH</div>
+        <div class="lang-badge">ID</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= 頁面 1：首頁 ================= -->
+  <section id="page-home" class="page-section active">
+    <div class="hero-banner">
+      <div class="bg-card-left"></div>
+      
+      <div class="hero-text">
+        <h1 class="hero-title">HR web service</h1>
+        <p class="hero-subtitle">Designed for IT</p>
+      </div>
+
+      <div class="phone-mockup">
+        <div class="phone-screen"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 頁面 2：請假單 ================= -->
+  <section id="page-leave" class="page-section">
+    <div class="hero-banner">
+      <div class="bg-card-left"></div>
+      <div class="phone-mockup">
+        <div class="phone-screen"></div>
+      </div>
+
+      <div class="form-container">
+        <h2 class="page-title">請假單</h2>
+        <form id="leaveForm">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>身分證號後四碼</label>
+              <div class="input-wrapper">
+                <input type="password" id="leaveIdCard" class="form-control" maxlength="4" value="1234">
+                <span class="input-icon" onclick="togglePassword('leaveIdCard')">👁</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>部門</label>
+              <input type="text" class="form-control" readonly value="資訊部">
+            </div>
+            <div class="form-group">
+              <label>工號</label>
+              <input type="text" id="leaveEmpId" class="form-control" value="d01762">
+            </div>
+            <div class="form-group">
+              <label>1級主管</label>
+              <input type="text" class="form-control" readonly value="林經理">
+            </div>
+            <div class="form-group">
+              <label>姓名</label>
+              <input type="text" id="leaveEmpName" class="form-control" value="盧家慶">
+            </div>
+            <div class="form-group">
+              <label>2級主管</label>
+              <input type="text" class="form-control" readonly value="王協理">
+            </div>
+            <div class="form-group">
+              <label>請假名稱</label>
+              <select id="leaveType" class="form-control">
+                <option value="">請選擇...</option>
+                <option value="annual">特休假</option>
+                <option value="sick">病假</option>
+                <option value="personal">事假</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>未休時數</label>
+              <input type="text" class="form-control" readonly value="16.0">
+            </div>
+            <div class="form-group">
+              <label>開始時間</label>
+              <input type="datetime-local" class="form-control">
+            </div>
+            <div class="form-group">
+              <label>預計請假時數</label>
+              <input type="text" class="form-control" placeholder="自動計算">
+            </div>
+            <div class="form-group">
+              <label>結束時間</label>
+              <input type="datetime-local" class="form-control">
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn btn-query" onclick="alert('已送出查詢條件！')">查詢</button>
+            <button type="submit" class="btn btn-query">送出</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 頁面 3：未刷單 ================= -->
+  <section id="page-punch" class="page-section">
+    <div class="hero-banner">
+      <div class="bg-card-left"></div>
+      <div class="phone-mockup">
+        <div class="phone-screen"></div>
+      </div>
+
+      <div class="form-container">
+        <button type="button" class="btn-record">申請記錄</button>
+        <h2 class="page-title">未刷單</h2>
+        <form id="punchForm">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>工號</label>
+              <input type="text" id="punchEmpId" class="form-control" value="d01762">
+            </div>
+            <div class="form-group">
+              <label>身分證號後四碼</label>
+              <div class="input-wrapper">
+                <input type="password" id="punchIdCard" class="form-control" maxlength="4" placeholder="••••">
+                <span class="input-icon" onclick="togglePassword('punchIdCard')">👁</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>未刷卡原因</label>
+              <select id="punchReason" class="form-control">
+                <option value="未帶卡" selected>未帶卡</option>
+                <option value="忘刷卡">忘刷卡</option>
+                <option value="公出">公出</option>
+                <option value="卡片感應不良">卡片感應不良</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>未刷卡時間</label>
+              <input type="datetime-local" class="form-control">
+            </div>
+            <div class="form-group" style="grid-column: span 2; max-width: 300px; margin: 0 auto;">
+              <button type="submit" class="btn-submit">送出</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- 底部 Footer -->
+  <footer>
+    <div class="copyright-area">
+      <span>⚙</span>
+      <span>© APEX DYNAMICS 2026</span>
+    </div>
+    <button class="toggle-btn">Toggle theme ▾</button>
+  </footer>
+
+  <script>
+    function switchPage(pageName) {
+      document.querySelectorAll('.page-section').forEach(section => {
+        section.classList.remove('active');
+      });
+      document.querySelectorAll('.nav-links a').forEach(link => {
+        link.classList.remove('active');
+      });
+      document.getElementById('page-' + pageName).classList.add('active');
+      document.getElementById('nav-' + pageName).classList.add('active');
+      localStorage.setItem('hr_active_page', pageName);
+    }
+
+    function togglePassword(elementId) {
+      const input = document.getElementById(elementId);
+      input.type = input.type === 'password' ? 'text' : 'password';
+    }
+
+    window.addEventListener('load', () => {
+      const savedPage = localStorage.getItem('hr_active_page');
+      if (savedPage) {
+        switchPage(savedPage);
+      }
+      const leaveDraft = localStorage.getItem('leave_form_draft');
+      if (leaveDraft) {
+        const data = JSON.parse(leaveDraft);
+        if (data.empId) document.getElementById('leaveEmpId').value = data.empId;
+        if (data.empName) document.getElementById('leaveEmpName').value = data.empName;
+        if (data.leaveType) document.getElementById('leaveType').value = data.leaveType;
+      }
+    });
+
+    document.getElementById('leaveForm').addEventListener('input', () => {
+      const formData = {
+        empId: document.getElementById('leaveEmpId').value,
+        empName: document.getElementById('leaveEmpName').value,
+        leaveType: document.getElementById('leaveType').value
+      };
+      localStorage.setItem('leave_form_draft', JSON.stringify(formData));
+    });
+
+    document.getElementById('leaveForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      alert('請假單已成功送出！');
+    });
+
+    document.getElementById('punchForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      alert('未刷單已成功送出！');
+    });
+  </script>
+
+</body>
+</html>
