@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR web service - 請假單</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background-color: #ededed;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 1. 頂部導覽列 */
+    header {
+      background-color: #2b2e33;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      position: relative;
+      color: #fff;
+      z-index: 10;
+    }
+
+    .logo-icon {
+      position: absolute;
+      left: 26.5%;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #a0a5ad;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .logo-icon::after {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border: 1.5px solid #a0a5ad;
+      border-radius: 50%;
+    }
+
+    .nav-group {
+      position: absolute;
+      left: 37%;
+      display: flex;
+      align-items: center;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 130px;
+      align-items: center;
+      margin-right: 25px;
+    }
+
+    .nav-links a {
+      color: #d1d5db;
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .nav-links a.active {
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    .lang-group {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .lang-badge {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background-color: #f97316;
+      color: white;
+      font-size: 11px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    /* 2. 主版面區塊 (支援手機窄螢幕比例包裝) */
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+      background-color: #f4f5f7;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      padding: 30px 40px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .page-title {
+      text-align: center;
+      font-size: 24px;
+      font-weight: 600;
+      color: #2b2e33;
+      margin-bottom: 25px;
+      border-bottom: 1px solid #d5d8dc;
+      padding-bottom: 12px;
+    }
+
+    /* 左右雙欄表單配置 */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px 40px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group label {
+      font-size: 13px;
+      color: #555;
+      font-weight: 500;
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .form-control {
+      width: 100%;
+      height: 38px;
+      padding: 0 12px;
+      border: 1px solid #ccd0d5;
+      border-radius: 4px;
+      background-color: #fff;
+      font-size: 14px;
+      color: #333;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-control:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+    }
+
+    .form-control:disabled, .form-control[readonly] {
+      background-color: #e9ecef;
+      color: #6c757d;
+    }
+
+    /* 密碼欄位右側的眼睛圖示 */
+    .eye-icon {
+      position: absolute;
+      right: 12px;
+      cursor: pointer;
+      color: #888;
+      font-size: 14px;
+      user-select: none;
+    }
+
+    /* 按鈕區塊 */
+    .form-actions {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 35px;
+    }
+
+    .btn {
+      padding: 8px 30px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: background-color 0.2s;
+    }
+
+    .btn-query {
+      background-color: #2563eb;
+      color: white;
+    }
+
+    .btn-query:hover {
+      background-color: #1d4ed8;
+    }
+
+    .btn-submit {
+      background-color: #2563eb;
+      color: white;
+    }
+
+    .btn-submit:hover {
+      background-color: #1d4ed8;
+    }
+
+    /* Footer */
+    footer {
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: #888;
+    }
+
+    .toggle-btn {
+      background-color: #5850ec;
+      color: white;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 4px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 頂部導覽列 -->
+  <header>
+    <div class="logo-icon"></div>
+
+    <div class="nav-group">
+      <nav class="nav-links">
+        <a href="index.html">首頁</a>
+        <a href="leave.html" class="active">請假單</a>
+        <a href="punch.html">未刷單</a>
+      </nav>
+      
+      <div class="lang-group">
+        <div class="lang-badge">TW</div>
+        <div class="lang-badge">TH</div>
+        <div class="lang-badge">ID</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 主內容：請假單表單 -->
+  <main>
+    <div class="container">
+      <h2 class="page-title">請假單</h2>
+      
+      <form id="leaveForm">
+        <div class="form-grid">
+          <!-- 左欄 -->
+          <div class="form-group">
+            <label>身分證號後四碼</label>
+            <div class="input-wrapper">
+              <input type="password" id="idCard" class="form-control" maxlength="4" value="1234">
+              <span class="eye-icon" onclick="togglePassword()">👁</span>
+            </div>
+          </div>
+
+          <!-- 右欄 -->
+          <div class="form-group">
+            <label>部門</label>
+            <input type="text" id="department" class="form-control" readonly value="資訊部">
+          </div>
+
+          <!-- 左欄 -->
+          <div class="form-group">
+            <label>工號</label>
+            <input type="text" id="empId" class="form-control" value="d01762">
+          </div>
+
+          <!-- 右欄 -->
+          <div class="form-group">
+            <label>1級主管</label>
+            <input type="text" id="manager1" class="form-control" readonly value="林經理">
+          </div>
+
+          <!-- 左欄 -->
+          <div class="form-group">
+            <label>姓名</label>
+            <input type="text" id="empName" class="form-control" value="盧家慶">
+          </div>
+
+          <!-- 右欄 -->
+          <div class="form-group">
+            <label>2級主管</label>
+            <input type="text" id="manager2" class="form-control" readonly value="王協理">
+          </div>
+
+          <!-- 左欄 -->
+          <div class="form-group">
+            <label>請假名稱</label>
+            <select id="leaveType" class="form-control">
+              <option value="">請選擇...</option>
+              <option value="annual">特休假</option>
+              <option value="sick">病假</option>
+              <option value="personal">事假</option>
+            </select>
+          </div>
+
+          <!-- 右欄 -->
+          <div class="form-group">
+            <label>未休時數</label>
+            <input type="text" id="remainingHours" class="form-control" readonly value="16.0">
+          </div>
+
+          <!-- 左欄 -->
+          <div class="form-group">
+            <label>開始時間</label>
+            <input type="datetime-local" id="startTime" class="form-control">
+          </div>
+
+          <!-- 右欄 -->
+          <div class="form-group">
+            <label>預計請假時數</label>
+            <input type="text" id="estimatedHours" class="form-control" placeholder="自動計算">
+          </div>
+
+          <!-- 左欄 -->
+          <div class="form-group">
+            <label>結束時間</label>
+            <input type="datetime-local" id="endTime" class="form-control">
+          </div>
+        </div>
+
+        <!-- 按鈕區 -->
+        <div class="form-actions">
+          <button type="button" class="btn btn-query" onclick="handleQuery()">查詢</button>
+          <button type="submit" class="btn btn-submit">送出</button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <!-- 底部 Footer -->
+  <footer>
+    <div style="display: flex; align-items: center; gap: 6px;">
+      <span>⚙</span>
+      <span>© APEX DYNAMICS 2026</span>
+    </div>
+    <button class="toggle-btn">Toggle theme ▾</button>
+  </footer>
+
+  <script>
+    // 密碼顯示/隱藏切換
+    function togglePassword() {
+      const input = document.getElementById('idCard');
+      input.type = input.type === 'password' ? 'text' : 'password';
+    }
+
+    // 模擬查詢按鈕
+    function handleQuery() {
+      alert('已送出查詢條件！');
+    }
+
+    // Local Storage 存檔功能建議（保留下次輸入狀態）
+    const form = document.getElementById('leaveForm');
+    form.addEventListener('input', () => {
+      const formData = {
+        empId: document.getElementById('empId').value,
+        empName: document.getElementById('empName').value,
+        leaveType: document.getElementById('leaveType').value
+      };
+      localStorage.setItem('leave_form_draft', JSON.stringify(formData));
+    });
+
+    // 頁面載入時還原暫存
+    window.addEventListener('load', () => {
+      const saved = localStorage.getItem('leave_form_draft');
+      if (saved) {
+        const data = JSON.parse(saved);
+        if(data.empId) document.getElementById('empId').value = data.empId;
+        if(data.empName) document.getElementById('empName').value = data.empName;
+        if(data.leaveType) document.getElementById('leaveType').value = data.leaveType;
+      }
+    });
+  </script>
+
+</body>
+</html>
