@@ -15,29 +15,26 @@
     html, body {
       width: 100%;
       height: 100%;
-      background-color: #e9ecef;
+      background-color: #f0f2f5;
       color: #333;
       overflow: hidden;
       display: flex;
       flex-direction: column;
     }
 
-    /* 1. 頂部導覽列精準對齊 */
+    /* 1. 頂部導覽列：精準還原照片中的左右分佈 */
     header {
-      background-color: #2a2d32;
+      background-color: #2b2e33;
       height: 48px;
       display: flex;
       align-items: center;
-      padding: 0 16px;
+      justify-content: space-between;
+      padding: 0 30px;
       color: #fff;
       z-index: 10;
-      position: relative;
     }
 
-    /* 左側 Logo */
-    .logo-container {
-      position: absolute;
-      left: 20%;
+    .nav-left {
       display: flex;
       align-items: center;
     }
@@ -59,42 +56,40 @@
       border-radius: 50%;
     }
 
-    /* 中間導覽選單（拉開距離，對齊照片） */
-    .nav-center {
-      margin: 0 auto;
+    /* 中間與右側群組：完全對齊照片中的位置 */
+    .nav-right-group {
       display: flex;
       align-items: center;
-      gap: 120px;
+      gap: 50px;
+      margin-right: 40px;
     }
 
     .nav-links {
       display: flex;
-      gap: 100px;
-      align-items: center;
+      gap: 40px;
     }
 
     .nav-links a {
-      color: #cbd5e1;
+      color: #b0b5be;
       text-decoration: none;
       font-size: 13px;
       font-weight: 500;
-      white-space: nowrap;
+      transition: color 0.2s;
     }
 
     .nav-links a.active {
       color: #ffffff;
     }
 
-    /* 右側語系按鈕 */
     .lang-group {
       display: flex;
-      gap: 12px;
+      gap: 8px;
       align-items: center;
     }
 
     .lang-badge {
-      width: 28px;
-      height: 28px;
+      width: 26px;
+      height: 26px;
       border-radius: 50%;
       background-color: #f97316;
       color: white;
@@ -114,12 +109,12 @@
       position: relative;
     }
 
-    /* 中央灰色 Banner (照片中的核心區塊) */
+    /* 中央灰色 Banner */
     .hero-banner {
       width: 100%;
       height: 270px;
-      background-color: #e1e4e8;
-      margin-top: 15px;
+      background-color: #e2e5e8;
+      margin-top: 20px;
       position: relative;
       overflow: hidden;
       display: flex;
@@ -133,17 +128,17 @@
     /* 左上角半透明灰卡片 */
     .bg-card-left {
       position: absolute;
-      left: 30px;
-      top: -20px;
+      left: 40px;
+      top: -25px;
       width: 170px;
       height: 220px;
-      background-color: #d0d4d9;
+      background-color: #d1d5db;
       transform: rotate(-28deg);
-      border-radius: 12px;
-      opacity: 0.6;
+      border-radius: 10px;
+      opacity: 0.55;
     }
 
-    /* 中央標題 */
+    /* 中央標題文字 */
     .hero-text {
       text-align: center;
       z-index: 2;
@@ -153,22 +148,22 @@
       font-size: 40px;
       font-weight: 700;
       color: #1a1c1e;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       letter-spacing: 0.5px;
     }
 
     .hero-subtitle {
-      font-size: 15px;
+      font-size: 14px;
       color: #6b7280;
     }
 
     /* 右側斜切手機 */
     .phone-mockup {
       position: absolute;
-      right: 12%;
+      right: 14%;
       bottom: -45px;
-      width: 175px;
-      height: 255px;
+      width: 170px;
+      height: 250px;
       background-color: #2b2e33;
       border-radius: 24px 24px 0 0;
       transform: rotate(26deg);
@@ -183,7 +178,7 @@
       border-radius: 18px 18px 0 0;
     }
 
-    /* 3. Banner 下方區塊與頁尾 */
+    /* 3. 底部區塊與 Footer */
     .bottom-section {
       flex: 1;
       position: relative;
@@ -196,15 +191,15 @@
       gap: 6px;
       font-size: 11px;
       color: #888;
-      margin-left: 210px;
-      margin-top: 20px;
+      margin-left: 200px;
+      margin-top: 15px;
     }
 
     .toggle-btn {
       position: absolute;
-      right: 16px;
-      bottom: 16px;
-      background-color: #4f46e5;
+      right: 20px;
+      bottom: 20px;
+      background-color: #5850ec;
       color: white;
       border: none;
       padding: 7px 16px;
@@ -218,11 +213,11 @@
 
   <!-- 頂部導覽列 -->
   <header>
-    <div class="logo-container">
+    <div class="nav-left">
       <div class="logo-icon"></div>
     </div>
-    
-    <div class="nav-center">
+
+    <div class="nav-right-group">
       <nav class="nav-links">
         <a href="#" class="active">首頁</a>
         <a href="#">請假單</a>
@@ -252,7 +247,7 @@
       </div>
     </div>
 
-    <!-- 下方空白與 Footer -->
+    <!-- 底部與 Footer -->
     <div class="bottom-section">
       <div class="copyright">
         <span>⚙</span>
