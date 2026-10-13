@@ -15,25 +15,21 @@
     html, body {
       width: 100%;
       height: 100%;
-      overflow: hidden;
-      background-color: #ededed;
+      background-color: #e9ecef;
       color: #333;
-    }
-
-    body {
+      overflow: hidden;
       display: flex;
       flex-direction: column;
-      position: relative;
     }
 
-    /* 頂部導覽列 */
+    /* 1. 頂部導覽列 */
     header {
       background-color: #2b2e33;
-      height: 46px;
+      height: 48px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 16px;
+      padding: 0 20px;
       color: #fff;
       z-index: 10;
     }
@@ -41,7 +37,7 @@
     .nav-left {
       display: flex;
       align-items: center;
-      gap: 20px;
+      gap: 30px;
     }
 
     .logo-icon {
@@ -63,144 +59,144 @@
 
     .nav-links {
       display: flex;
-      gap: 28px;
+      gap: 35px;
     }
 
     .nav-links a {
       color: #b0b5be;
       text-decoration: none;
-      font-size: 13px;
-      transition: color 0.2s;
+      font-size: 14px;
+      font-weight: 500;
     }
 
-    .nav-links a:hover, .nav-links a.active {
+    .nav-links a.active {
       color: #ffffff;
     }
 
     .lang-group {
       display: flex;
-      gap: 8px;
+      gap: 10px;
       align-items: center;
     }
 
     .lang-badge {
-      width: 26px;
-      height: 26px;
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
-      background-color: #e65100;
+      background-color: #f97316;
       color: white;
       font-size: 11px;
-      font-weight: 600;
+      font-weight: bold;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
     }
 
-    /* 主內容區 */
+    /* 2. 主版面區塊 */
     main {
       flex: 1;
+      display: flex;
+      flex-direction: column;
       position: relative;
+    }
+
+    /* 中央主要的灰色大橫條 Banner (照片中的核心區塊) */
+    .hero-banner {
+      width: 100%;
+      height: 260px;
+      background-color: #e2e5e8;
+      margin-top: 20px;
+      position: relative;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      border-top: 1px solid #d0d4d9;
+      border-bottom: 1px solid #d0d4d9;
     }
 
-    /* 左上角斜區塊 */
-    .bg-shape-topleft {
+    /* 左上角半透明灰卡片 */
+    .bg-card-left {
       position: absolute;
-      top: -40px;
-      left: -60px;
-      width: 380px;
-      height: 240px;
-      background-color: #dbdcde;
-      transform: rotate(-22deg);
-      border-radius: 8px;
-      z-index: 1;
-      opacity: 0.7;
+      left: 25px;
+      top: -20px;
+      width: 170px;
+      height: 220px;
+      background-color: #d1d5db;
+      transform: rotate(-28deg);
+      border-radius: 12px;
+      opacity: 0.6;
     }
 
-    .hero-content {
+    /* 中央標題 */
+    .hero-text {
       text-align: center;
-      z-index: 5;
-      margin-top: -30px;
-    }
-
-    .hero-title {
-      font-size: 38px;
-      font-weight: 700;
-      color: #1a1c1e;
-      margin-bottom: 6px;
-      letter-spacing: 0.5px;
-    }
-
-    .hero-subtitle {
-      font-size: 14px;
-      color: #6c757d;
-    }
-
-    /* 右下角手機示意圖（等比例大幅縮小） */
-    .phone-container {
-      position: absolute;
-      right: 7%;
-      bottom: -45px;
       z-index: 2;
     }
 
+    .hero-title {
+      font-size: 40px;
+      font-weight: 700;
+      color: #1a1c1e;
+      margin-bottom: 8px;
+    }
+
+    .hero-subtitle {
+      font-size: 15px;
+      color: #6b7280;
+    }
+
+    /* 右側斜切手機 (底部剛好被 Banner 邊界裁切) */
     .phone-mockup {
-      width: 150px;
-      height: 210px;
-      background-color: #2b2f33;
-      border-radius: 20px 20px 0 0;
+      position: absolute;
+      right: 12%;
+      bottom: -40px;
+      width: 170px;
+      height: 250px;
+      background-color: #2b2e33;
+      border-radius: 24px 24px 0 0;
       transform: rotate(26deg);
-      box-shadow: -8px 12px 20px rgba(0, 0, 0, 0.12);
+      box-shadow: -6px 8px 18px rgba(0, 0, 0, 0.15);
       padding: 8px 8px 0 8px;
-      display: flex;
-      flex-direction: column;
     }
 
     .phone-screen {
-      flex: 1;
-      background-color: #484e53;
-      border-radius: 14px 14px 0 0;
+      width: 100%;
+      height: 100%;
+      background-color: #4b5258;
+      border-radius: 18px 18px 0 0;
     }
 
-    /* 頁尾 */
-    footer {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      padding: 12px 16px;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      z-index: 10;
-      pointer-events: none;
+    /* 3. Banner 下方區塊與頁尾 */
+    .bottom-section {
+      flex: 1;
+      position: relative;
+      padding: 30px;
     }
 
     .copyright {
-      pointer-events: auto;
       display: flex;
       align-items: center;
       gap: 6px;
       font-size: 11px;
-      color: #8c939d;
-      margin-left: 20%;
-      margin-bottom: 25px;
+      color: #888;
+      margin-left: 220px;
+      margin-top: 10px;
     }
 
     .toggle-btn {
-      pointer-events: auto;
+      position: absolute;
+      right: 16px;
+      bottom: 16px;
       background-color: #4f46e5;
       color: white;
       border: none;
-      padding: 6px 14px;
-      border-radius: 5px;
-      font-size: 11px;
+      padding: 7px 16px;
+      border-radius: 6px;
+      font-size: 12px;
       cursor: pointer;
-      font-weight: 500;
     }
   </style>
 </head>
@@ -223,30 +219,30 @@
     </div>
   </header>
 
-  <!-- 主內容區 -->
   <main>
-    <div class="bg-shape-topleft"></div>
+    <!-- 中央大 Banner -->
+    <div class="hero-banner">
+      <div class="bg-card-left"></div>
 
-    <div class="hero-content">
-      <h1 class="hero-title">HR web service</h1>
-      <p class="hero-subtitle">Designed for IT</p>
-    </div>
+      <div class="hero-text">
+        <h1 class="hero-title">HR web service</h1>
+        <p class="hero-subtitle">Designed for IT</p>
+      </div>
 
-    <!-- 右下角手機 -->
-    <div class="phone-container">
+      <!-- 右側手機，下半部被 Banner 切掉 -->
       <div class="phone-mockup">
         <div class="phone-screen"></div>
       </div>
     </div>
 
-    <!-- 頁尾 -->
-    <footer>
+    <!-- 下方空白區塊與 Footer -->
+    <div class="bottom-section">
       <div class="copyright">
         <span>⚙</span>
         <span>© APEX DYNAMICS 2026</span>
       </div>
       <button class="toggle-btn">Toggle theme ▾</button>
-    </footer>
+    </div>
   </main>
 
 </body>
