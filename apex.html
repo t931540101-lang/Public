@@ -111,13 +111,14 @@
     }
 
     /* 中央灰色 Banner */
+    /* 2. 主版面區塊 - 修復手機方向 */
     .hero-banner {
       width: 100%;
       height: 270px;
       background-color: #e2e5e8;
       margin-top: 15px;
       position: relative;
-      overflow: hidden;
+      overflow: hidden; /* 確保手機超出部分被裁切 */
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -126,49 +127,16 @@
       border-bottom: 1px solid #d0d4d9;
     }
 
-    /* 左上角精準還原照片中的淡灰色斜卡片 */
-    .bg-card-left {
-      position: absolute;
-      left: 35px;
-      top: -25px;
-      width: 170px;
-      height: 220px;
-      background-color: #d1d5db;
-      transform: rotate(-28deg);
-      border-radius: 10px;
-      opacity: 0.65; /* 濃度適中，清晰可見 */
-    }
-
-    /* 中央標題文字 */
-    .hero-text {
-      text-align: center;
-      z-index: 2;
-    }
-
-    .hero-title {
-      font-size: 44px;
-      font-weight: 700;
-      color: #1a1c1e;
-      margin-bottom: 8px;
-      letter-spacing: 0.5px;
-    }
-
-    .hero-subtitle {
-      font-size: 16px;
-      color: #555555;
-      font-weight: 400;
-    }
-
-    /* 右側手機 */
+    /* 手機 Mockup：修正為斜躺方向，與截圖一致 */
     .phone-mockup {
       position: absolute;
-      right: 13%;
-      bottom: -35px;
-      width: 175px;
-      height: 255px;
+      right: 12%;       /* 調整位置，讓手機看起來是躺在 Banner 右側 */
+      bottom: -60px;     /* 大量偏移，讓手機「躺」下來並切齊 Banner 底部 */
+      width: 250px;      /* 調整寬度，讓它看起來是躺著長長的 */
+      height: 160px;     /* 調整高度 */
       background-color: #2b2e33;
-      border-radius: 24px 24px 0 0;
-      transform: rotate(28deg);
+      border-radius: 12px 12px 0 0; /* 調整圓角，讓切齊底部的部分更平 */
+      transform: rotate(25deg); /* 維持原本的傾斜角度，但配合偏移讓它看起來是躺著 */
       box-shadow: -6px 8px 18px rgba(0, 0, 0, 0.15);
       padding: 8px 8px 0 8px;
     }
@@ -177,7 +145,7 @@
       width: 100%;
       height: 100%;
       background-color: #4b5258;
-      border-radius: 18px 18px 0 0;
+      border-radius: 8px 8px 0 0;
     }
 
     /* 3. Banner 下方區塊與 Footer */
