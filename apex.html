@@ -61,6 +61,7 @@
       align-items: center;
     }
 
+    /* 「首頁」、「請假單」、「未刷單」 */
     .nav-links {
       display: flex;
       gap: 130px;
@@ -81,6 +82,7 @@
       font-weight: 600;
     }
 
+    /* 語系按鈕群組 */
     .lang-group {
       display: flex;
       gap: 12px;
@@ -88,13 +90,13 @@
     }
 
     .lang-badge {
-      width: 34px;
-      height: 34px;
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
       background-color: #f97316;
       color: white;
-      font-size: 13px;
-      font-weight: 700;
+      font-size: 11px;
+      font-weight: 600;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -110,15 +112,14 @@
       position: relative;
     }
 
-    /* 中央灰色 Banner */
-    /* 2. 主版面區塊 - 修復手機方向 */
+    /* 中央灰色 Banner (核心區塊) */
     .hero-banner {
       width: 100%;
       height: 270px;
       background-color: #e2e5e8;
       margin-top: 15px;
       position: relative;
-      overflow: hidden; /* 確保手機超出部分被裁切 */
+      overflow: hidden;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -127,25 +128,58 @@
       border-bottom: 1px solid #d0d4d9;
     }
 
-    /* 手機 Mockup：修正為斜躺方向，與截圖一致 */
+    /* 左上角半透明灰卡片 */
+    .bg-card-left {
+      position: absolute;
+      left: 35px;
+      top: -25px;
+      width: 170px;
+      height: 220px;
+      background-color: #d1d5db;
+      transform: rotate(-28deg);
+      border-radius: 10px;
+      opacity: 0.55;
+    }
+
+    /* 中央標題文字 */
+    .hero-text {
+      text-align: center;
+      z-index: 2;
+    }
+
+    .hero-title {
+      font-size: 44px;
+      font-weight: 700;
+      color: #1a1c1e;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+
+    .hero-subtitle {
+      font-size: 16px;
+      color: #555555;
+      font-weight: 400;
+    }
+
+    /* 右側斜切手機：精準修正為直立且切齊底部的角度與位置 (圖一) */
     .phone-mockup {
       position: absolute;
-      right: 12%;       /* 調整位置，讓手機看起來是躺在 Banner 右側 */
-      bottom: -60px;     /* 大量偏移，讓手機「躺」下來並切齊 Banner 底部 */
-      width: 250px;      /* 調整寬度，讓它看起來是躺著長長的 */
-      height: 160px;     /* 調整高度 */
+      right: 14%;       /* 調整位置，讓手機靠右 (與圖一對齊) */
+      bottom: -45px;     /* 手機底部完全對齊 Banner 底邊灰色卡片 */
+      width: 170px;      /* 調整手機寬度更精細 */
+      height: 250px;     /* 調整手機高度 */
       background-color: #2b2e33;
-      border-radius: 12px 12px 0 0; /* 調整圓角，讓切齊底部的部分更平 */
-      transform: rotate(25deg); /* 維持原本的傾斜角度，但配合偏移讓它看起來是躺著 */
-      box-shadow: -6px 8px 18px rgba(0, 0, 0, 0.15);
-      padding: 8px 8px 0 8px;
+      border-radius: 24px 24px 0 0; /* 調整圓角 */
+      transform: rotate(26deg); /* 精準修正為圖一這種直立傾斜的角度 (不是躺著) */
+      box-shadow: -6px 8px 18px rgba(0, 0, 0, 0.15); /* 加強陰影深度 */
+      padding: 8px 8px 0 8px; /* 螢幕邊框厚度 */
     }
 
     .phone-screen {
       width: 100%;
       height: 100%;
       background-color: #4b5258;
-      border-radius: 8px 8px 0 0;
+      border-radius: 18px 18px 0 0; /* 螢幕圓角更圓潤 */
     }
 
     /* 3. Banner 下方區塊與 Footer */
@@ -203,7 +237,7 @@
   <main>
     <!-- 中央 Banner -->
     <div class="hero-banner">
-      <!-- 左上角斜向灰卡片 -->
+      <!-- 左上角灰卡片裝飾 -->
       <div class="bg-card-left"></div>
 
       <div class="hero-text">
@@ -211,7 +245,7 @@
         <p class="hero-subtitle">Designed for IT</p>
       </div>
 
-      <!-- 右側手機 -->
+      <!-- 右側手機 Mockup (修正後) -->
       <div class="phone-mockup">
         <div class="phone-screen"></div>
       </div>
