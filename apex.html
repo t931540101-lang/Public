@@ -126,17 +126,25 @@
       border-bottom: 1px solid #d0d4d9;
     }
 
-    /* 左上角半透明灰卡片 */
-    .bg-card-left {
+    /* 左上角手機：改為與右側對稱的斜向手機 Mockup */
+    .phone-mockup-left {
       position: absolute;
-      left: 35px;
-      top: -25px;
-      width: 170px;
-      height: 220px;
-      background-color: #d1d5db;
-      transform: rotate(-28deg);
-      border-radius: 10px;
-      opacity: 0.55;
+      left: 8%;
+      top: -35px;
+      width: 175px;
+      height: 255px;
+      background-color: #2b2e33;
+      border-radius: 0 0 24px 24px;
+      transform: rotate(28deg);
+      box-shadow: 6px 8px 18px rgba(0, 0, 0, 0.15);
+      padding: 0 8px 8px 8px;
+    }
+
+    .phone-screen-left {
+      width: 100%;
+      height: 100%;
+      background-color: #4b5258;
+      border-radius: 0 0 18px 18px;
     }
 
     /* 中央標題文字 */
@@ -159,7 +167,7 @@
       font-weight: 400;
     }
 
-    /* 右側手機：修正傾斜方向（正 28 度，向右上傾斜） */
+    /* 右側手機 */
     .phone-mockup {
       position: absolute;
       right: 13%;
@@ -168,7 +176,7 @@
       height: 255px;
       background-color: #2b2e33;
       border-radius: 24px 24px 0 0;
-      transform: rotate(28deg); /* 正數角度向右傾斜 */
+      transform: rotate(28deg);
       box-shadow: -6px 8px 18px rgba(0, 0, 0, 0.15);
       padding: 8px 8px 0 8px;
     }
@@ -235,14 +243,17 @@
   <main>
     <!-- 中央 Banner -->
     <div class="hero-banner">
-      <div class="bg-card-left"></div>
+      <!-- 左上角手機 Mockup -->
+      <div class="phone-mockup-left">
+        <div class="phone-screen-left"></div>
+      </div>
 
       <div class="hero-text">
         <h1 class="hero-title">HR web service</h1>
         <p class="hero-subtitle">Designed for IT</p>
       </div>
 
-      <!-- 右側手機，向右傾斜與照片完全一致 -->
+      <!-- 右側手機 Mockup -->
       <div class="phone-mockup">
         <div class="phone-screen"></div>
       </div>
