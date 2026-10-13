@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR web service - 未刷單</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background-color: #ededed;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* 1. 頂部導覽列 */
+    header {
+      background-color: #2b2e33;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      position: relative;
+      color: #fff;
+      z-index: 10;
+    }
+
+    .logo-icon {
+      position: absolute;
+      left: 26.5%;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #a0a5ad;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .logo-icon::after {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border: 1.5px solid #a0a5ad;
+      border-radius: 50%;
+    }
+
+    .nav-group {
+      position: absolute;
+      left: 37%;
+      display: flex;
+      align-items: center;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 130px;
+      align-items: center;
+      margin-right: 25px;
+    }
+
+    .nav-links a {
+      color: #d1d5db;
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .nav-links a.active {
+      color: #ffffff;
+      font-weight: 600;
+    }
+
+    .lang-group {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .lang-badge {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background-color: #f97316;
+      color: white;
+      font-size: 11px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    /* 2. 主版面區塊 */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* 中央灰色內容卡片區塊 */
+    .hero-banner {
+      width: 100%;
+      min-height: 480px;
+      background-color: #e2e5e8;
+      margin-top: 15px;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 30px 20px;
+      border-top: 1px solid #d0d4d9;
+      border-bottom: 1px solid #d0d4d9;
+    }
+
+    /* 左上角淡色斜卡片裝飾 */
+    .bg-card-left {
+      position: absolute;
+      left: 35px;
+      top: -25px;
+      width: 170px;
+      height: 220px;
+      background-color: #d1d5db;
+      transform: rotate(-28deg);
+      border-radius: 10px;
+      opacity: 0.55;
+      pointer-events: none;
+    }
+
+    /* 右下角斜切手機 Mockup 裝飾 */
+    .phone-mockup {
+      position: absolute;
+      right: 14%;
+      bottom: -45px;
+      width: 170px;
+      height: 250px;
+      background-color: #2b2e33;
+      border-radius: 24px 24px 0 0;
+      transform: rotate(26deg);
+      box-shadow: -6px 8px 18px rgba(0, 0, 0, 0.15);
+      padding: 8px 8px 0 8px;
+      pointer-events: none;
+    }
+
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      background-color: #4b5258;
+      border-radius: 18px 18px 0 0;
+    }
+
+    /* 主內容表單容器 */
+    .form-container {
+      width: 100%;
+      max-width: 760px;
+      z-index: 2;
+      position: relative;
+    }
+
+    /* 「申請記錄」按鈕 */
+    .btn-record {
+      background-color: #1d61e8;
+      color: white;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      position: absolute;
+      left: 0;
+      top: 0;
+      transition: background-color 0.2s;
+    }
+
+    .btn-record:hover {
+      background-color: #124cb8;
+    }
+
+    /* 「未刷單」頁面標題 */
+    .page-title {
+      text-align: center;
+      font-size: 26px;
+      font-weight: 600;
+      color: #2b2e33;
+      margin-top: 10px;
+      margin-bottom: 30px;
+    }
+
+    /* 左右雙欄配置 */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px 40px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group label {
+      font-size: 13px;
+      color: #555;
+      font-weight: 500;
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .form-control {
+      width: 100%;
+      height: 38px;
+      padding: 0 12px;
+      border: 1px solid #ccd0d5;
+      border-radius: 4px;
+      background-color: #fff;
+      font-size: 14px;
+      color: #333;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .form-control:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+    }
+
+    .input-icon {
+      position: absolute;
+      right: 12px;
+      cursor: pointer;
+      color: #777;
+      font-size: 14px;
+      user-select: none;
+    }
+
+    /* 長條型「送出」按鈕 */
+    .btn-submit {
+      width: 100%;
+      height: 38px;
+      background-color: #1d61e8;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background-color 0.2s;
+    }
+
+    .btn-submit:hover {
+      background-color: #124cb8;
+    }
+
+    /* 3. Footer 區塊 */
+    footer {
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: #888;
+      margin-top: auto;
+    }
+
+    .toggle-btn {
+      position: absolute;
+      right: 16px;
+      bottom: 16px;
+      background-color: #5850ec;
+      color: white;
+      border: none;
+      padding: 7px 16px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 頂部導覽列 -->
+  <header>
+    <div class="logo-icon"></div>
+
+    <div class="nav-group">
+      <nav class="nav-links">
+        <a href="index.html">首頁</a>
+        <a href="leave.html">請假單</a>
+        <a href="punch.html" class="active">未刷單</a>
+      </nav>
+      
+      <div class="lang-group">
+        <div class="lang-badge">TW</div>
+        <div class="lang-badge">TH</div>
+        <div class="lang-badge">ID</div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- 中央灰色 Banner 區塊 -->
+    <div class="hero-banner">
+      <!-- 左上角斜卡片裝飾 -->
+      <div class="bg-card-left"></div>
+
+      <!-- 右下角斜切手機裝飾 -->
+      <div class="phone-mockup">
+        <div class="phone-screen"></div>
+      </div>
+
+      <!-- 未刷單核心表單區塊 -->
+      <div class="form-container">
+        <!-- 申請記錄按鈕 -->
+        <button type="button" class="btn-record">申請記錄</button>
+
+        <!-- 標題 -->
+        <h2 class="page-title">未刷單</h2>
+
+        <form id="punchForm">
+          <div class="form-grid">
+            <!-- 左欄：工號 -->
+            <div class="form-group">
+              <label for="empId">工號</label>
+              <input type="text" id="empId" class="form-control" placeholder="請輸入工號" value="d01762">
+            </div>
+
+            <!-- 右欄：身分證號後四碼 -->
+            <div class="form-group">
+              <label for="idCard">身分證號後四碼</label>
+              <div class="input-wrapper">
+                <input type="password" id="idCard" class="form-control" maxlength="4" placeholder="••••">
+                <span class="input-icon" onclick="togglePassword()">👁</span>
+              </div>
+            </div>
+
+            <!-- 左欄：未刷卡原因 -->
+            <div class="form-group">
+              <label for="reason">未刷卡原因</label>
+              <select id="reason" class="form-control">
+                <option value="未帶卡" selected>未帶卡</option>
+                <option value="忘刷卡">忘刷卡</option>
+                <option value="公出">公出</option>
+                <option value="卡片感應不良">卡片感應不良</option>
+              </select>
+            </div>
+
+            <!-- 右欄：未刷卡時間 -->
+            <div class="form-group">
+              <label for="punchTime">未刷卡時間</label>
+              <div class="input-wrapper">
+                <input type="datetime-local" id="punchTime" class="form-control">
+              </div>
+            </div>
+
+            <!-- 左欄下方：送出按鈕 -->
+            <div class="form-group">
+              <button type="submit" class="btn-submit">送出</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 底部 Footer -->
+    <footer>
+      <div style="display: flex; align-items: center; gap: 6px; margin-left: 210px;">
+        <span>⚙</span>
+        <span>© APEX DYNAMICS 2026</span>
+      </div>
+      <button class="toggle-btn">Toggle theme ▾</button>
+    </footer>
+  </main>
+
+  <script>
+    // 密碼眼睛圖示切換
+    function togglePassword() {
+      const input = document.getElementById('idCard');
+      input.type = input.type === 'password' ? 'text' : 'password';
+    }
+
+    // 送出表單事件
+    document.getElementById('punchForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      alert('未刷單已成功送出！');
+    });
+  </script>
+
+</body>
+</html>
