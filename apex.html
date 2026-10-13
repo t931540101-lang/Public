@@ -25,7 +25,7 @@
     /* 1. 頂部導覽列 */
     header {
       background-color: #2b2e33;
-      height: 46px;
+      height: 48px;
       display: flex;
       align-items: center;
       position: relative;
@@ -37,8 +37,8 @@
     .logo-icon {
       position: absolute;
       left: 26.5%;
-      width: 18px;
-      height: 18px;
+      width: 20px;
+      height: 20px;
       border: 2px solid #a0a5ad;
       border-radius: 50%;
       display: flex;
@@ -47,8 +47,8 @@
     }
     .logo-icon::after {
       content: '';
-      width: 5px;
-      height: 5px;
+      width: 6px;
+      height: 6px;
       border: 1.5px solid #a0a5ad;
       border-radius: 50%;
     }
@@ -61,27 +61,28 @@
       align-items: center;
     }
 
-    /* 「首頁」、「請假單」、「未刷單」等距拉開 */
+    /* 「首頁」、「請假單」、「未刷單」字體放大與等距 */
     .nav-links {
       display: flex;
-      gap: 130px; /* 大幅拉開首頁、請假單、未刷單之間的距離 */
+      gap: 130px;
       align-items: center;
-      margin-right: 18px; /* 讓「未刷單」與「TW」保持緊密距離 */
+      margin-right: 22px;
     }
 
     .nav-links a {
-      color: #cbd5e1;
+      color: #d1d5db;
       text-decoration: none;
-      font-size: 13px;
+      font-size: 15px; /* 字體微調放大 */
       font-weight: 500;
       white-space: nowrap;
     }
 
     .nav-links a.active {
       color: #ffffff;
+      font-weight: 600;
     }
 
-    /* 橘色語系按鈕：緊接在「未刷單」右側 */
+    /* 橘色語系按鈕 */
     .lang-group {
       display: flex;
       gap: 10px;
@@ -89,12 +90,12 @@
     }
 
     .lang-badge {
-      width: 26px;
-      height: 26px;
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
       background-color: #f97316;
       color: white;
-      font-size: 11px;
+      font-size: 12px;
       font-weight: bold;
       display: flex;
       align-items: center;
@@ -113,7 +114,7 @@
     /* 中央灰色 Banner (核心區塊) */
     .hero-banner {
       width: 100%;
-      height: 260px;
+      height: 270px;
       background-color: #e2e5e8;
       margin-top: 15px;
       position: relative;
@@ -139,23 +140,24 @@
       opacity: 0.55;
     }
 
-    /* 中央標題文字 */
+    /* 中央標題文字放大 */
     .hero-text {
       text-align: center;
       z-index: 2;
     }
 
     .hero-title {
-      font-size: 38px;
+      font-size: 44px; /* 標題微調放大 */
       font-weight: 700;
       color: #1a1c1e;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
       letter-spacing: 0.5px;
     }
 
     .hero-subtitle {
-      font-size: 14px;
-      color: #6b7280;
+      font-size: 16px; /* 副標題微調放大 */
+      color: #555555;
+      font-weight: 400;
     }
 
     /* 右側斜切手機 */
