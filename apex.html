@@ -22,22 +22,24 @@
       flex-direction: column;
     }
 
-    /* 1. 頂部導覽列 */
+    /* 1. 頂部導覽列精準對齊 */
     header {
-      background-color: #2b2e33;
+      background-color: #2a2d32;
       height: 48px;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      padding: 0 20px;
+      padding: 0 16px;
       color: #fff;
       z-index: 10;
+      position: relative;
     }
 
-    .nav-left {
+    /* 左側 Logo */
+    .logo-container {
+      position: absolute;
+      left: 20%;
       display: flex;
       align-items: center;
-      gap: 30px;
     }
 
     .logo-icon {
@@ -57,25 +59,36 @@
       border-radius: 50%;
     }
 
+    /* 中間導覽選單（拉開距離，對齊照片） */
+    .nav-center {
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 120px;
+    }
+
     .nav-links {
       display: flex;
-      gap: 35px;
+      gap: 100px;
+      align-items: center;
     }
 
     .nav-links a {
-      color: #b0b5be;
+      color: #cbd5e1;
       text-decoration: none;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 500;
+      white-space: nowrap;
     }
 
     .nav-links a.active {
       color: #ffffff;
     }
 
+    /* 右側語系按鈕 */
     .lang-group {
       display: flex;
-      gap: 10px;
+      gap: 12px;
       align-items: center;
     }
 
@@ -101,12 +114,12 @@
       position: relative;
     }
 
-    /* 中央主要的灰色大橫條 Banner (照片中的核心區塊) */
+    /* 中央灰色 Banner (照片中的核心區塊) */
     .hero-banner {
       width: 100%;
-      height: 260px;
-      background-color: #e2e5e8;
-      margin-top: 20px;
+      height: 270px;
+      background-color: #e1e4e8;
+      margin-top: 15px;
       position: relative;
       overflow: hidden;
       display: flex;
@@ -120,11 +133,11 @@
     /* 左上角半透明灰卡片 */
     .bg-card-left {
       position: absolute;
-      left: 25px;
+      left: 30px;
       top: -20px;
       width: 170px;
       height: 220px;
-      background-color: #d1d5db;
+      background-color: #d0d4d9;
       transform: rotate(-28deg);
       border-radius: 12px;
       opacity: 0.6;
@@ -141,6 +154,7 @@
       font-weight: 700;
       color: #1a1c1e;
       margin-bottom: 8px;
+      letter-spacing: 0.5px;
     }
 
     .hero-subtitle {
@@ -148,13 +162,13 @@
       color: #6b7280;
     }
 
-    /* 右側斜切手機 (底部剛好被 Banner 邊界裁切) */
+    /* 右側斜切手機 */
     .phone-mockup {
       position: absolute;
       right: 12%;
-      bottom: -40px;
-      width: 170px;
-      height: 250px;
+      bottom: -45px;
+      width: 175px;
+      height: 255px;
       background-color: #2b2e33;
       border-radius: 24px 24px 0 0;
       transform: rotate(26deg);
@@ -182,8 +196,8 @@
       gap: 6px;
       font-size: 11px;
       color: #888;
-      margin-left: 220px;
-      margin-top: 10px;
+      margin-left: 210px;
+      margin-top: 20px;
     }
 
     .toggle-btn {
@@ -204,23 +218,27 @@
 
   <!-- 頂部導覽列 -->
   <header>
-    <div class="nav-left">
+    <div class="logo-container">
       <div class="logo-icon"></div>
+    </div>
+    
+    <div class="nav-center">
       <nav class="nav-links">
         <a href="#" class="active">首頁</a>
         <a href="#">請假單</a>
         <a href="#">未刷單</a>
       </nav>
-    </div>
-    <div class="lang-group">
-      <div class="lang-badge">TW</div>
-      <div class="lang-badge">TH</div>
-      <div class="lang-badge">ID</div>
+      
+      <div class="lang-group">
+        <div class="lang-badge">TW</div>
+        <div class="lang-badge">TH</div>
+        <div class="lang-badge">ID</div>
+      </div>
     </div>
   </header>
 
   <main>
-    <!-- 中央大 Banner -->
+    <!-- 中央 Banner -->
     <div class="hero-banner">
       <div class="bg-card-left"></div>
 
@@ -229,13 +247,12 @@
         <p class="hero-subtitle">Designed for IT</p>
       </div>
 
-      <!-- 右側手機，下半部被 Banner 切掉 -->
       <div class="phone-mockup">
         <div class="phone-screen"></div>
       </div>
     </div>
 
-    <!-- 下方空白區塊與 Footer -->
+    <!-- 下方空白與 Footer -->
     <div class="bottom-section">
       <div class="copyright">
         <span>⚙</span>
