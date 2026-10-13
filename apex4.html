@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Apex HR web service</title>
+  <title>HR Web Service - Obsidian Edition</title>
   <style>
     * {
       box-sizing: border-box;
@@ -15,43 +15,36 @@
     html, body {
       width: 100%;
       height: 100%;
-      background-color: #0d233a; /* 整體背景改為沈穩的深藍色底 */
-      color: #fff;
+      background-color: #0d1117; /* 黑曜石極致暗黑底色 */
+      color: #e6edf3;
       display: flex;
       flex-direction: column;
       overflow-x: hidden;
     }
 
-    /* 1. 頂部導覽列 (企業深藍) */
+    /* 1. 頂部導覽列 */
     header {
-      background-color: #07192f;
+      background-color: #161b22;
       height: 48px;
       display: flex;
       align-items: center;
       position: relative;
       color: #fff;
       z-index: 10;
-      border-bottom: 2px solid #1e3a5f;
+      border-bottom: 1px solid #30363d;
     }
 
     .logo-icon {
       position: absolute;
       left: 26.5%;
-      width: 20px;
-      height: 20px;
-      border: 2px solid #60a5fa;
-      border-radius: 50%;
+      width: 22px;
+      height: 22px;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-    }
-    .logo-icon::after {
-      content: '';
-      width: 6px;
-      height: 6px;
-      border: 1.5px solid #60a5fa;
-      border-radius: 50%;
+      color: #f59e0b;
+      font-size: 16px;
     }
 
     .nav-group {
@@ -69,7 +62,7 @@
     }
 
     .nav-links a {
-      color: #93c5fd;
+      color: #8b949e;
       text-decoration: none;
       font-size: 15px;
       font-weight: 500;
@@ -79,13 +72,14 @@
     }
 
     .nav-links a:hover {
-      color: #ffffff;
+      color: #f59e0b;
     }
 
     .nav-links a.active {
       color: #ffffff;
       font-weight: 600;
-      text-shadow: 0 0 8px rgba(96, 165, 250, 0.6);
+      border-bottom: 2px solid #f59e0b;
+      padding-bottom: 2px;
     }
 
     .lang-group {
@@ -98,7 +92,7 @@
       width: 28px;
       height: 28px;
       border-radius: 50%;
-      background-color: #2563eb;
+      background-color: #d97706;
       color: white;
       font-size: 11px;
       font-weight: 600;
@@ -106,7 +100,7 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+      box-shadow: 0 0 8px rgba(217, 119, 6, 0.4);
     }
 
     /* 頁面切換控制 */
@@ -121,11 +115,11 @@
       display: flex;
     }
 
-    /* 2. 主 Banner 區塊 (深藍色調) */
+    /* 2. 主 Banner 區塊 (客製化星空風格) */
     .hero-banner {
       width: 100%;
-      min-height: 270px;
-      background-color: #0b1d32;
+      min-height: 280px;
+      background: radial-gradient(circle at 75% 50%, #1e293b 0%, #0f172a 60%, #020617 100%);
       margin-top: 15px;
       position: relative;
       overflow: hidden;
@@ -133,47 +127,76 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      border-top: 1px solid #1e3a5f;
-      border-bottom: 1px solid #1e3a5f;
+      border-top: 1px solid #1e293b;
+      border-bottom: 1px solid #1e293b;
       padding: 30px 20px;
     }
 
-    /* 左上角斜卡片裝飾 */
+    /* 星空點綴幾何圖案 */
+    .star-bg-overlay {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        radial-gradient(2px 2px at 20px 30px, #ffffff, rgba(0,0,0,0)),
+        radial-gradient(2px 2px at 40px 70px, #f59e0b, rgba(0,0,0,0)),
+        radial-gradient(1.5px 1.5px at 150px 180px, #ffffff, rgba(0,0,0,0)),
+        radial-gradient(2px 2px at 280px 120px, #60a5fa, rgba(0,0,0,0)),
+        radial-gradient(2px 2px at 400px 220px, #ffffff, rgba(0,0,0,0));
+      background-repeat: repeat;
+      background-size: 500px 300px;
+      opacity: 0.6;
+      pointer-events: none;
+    }
+
+    /* 左上角斜卡片裝飾 (改為微光透明深藍卡) */
     .bg-card-left {
       position: absolute;
       left: 35px;
       top: -25px;
       width: 170px;
       height: 220px;
-      background-color: #162a45;
+      background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.01));
+      backdrop-filter: blur(4px);
       transform: rotate(-28deg);
-      border-radius: 10px;
-      opacity: 0.7;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
       pointer-events: none;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
 
-    /* 右下角手機 Mockup */
-    .phone-mockup {
+    /* 右側客製化「星芒標誌組件」（替代原本的手機） */
+    .star-mockup {
       position: absolute;
-      right: 14%;
-      bottom: -45px;
-      width: 170px;
-      height: 250px;
-      background-color: #07192f;
-      border-radius: 24px 24px 0 0;
-      transform: rotate(26deg);
-      box-shadow: -6px 8px 18px rgba(0, 0, 0, 0.4);
-      padding: 8px 8px 0 8px;
+      right: 12%;
+      bottom: -30px;
+      width: 220px;
+      height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: rotate(15deg);
       pointer-events: none;
-      border: 1px solid #1e3a5f;
     }
 
-    .phone-screen {
-      width: 100%;
-      height: 100%;
-      background-color: #112238;
-      border-radius: 18px 18px 0 0;
+    /* 星環結構 */
+    .star-ring {
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      border: 2px dashed rgba(245, 158, 11, 0.4);
+      border-radius: 50%;
+      animation: spin 30s linear infinite;
+    }
+
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
+
+    /* 中央亮星 */
+    .main-star {
+      font-size: 90px;
+      color: #fbbf24;
+      text-shadow: 0 0 25px rgba(251, 191, 36, 0.8), 0 0 50px rgba(245, 158, 11, 0.4);
+      filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));
     }
 
     /* 首頁標題文字 */
@@ -187,17 +210,20 @@
       font-weight: 700;
       color: #ffffff;
       margin-bottom: 8px;
-      letter-spacing: 0.5px;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      letter-spacing: 1px;
+      background: linear-gradient(90deg, #ffffff, #cbd5e1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .hero-subtitle {
       font-size: 16px;
-      color: #93c5fd;
+      color: #fbbf24;
       font-weight: 400;
+      letter-spacing: 2px;
     }
 
-    /* 3. 表單頁面容器 (深藍科技風格) */
+    /* 3. 表單頁面容器 */
     .form-container {
       width: 100%;
       max-width: 760px;
@@ -207,7 +233,7 @@
     }
 
     .btn-record {
-      background-color: #2563eb;
+      background-color: #d97706;
       color: white;
       border: none;
       padding: 8px 18px;
@@ -220,7 +246,7 @@
       top: 0;
       transition: background-color 0.2s;
     }
-    .btn-record:hover { background-color: #1d4ed8; }
+    .btn-record:hover { background-color: #b45309; }
 
     .page-title {
       text-align: center;
@@ -229,7 +255,6 @@
       color: #ffffff;
       margin-top: 10px;
       margin-bottom: 30px;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.3);
     }
 
     .form-grid {
@@ -246,7 +271,7 @@
 
     .form-group label {
       font-size: 13px;
-      color: #cbd5e1;
+      color: #94a3b8;
       font-weight: 500;
     }
 
@@ -260,31 +285,31 @@
       width: 100%;
       height: 38px;
       padding: 0 12px;
-      border: 1px solid #2b4c7e;
-      border-radius: 4px;
-      background-color: #07192f;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      background-color: #0f172a;
       font-size: 14px;
-      color: #fff;
+      color: #f8fafc;
       outline: none;
-      transition: border-color 0.2s;
+      transition: all 0.2s;
     }
 
     .form-control:focus {
-      border-color: #60a5fa;
-      box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.2);
+      border-color: #f59e0b;
+      box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
     }
 
     .form-control:disabled, .form-control[readonly] {
-      background-color: #102642;
-      color: #94a3b8;
-      border-color: #1e3a5f;
+      background-color: #1e293b;
+      color: #64748b;
+      border-color: #334155;
     }
 
     .input-icon {
       position: absolute;
       right: 12px;
       cursor: pointer;
-      color: #93c5fd;
+      color: #fbbf24;
       font-size: 14px;
       user-select: none;
     }
@@ -299,7 +324,7 @@
 
     .btn {
       padding: 8px 30px;
-      border-radius: 4px;
+      border-radius: 6px;
       font-size: 14px;
       font-weight: 500;
       cursor: pointer;
@@ -310,8 +335,8 @@
     .btn-query { background-color: #2563eb; color: white; }
     .btn-query:hover { background-color: #1d4ed8; }
 
-    .btn-submit { background-color: #2563eb; color: white; width: 100%; height: 38px; }
-    .btn-submit:hover { background-color: #1d4ed8; }
+    .btn-submit { background-color: #d97706; color: white; width: 100%; height: 38px; }
+    .btn-submit:hover { background-color: #b45309; }
 
     /* 4. Footer 區塊 */
     footer {
@@ -320,11 +345,11 @@
       justify-content: space-between;
       align-items: center;
       font-size: 11px;
-      color: #94a3b8;
+      color: #64748b;
       margin-top: auto;
       position: relative;
-      background-color: #07192f;
-      border-top: 1px solid #1e3a5f;
+      background-color: #0f172a;
+      border-top: 1px solid #1e293b;
     }
 
     .copyright-area {
@@ -338,9 +363,9 @@
       position: absolute;
       right: 16px;
       bottom: 12px;
-      background-color: #1e3a5f;
-      color: white;
-      border: none;
+      background-color: #1e293b;
+      color: #f8fafc;
+      border: 1px solid #334155;
       padding: 7px 16px;
       border-radius: 6px;
       font-size: 12px;
@@ -352,7 +377,7 @@
 
   <!-- 頂部導覽列 -->
   <header>
-    <div class="logo-icon" onclick="switchPage('home')"></div>
+    <div class="logo-icon" onclick="switchPage('home')">★</div>
 
     <div class="nav-group">
       <nav class="nav-links">
@@ -372,15 +397,18 @@
   <!-- ================= 頁面 1：首頁 ================= -->
   <section id="page-home" class="page-section active">
     <div class="hero-banner">
+      <div class="star-bg-overlay"></div>
       <div class="bg-card-left"></div>
       
       <div class="hero-text">
         <h1 class="hero-title">HR web service</h1>
-        <p class="hero-subtitle">Designed for IT</p>
+        <p class="hero-subtitle">Designed for IT • Obsidian Edition</p>
       </div>
 
-      <div class="phone-mockup">
-        <div class="phone-screen"></div>
+      <!-- 右側星星標誌視覺 -->
+      <div class="star-mockup">
+        <div class="star-ring"></div>
+        <div class="main-star">★</div>
       </div>
     </div>
   </section>
@@ -388,9 +416,11 @@
   <!-- ================= 頁面 2：請假單 ================= -->
   <section id="page-leave" class="page-section">
     <div class="hero-banner">
+      <div class="star-bg-overlay"></div>
       <div class="bg-card-left"></div>
-      <div class="phone-mockup">
-        <div class="phone-screen"></div>
+      <div class="star-mockup">
+        <div class="star-ring"></div>
+        <div class="main-star">★</div>
       </div>
 
       <div class="form-container">
@@ -452,7 +482,7 @@
           </div>
           <div class="form-actions">
             <button type="button" class="btn btn-query" onclick="alert('已送出查詢條件！')">查詢</button>
-            <button type="submit" class="btn btn-query">送出</button>
+            <button type="submit" class="btn btn-submit" style="width: auto;">送出</button>
           </div>
         </form>
       </div>
@@ -462,9 +492,11 @@
   <!-- ================= 頁面 3：未刷單 ================= -->
   <section id="page-punch" class="page-section">
     <div class="hero-banner">
+      <div class="star-bg-overlay"></div>
       <div class="bg-card-left"></div>
-      <div class="phone-mockup">
-        <div class="phone-screen"></div>
+      <div class="star-mockup">
+        <div class="star-ring"></div>
+        <div class="main-star">★</div>
       </div>
 
       <div class="form-container">
@@ -509,7 +541,7 @@
   <footer>
     <div class="copyright-area">
       <span>⚙</span>
-      <span>© APEX DYNAMICS 2026</span>
+      <span>© APEX DYNAMICS 2026 • K9 Obsidian</span>
     </div>
     <button class="toggle-btn">Toggle theme ▾</button>
   </footer>
