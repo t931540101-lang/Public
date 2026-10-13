@@ -22,7 +22,7 @@
       flex-direction: column;
     }
 
-    /* 1. 頂部導覽列精準對齊 */
+    /* 1. 頂部導覽列 */
     header {
       background-color: #2b2e33;
       height: 46px;
@@ -36,7 +36,7 @@
     /* Logo 圖標位置 */
     .logo-icon {
       position: absolute;
-      left: 26%;
+      left: 26.5%;
       width: 18px;
       height: 18px;
       border: 2px solid #a0a5ad;
@@ -53,13 +53,20 @@
       border-radius: 50%;
     }
 
-    /* 選單群組：首頁、請假單、未刷單 */
-    .nav-links {
+    /* 選單與語系標籤群組 */
+    .nav-group {
       position: absolute;
       left: 37%;
       display: flex;
-      gap: 100px; /* 大幅拉開三者的間距 */
       align-items: center;
+    }
+
+    /* 「首頁」、「請假單」、「未刷單」等距拉開 */
+    .nav-links {
+      display: flex;
+      gap: 130px; /* 大幅拉開首頁、請假單、未刷單之間的距離 */
+      align-items: center;
+      margin-right: 18px; /* 讓「未刷單」與「TW」保持緊密距離 */
     }
 
     .nav-links a {
@@ -74,12 +81,10 @@
       color: #ffffff;
     }
 
-    /* 語系按鈕：緊接在「未刷單」右側 */
+    /* 橘色語系按鈕：緊接在「未刷單」右側 */
     .lang-group {
-      position: absolute;
-      left: 66%;
       display: flex;
-      gap: 12px;
+      gap: 10px;
       align-items: center;
     }
 
@@ -105,7 +110,7 @@
       position: relative;
     }
 
-    /* 中央灰色 Banner (照片中的核心區塊) */
+    /* 中央灰色 Banner (核心區塊) */
     .hero-banner {
       width: 100%;
       height: 260px;
@@ -211,16 +216,18 @@
   <header>
     <div class="logo-icon"></div>
 
-    <nav class="nav-links">
-      <a href="#" class="active">首頁</a>
-      <a href="#">請假單</a>
-      <a href="#">未刷單</a>
-    </nav>
-    
-    <div class="lang-group">
-      <div class="lang-badge">TW</div>
-      <div class="lang-badge">TH</div>
-      <div class="lang-badge">ID</div>
+    <div class="nav-group">
+      <nav class="nav-links">
+        <a href="#" class="active">首頁</a>
+        <a href="#">請假單</a>
+        <a href="#">未刷單</a>
+      </nav>
+      
+      <div class="lang-group">
+        <div class="lang-badge">TW</div>
+        <div class="lang-badge">TH</div>
+        <div class="lang-badge">ID</div>
+      </div>
     </div>
   </header>
 
