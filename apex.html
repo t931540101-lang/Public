@@ -61,18 +61,18 @@
       align-items: center;
     }
 
-    /* 「首頁」、「請假單」、「未刷單」字體放大與等距 */
+    /* 「首頁」、「請假單」、「未刷單」 */
     .nav-links {
       display: flex;
       gap: 130px;
       align-items: center;
-      margin-right: 22px;
+      margin-right: 25px;
     }
 
     .nav-links a {
       color: #d1d5db;
       text-decoration: none;
-      font-size: 15px; /* 字體微調放大 */
+      font-size: 15px;
       font-weight: 500;
       white-space: nowrap;
     }
@@ -82,25 +82,26 @@
       font-weight: 600;
     }
 
-    /* 橘色語系按鈕 */
+    /* 橘色語系按鈕（精準放大對齊照片） */
     .lang-group {
       display: flex;
-      gap: 10px;
+      gap: 12px;
       align-items: center;
     }
 
     .lang-badge {
-      width: 28px;
-      height: 28px;
+      width: 34px;        /* 尺寸從 28px 放大到 34px */
+      height: 34px;       /* 高度同步 34px */
       border-radius: 50%;
       background-color: #f97316;
       color: white;
-      font-size: 12px;
-      font-weight: bold;
+      font-size: 13px;    /* 字體放大至 13px */
+      font-weight: 700;   /* 加粗文字 */
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     }
 
     /* 2. 主版面區塊 */
@@ -140,14 +141,14 @@
       opacity: 0.55;
     }
 
-    /* 中央標題文字放大 */
+    /* 中央標題文字 */
     .hero-text {
       text-align: center;
       z-index: 2;
     }
 
     .hero-title {
-      font-size: 44px; /* 標題微調放大 */
+      font-size: 44px;
       font-weight: 700;
       color: #1a1c1e;
       margin-bottom: 8px;
@@ -155,7 +156,7 @@
     }
 
     .hero-subtitle {
-      font-size: 16px; /* 副標題微調放大 */
+      font-size: 16px;
       color: #555555;
       font-weight: 400;
     }
@@ -225,6 +226,7 @@
         <a href="#">未刷單</a>
       </nav>
       
+      <!-- 放大後的橘色按鈕 -->
       <div class="lang-group">
         <div class="lang-badge">TW</div>
         <div class="lang-badge">TH</div>
