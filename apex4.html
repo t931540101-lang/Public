@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HR web service - Star Edition</title>
+  <title>HR web service - Custom Star Edition</title>
   <style>
     * {
       box-sizing: border-box;
@@ -15,7 +15,7 @@
     html, body {
       width: 100%;
       height: 100%;
-      background-color: #0b2545; /* 經典企業深藍底色 */
+      background-color: #0b2545;
       color: #fff;
       display: flex;
       flex-direction: column;
@@ -119,11 +119,16 @@
       display: flex;
     }
 
-    /* 2. 主 Banner 區塊 (融入星星圖騰與深藍風格) */
+    /* 2. 主 Banner 區塊：將圖片作為背景融入右側 */
     .hero-banner {
       width: 100%;
       min-height: 270px;
-      background: #0b2545;
+      background-color: #0b2545;
+      /* 將你提供的圖片設為背景，靠右對齊且不重複 */
+      background-image: url('IMG_0968_2.PNG');
+      background-repeat: no-repeat;
+      background-position: right 10% center;
+      background-size: contain;
       margin-top: 15px;
       position: relative;
       overflow: hidden;
@@ -134,19 +139,6 @@
       border-top: 1px solid #16315c;
       border-bottom: 1px solid #16315c;
       padding: 30px 20px;
-    }
-
-    /* 模擬星星背景點綴 */
-    .star-bg-pattern {
-      position: absolute;
-      inset: 0;
-      background-image: 
-        radial-gradient(white 1px, transparent 0),
-        radial-gradient(white 1.5px, transparent 0);
-      background-size: 80px 80px;
-      background-position: 0 0, 40px 40px;
-      opacity: 0.15;
-      pointer-events: none;
     }
 
     /* 左上角斜卡片裝飾 */
@@ -360,7 +352,6 @@
   <!-- ================= 頁面 1：首頁 ================= -->
   <section id="page-home" class="page-section active">
     <div class="hero-banner">
-      <div class="star-bg-pattern"></div>
       <div class="bg-card-left"></div>
       
       <div class="hero-text">
@@ -373,7 +364,6 @@
   <!-- ================= 頁面 2：請假單 ================= -->
   <section id="page-leave" class="page-section">
     <div class="hero-banner">
-      <div class="star-bg-pattern"></div>
       <div class="bg-card-left"></div>
 
       <div class="form-container">
@@ -445,7 +435,6 @@
   <!-- ================= 頁面 3：未刷單 ================= -->
   <section id="page-punch" class="page-section">
     <div class="hero-banner">
-      <div class="star-bg-pattern"></div>
       <div class="bg-card-left"></div>
 
       <div class="form-container">
