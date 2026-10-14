@@ -4,8 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>訪客進出登記簿 - 數位備份管理系統</title>
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Tesseract.js OCR CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+  
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
     body {
@@ -80,6 +85,52 @@
     </section>
 
     <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-6">
+      
+      <!-- Prominent Photo/OCR Button Banner -->
+      <div class="mb-5 p-4 rounded-xl bg-gradient-to-r from-purple-900 via-indigo-900 to-slate-900 text-white flex flex-col sm:flex-row items-center justify-between gap-4 shadow-md">
+        <div class="flex items-center gap-3 text-center sm:text-left">
+          <div class="bg-purple-600/40 p-3 rounded-xl border border-purple-400/30">
+            <i class="fa-solid fa-camera-retro text-2xl text-purple-300"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-base sm:text-lg text-white">📷 紙本登記簿照片 AI 辨識</h3>
+            <p class="text-xs text-purple-200">拍照或上傳紙本登記表，自動辨識文字並快速填入下方表單</p>
+          </div>
+        </div>
+        
+        <label for="ocrImageInput" class="cursor-pointer bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white font-bold px-5 py-3 rounded-xl shadow-lg hover:shadow-purple-500/25 transition active:scale-95 flex items-center gap-2 text-sm sm:text-base whitespace-nowrap">
+          <i class="fa-solid fa-camera text-lg"></i>
+          <span>拍照 / 上傳登記簿照片</span>
+          <input type="file" id="ocrImageInput" accept="image/*" capture="environment" class="hidden">
+        </label>
+      </div>
+
+      <!-- OCR Scanning Progress & Image Preview Container -->
+      <div id="ocrProgressCard" class="hidden mb-5 p-4 bg-purple-50 rounded-xl border border-purple-200">
+        <div class="flex flex-col md:flex-row items-center gap-4">
+          <div class="w-full md:w-48 h-32 bg-slate-200 rounded-lg overflow-hidden border border-purple-200 flex-shrink-0 flex items-center justify-center">
+            <img id="ocrPreviewImage" class="w-full h-full object-cover hidden" alt="預覽圖片">
+            <i id="ocrPreviewPlaceholder" class="fa-solid fa-image text-3xl text-slate-400"></i>
+          </div>
+          <div class="flex-grow w-full space-y-2">
+            <div class="flex justify-between items-center text-xs font-bold text-purple-900">
+              <span id="ocrStatusText" class="flex items-center gap-1.5">
+                <i class="fa-solid fa-spinner fa-spin text-purple-600"></i>
+                正在初始化辨識引擎...
+              </span>
+              <span id="ocrPercentText" class="text-purple-700">0%</span>
+            </div>
+            <div class="w-full bg-purple-200 rounded-full h-2.5 overflow-hidden">
+              <div id="ocrProgressBar" class="bg-gradient-to-r from-purple-600 to-indigo-600 h-2.5 rounded-full transition-all duration-300 w-0"></div>
+            </div>
+            <div id="ocrRecognizedTextWrapper" class="hidden mt-2">
+              <p class="text-xs font-semibold text-slate-600 mb-1">OCR 辨識結果摘要：</p>
+              <textarea id="ocrRecognizedText" readonly rows="2" class="w-full text-xs p-2 bg-white rounded border border-purple-200 text-slate-700 custom-scrollbar"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
         <h2 class="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
           <i class="fa-solid fa-pen-to-square text-blue-600"></i>
@@ -295,6 +346,17 @@
     const togglePolicyBtn = document.getElementById('togglePolicyBtn');
     const closePolicyBtn = document.getElementById('closePolicyBtn');
 
+    // OCR Elements
+    const ocrImageInput = document.getElementById('ocrImageInput');
+    const ocrProgressCard = document.getElementById('ocrProgressCard');
+    const ocrPreviewImage = document.getElementById('ocrPreviewImage');
+    const ocrPreviewPlaceholder = document.getElementById('ocrPreviewPlaceholder');
+    const ocrStatusText = document.getElementById('ocrStatusText');
+    const ocrPercentText = document.getElementById('ocrPercentText');
+    const ocrProgressBar = document.getElementById('ocrProgressBar');
+    const ocrRecognizedTextWrapper = document.getElementById('ocrRecognizedTextWrapper');
+    const ocrRecognizedText = document.getElementById('ocrRecognizedText');
+
     // Helper: Get Current Date (YYYY-MM-DD)
     function getTodayString() {
       const today = new Date();
@@ -351,7 +413,6 @@
       const selectedMonth = monthFilter.value; // Format: YYYY-MM
 
       const filteredLogs = visitorLogs.filter(log => {
-        // Keyword Search Check
         const matchesKeyword = !searchTerm || [
           log.visitorName,
           log.companyName,
@@ -362,13 +423,11 @@
           log.notes
         ].some(val => val && val.toLowerCase().includes(searchTerm));
 
-        // Month Filter Check
         const matchesMonth = !selectedMonth || (log.visitDate && log.visitDate.startsWith(selectedMonth));
 
         return matchesKeyword && matchesMonth;
       });
 
-      // Sort by Date Descending then EntryTime Descending
       filteredLogs.sort((a, b) => {
         const dateTimeA = `${a.visitDate} ${a.entryTime || '00:00'}`;
         const dateTimeB = `${b.visitDate} ${b.entryTime || '00:00'}`;
@@ -464,7 +523,6 @@
         csvRows.push(row.join(','));
       });
 
-      // Add UTF-8 BOM to prevent Chinese character mess in Excel
       const csvContent = '\uFEFF' + csvRows.join('\n');
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
@@ -478,6 +536,112 @@
       document.body.removeChild(link);
 
       showToast('Excel/CSV 檔案匯出成功');
+    }
+
+    // OCR Analysis & Auto Parsing Logic
+    async function processOCRImage(file) {
+      if (!file) return;
+
+      ocrProgressCard.classList.remove('hidden');
+      ocrRecognizedTextWrapper.classList.add('hidden');
+      ocrProgressBar.style.width = '0%';
+      ocrPercentText.textContent = '0%';
+      ocrStatusText.innerHTML = '<i class="fa-solid fa-spinner fa-spin text-purple-600"></i> 正在準備圖片...';
+
+      // Preview Image
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        ocrPreviewImage.src = e.target.result;
+        ocrPreviewImage.classList.remove('hidden');
+        ocrPreviewPlaceholder.classList.add('hidden');
+      };
+      reader.readAsDataURL(file);
+
+      try {
+        const worker = await Tesseract.createWorker('chi_tra+eng');
+        
+        ocrStatusText.innerHTML = '<i class="fa-solid fa-gear fa-spin text-purple-600"></i> 開始文字辨識中...';
+
+        const ret = await worker.recognize(file, {
+          logger: m => {
+            if (m.status === 'recognizing text') {
+              const progress = Math.round((m.progress || 0) * 100);
+              ocrProgressBar.style.width = `${progress}%`;
+              ocrPercentText.textContent = `${progress}%`;
+              ocrStatusText.innerHTML = `<i class="fa-solid fa-eye text-purple-600"></i> 辨識進度 (${progress}%)...`;
+            } else if (m.status) {
+              ocrStatusText.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-purple-600"></i> ${m.status}...`;
+            }
+          }
+        });
+
+        const text = ret.data.text;
+        ocrRecognizedText.value = text;
+        ocrRecognizedTextWrapper.classList.remove('hidden');
+
+        ocrStatusText.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-600"></i> 辨識完成！已拆解資料';
+        ocrPercentText.textContent = '100%';
+        ocrProgressBar.style.width = '100%';
+
+        // Auto parse fields
+        parseAndPopulateForm(text);
+
+        await worker.terminate();
+        showToast('OCR 辨識完成，相關欄位已自動填入！');
+
+      } catch (err) {
+        console.error('OCR Error:', err);
+        ocrStatusText.innerHTML = '<i class="fa-solid fa-triangle-exclamation text-rose-500"></i> 辨識失敗，請改手動輸入';
+        showToast('OCR 辨識過程發生錯誤', 'fa-triangle-exclamation text-amber-400');
+      }
+    }
+
+    // Smart Parser for Visitor Form
+    function parseAndPopulateForm(rawText) {
+      if (!rawText) return;
+
+      // Extract Phone
+      const phoneMatch = rawText.match(/09\d{2}[-\s]?\d{3}[-\s]?\d{3}|0\d{1,2}[-\s]?\d{6,8}/);
+      if (phoneMatch) {
+        phoneInput.value = phoneMatch[0].replace(/\s+/g, '');
+      }
+
+      // Extract Time (HH:MM)
+      const timeMatches = rawText.match(/([01]?\d|2[0-3]):[0-5]\d/g);
+      if (timeMatches && timeMatches.length > 0) {
+        entryTimeInput.value = timeMatches[0];
+        if (timeMatches.length > 1) {
+          exitTimeInput.value = timeMatches[1];
+        }
+      }
+
+      // Extract License Plate / Badge Number (e.g. ABC-1234 or A01)
+      const badgeMatch = rawText.match(/[A-Z0-9]{2,4}[-\s]?[A-Z0-9]{3,4}/i);
+      if (badgeMatch && !badgeNoInput.value) {
+        badgeNoInput.value = badgeMatch[0];
+      }
+
+      // Key Terms Extraction Strategy
+      const lines = rawText.split('\n').map(l => l.trim()).filter(Boolean);
+
+      lines.forEach(line => {
+        if (!visitorNameInput.value && (line.includes('訪客') || line.includes('姓名') || line.includes('先生') || line.includes('小姐'))) {
+          const parts = line.replace(/訪客|姓名|先生|小姐|:/g, '').trim().split(/\s+/);
+          if (parts[0] && parts[0].length <= 5) visitorNameInput.value = parts[0];
+        }
+
+        if (!companyNameInput.value && (line.includes('公司') || line.includes('廠') || line.includes('科技') || line.includes('實業') || line.includes('物流'))) {
+          companyNameInput.value = line.replace(/公司|行號|:/g, '').trim();
+        }
+
+        if (!hostNameInput.value && (line.includes('受訪') || line.includes('找') || line.includes('課長') || line.includes('經理') || line.includes('部長'))) {
+          hostNameInput.value = line.replace(/受訪人員|受訪人|對象|:/g, '').trim();
+        }
+
+        if (!purposeInput.value && (line.includes('拜訪') || line.includes('送貨') || line.includes('維修') || line.includes('開會') || line.includes('面試'))) {
+          purposeInput.value = line.replace(/事由|目的|:/g, '').trim();
+        }
+      });
     }
 
     function initEvents() {
@@ -505,11 +669,11 @@
         saveLogs();
         renderRecords();
 
-        // Keep Visit Date, clear other input fields
         const currentDateVal = visitDateInput.value;
         visitorForm.reset();
         visitDateInput.value = currentDateVal;
         visitorCountInput.value = 1;
+        ocrProgressCard.classList.add('hidden');
 
         showToast('訪客紀錄備份成功！');
       });
@@ -519,6 +683,7 @@
         visitorForm.reset();
         visitDateInput.value = getTodayString();
         visitorCountInput.value = 1;
+        ocrProgressCard.classList.add('hidden');
       });
 
       // Set Time Now Buttons
@@ -530,7 +695,15 @@
         exitTimeInput.value = getCurrentTimeString();
       });
 
-      // Instant Search and Month Filter Trigger
+      // OCR Image Handler
+      ocrImageInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          processOCRImage(file);
+        }
+      });
+
+      // Search & Filters
       searchInput.addEventListener('input', renderRecords);
       monthFilter.addEventListener('change', renderRecords);
 
@@ -553,14 +726,9 @@
     }
 
     window.onload = function() {
-      // Set Default Date
       visitDateInput.value = getTodayString();
-      
-      // Load and Render Logs
       loadLogs();
       renderRecords();
-
-      // Bind All Event Handlers
       initEvents();
     };
   </script>
