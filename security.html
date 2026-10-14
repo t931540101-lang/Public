@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>訪客進出登記簿 - 數位備份管理系統</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: #f1f5f9;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="text-slate-800 min-h-screen flex flex-col pb-10">
+
+  <header class="bg-slate-900 text-white shadow-md sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 py-3 sm:px-6 flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <div class="bg-blue-600 p-2.5 rounded-xl shadow-inner">
+          <i class="fa-solid me-1 fa-id-card text-xl text-white"></i>
+        </div>
+        <div>
+          <h1 class="text-lg sm:text-xl font-bold tracking-wide">訪客進出登記簿</h1>
+          <p class="text-xs text-slate-400">數位備份與秒查系統 (APEX DYNAMICS, INC.)</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-2">
+        <button id="togglePolicyBtn" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs sm:text-sm px-3 py-2 rounded-lg border border-slate-700 transition flex items-center gap-1.5">
+          <i class="fa-solid fa-shield-halved text-amber-400"></i>
+          <span class="hidden sm:inline">廠區規定與政策</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-3 sm:px-6 w-full mt-4 flex-grow space-y-4">
+
+    <section id="policySection" class="bg-amber-50/90 border border-amber-200 rounded-2xl p-4 shadow-sm hidden transition-all">
+      <div class="flex justify-between items-start mb-2">
+        <h3 class="font-bold text-amber-900 flex items-center gap-2">
+          <i class="fa-solid fa-triangle-exclamation text-amber-600"></i>
+          廠區要求事項與環安政策（守衛室注意事項）
+        </h3>
+        <button id="closePolicyBtn" class="text-amber-700 hover:text-amber-900 text-lg p-1">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="grid md:grid-cols-2 gap-4 text-xs sm:text-sm text-amber-950">
+        <div class="bg-white/80 p-3 rounded-xl border border-amber-100">
+          <h4 class="font-bold text-amber-800 mb-1">要求事項：</h4>
+          <ol class="list-decimal list-inside space-y-1 text-slate-700">
+            <li>入廠車輛請停在廠內停車格或廠區內道路，勿停放在廠外道路，以免被保警隊開單！</li>
+            <li>廠區逃生門僅供緊急逃生避難通行，平常禁止開啟！</li>
+            <li>入廠之訪客(含廠商..)，請於守衛室換證後到大廳等候同仁帶領入廠！</li>
+          </ol>
+        </div>
+        <div class="bg-white/80 p-3 rounded-xl border border-amber-100">
+          <h4 class="font-bold text-emerald-800 mb-1">環境與職業安全衛生政策（環安政策）：</h4>
+          <ol class="list-decimal list-inside space-y-1 text-slate-700">
+            <li>承諾持續改善與污染、健康促進、疾病預防與危害預防。</li>
+            <li>承諾遵循環安法規。</li>
+            <li>有效管制廢棄物、廢水、空污，及安衛事件。</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-6">
+      <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
+        <h2 class="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
+          <i class="fa-solid fa-pen-to-square text-blue-600"></i>
+          新增訪客登記 (對齊紙本表單)
+        </h2>
+        <span class="text-xs bg-blue-50 text-blue-700 font-medium px-2.5 py-1 rounded-full">紙本雙重備份</span>
+      </div>
+
+      <form id="visitorForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        
+        <!-- 日期 -->
+        <div class="col-span-1">
+          <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1">1. 日期 <span class="text-rose-500">*</span></label>
+          <input type="date" id="visitDate" required class="w-full text-base sm:text-sm p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none bg-slate-50 focus:bg-white transition">
+        </div>
+
+        <!-- 訪客姓名 -->
+        <div class="col-span-1">
+          <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1">2. 訪客姓名 <span class="text-rose-500">*</span></label>
+          <input type="text" id="visitorName" placeholder="如：張三" required class="w-full text-base sm:text-sm p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none bg-slate-50 focus:bg-white transition">
+        </div>
+
+        <!-- 來訪人數 -->
+        <div class="col-span-1">
+          <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1">3. 來訪人數</label>
+          <input type="number" id="visitorCount" min="1" value="1" class="w-full text-base sm:text-sm p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none bg-slate-50 focus:bg-white transition">
+        </div>
+
+        <!-- 公司行號 -->
+        <div class="col-span-1">
+          <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1">4. 公司行號</label>
+          <input type="text" id="companyName" placeholder="如：精誠科技 / 貨車司機" class="w-full text-base sm:text-sm p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none bg-slate-50 focus:bg-white transition">
+        </div>
+
+        <!-- 受訪人員姓名 -->
+        <div class="col-span-1">
+          <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1">5. 受訪人員姓名</label>
+          <input type="text" id="hostName" placeholder="如：李課長 / 採購部" class="w-full text-base sm:text-sm p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none bg-slate-50 focus:bg-white transition">
+        </div>
+
+        <!-- 進廠時間 -->
+        <div class="col-span-1">
+          <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1">6. 進廠時間</label>
+          <div class="flex gap-2">
+            <input type="time" id="entryTime" class="w-full text-base sm:text-sm p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none bg-slate-50 focus:bg-white transition">
+            <button type="button" id="setNowEntryBtn" class="bg-slate-800 text-white text-xs px-3 py-2 rounded-xl hover:bg-slate-700 active:scale-95 transition whitespace-nowrap font-medium">
+              現在
+            </button>
+          </div>
+        </div>
+
+        <!-- 出廠時間 -->
+        <div class="col-span-1">
+          <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1">7. 出廠時間</label>
+          <div class="flex gap-2">
+            <input type="time" id="exitTime" class="w-full text-base sm:text-sm p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none bg-slate-50 focus:bg-white transition">
+            <button type="button" id="setNowExitBtn" class="bg-slate-800 text-white text-xs px-3 py-2 rounded-xl hover:bg-slate-700 active:scale-95 transition whitespace-nowrap font-medium">
+              現在
+            </button>
+          </div>
+        </div>
+
+        <!-- 事由 -->
+        <div class="col-span-1">
+          <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1">8. 事由</label>
+          <input type="text" id="purpose" placeholder="如：拜訪 / 送貨 / 維修" class="w-full text-base sm:text-sm p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none bg-slate-50 focus:bg-white transition">
+        </div>
+
+        <!-- 電話 -->
+        <div class="col-span-1">
+          <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1">9. 電話</label>
+          <input type="tel" id="phone" placeholder="09xx-xxx-xxx" class="w-full text-base sm:text-sm p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none bg-slate-50 focus:bg-white transition">
+        </div>
+
+        <!-- 編號 -->
+        <div class="col-span-1">
+          <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1">10. 編號 (證件/換證)</label>
+          <input type="text" id="badgeNo" placeholder="如：A05 / 車號 ABC-1234" class="w-full text-base sm:text-sm p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none bg-slate-50 focus:bg-white transition">
+        </div>
+
+        <!-- 異常,託收,放行單及交班注意事項 -->
+        <div class="col-span-1 md:col-span-2">
+          <label class="block text-xs sm:text-sm font-semibold text-slate-700 mb-1">11. 異常/託收/放行單/交班事項</label>
+          <input type="text" id="notes" placeholder="特別交待事項、托物品項、放行單號等" class="w-full text-base sm:text-sm p-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none bg-slate-50 focus:bg-white transition">
+        </div>
+
+        <!-- Submit Button -->
+        <div class="col-span-1 md:col-span-2 lg:col-span-4 mt-2 flex justify-end gap-3">
+          <button type="button" id="resetFormBtn" class="px-5 py-3 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-100 font-semibold text-sm transition">
+            重設
+          </button>
+          <button type="submit" class="bg-blue-600 hover:bg-blue-700 active:scale-98 text-white font-bold px-8 py-3 rounded-xl shadow-lg shadow-blue-500/20 text-sm sm:text-base transition flex items-center gap-2">
+            <i class="fa-solid fa-floppy-disk"></i>
+            儲存紀錄
+          </button>
+        </div>
+
+      </form>
+    </section>
+
+    <section class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 sm:p-5">
+      <div class="flex flex-col lg:flex-row gap-3 lg:items-center justify-between">
+        
+        <!-- Search Input -->
+        <div class="relative flex-grow">
+          <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+            <i class="fa-solid fa-magnifying-glass"></i>
+          </div>
+          <input type="text" id="searchInput" placeholder="秒查關鍵字：姓名、公司、受訪人、車號或編號..." class="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:outline-none text-sm bg-slate-50 focus:bg-white transition">
+        </div>
+
+        <!-- Month Filter and Export Buttons -->
+        <div class="flex flex-wrap items-center gap-2">
+          
+          <div class="flex items-center bg-slate-100 rounded-xl p-1 border border-slate-200">
+            <span class="text-xs text-slate-500 font-medium px-2.5">月份:</span>
+            <input type="month" id="monthFilter" class="bg-white border border-slate-300 rounded-lg text-xs sm:text-sm p-1.5 focus:outline-none">
+            <button id="clearMonthBtn" class="text-xs text-slate-500 hover:text-slate-800 px-2">全部</button>
+          </div>
+
+          <button id="exportCsvBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-xl shadow-sm transition flex items-center gap-1.5">
+            <i class="fa-solid fa-file-excel"></i>
+            匯出 Excel/CSV
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+      <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
+        <h3 class="font-bold text-slate-800 text-sm sm:text-base flex items-center gap-2">
+          <i class="fa-solid fa-list-check text-slate-600"></i>
+          歷史進出紀錄備份
+          <span id="recordCountBadge" class="bg-blue-100 text-blue-800 text-xs px-2 py-0.5 rounded-full font-bold">0 筆</span>
+        </h3>
+        <span class="text-xs text-slate-400 hidden sm:inline">雙擊出廠時間可快速登記當前時間</span>
+      </div>
+
+      <div class="overflow-x-auto custom-scrollbar">
+        <table class="w-full text-left text-xs sm:text-sm border-collapse min-w-[1000px]">
+          <thead class="bg-slate-100 text-slate-600 font-semibold border-b border-slate-200">
+            <tr>
+              <th class="p-3 w-28">日期</th>
+              <th class="p-3 w-28">訪客姓名</th>
+              <th class="p-3 w-16 text-center">人數</th>
+              <th class="p-3">公司行號</th>
+              <th class="p-3">受訪人員</th>
+              <th class="p-3 w-24">進廠</th>
+              <th class="p-3 w-28">出廠</th>
+              <th class="p-3">事由</th>
+              <th class="p-3">電話</th>
+              <th class="p-3">編號</th>
+              <th class="p-3 max-w-[200px]">注意事項/備註</th>
+              <th class="p-3 w-20 text-center">操作</th>
+            </tr>
+          </thead>
+          <tbody id="recordsTableBody" class="divide-y divide-slate-100">
+            <!-- Table Row Template Filled via JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Empty State -->
+      <div id="emptyState" class="py-12 text-center text-slate-400 hidden">
+        <i class="fa-solid fa-folder-open text-4xl mb-3 text-slate-300"></i>
+        <p class="text-sm">尚無相關訪客登記紀錄</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Notification Toast -->
+  <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white text-xs sm:text-sm px-4 py-3 rounded-xl shadow-2xl transition transform translate-y-20 opacity-0 z-50 flex items-center gap-2">
+    <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400"></i>
+    <span id="toastMsg">成功更新紀錄</span>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'apex_visitor_backup_logs_v1';
+
+    // State Variables
+    let visitorLogs = [];
+
+    // DOM Elements
+    const visitorForm = document.getElementById('visitorForm');
+    const visitDateInput = document.getElementById('visitDate');
+    const visitorNameInput = document.getElementById('visitorName');
+    const visitorCountInput = document.getElementById('visitorCount');
+    const companyNameInput = document.getElementById('companyName');
+    const hostNameInput = document.getElementById('hostName');
+    const entryTimeInput = document.getElementById('entryTime');
+    const exitTimeInput = document.getElementById('exitTime');
+    const purposeInput = document.getElementById('purpose');
+    const phoneInput = document.getElementById('phone');
+    const badgeNoInput = document.getElementById('badgeNo');
+    const notesInput = document.getElementById('notes');
+
+    const setNowEntryBtn = document.getElementById('setNowEntryBtn');
+    const setNowExitBtn = document.getElementById('setNowExitBtn');
+    const resetFormBtn = document.getElementById('resetFormBtn');
+
+    const searchInput = document.getElementById('searchInput');
+    const monthFilter = document.getElementById('monthFilter');
+    const clearMonthBtn = document.getElementById('clearMonthBtn');
+    const exportCsvBtn = document.getElementById('exportCsvBtn');
+
+    const recordsTableBody = document.getElementById('recordsTableBody');
+    const emptyState = document.getElementById('emptyState');
+    const recordCountBadge = document.getElementById('recordCountBadge');
+
+    const policySection = document.getElementById('policySection');
+    const togglePolicyBtn = document.getElementById('togglePolicyBtn');
+    const closePolicyBtn = document.getElementById('closePolicyBtn');
+
+    // Helper: Get Current Date (YYYY-MM-DD)
+    function getTodayString() {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    // Helper: Get Current Time (HH:MM)
+    function getCurrentTimeString() {
+      const now = new Date();
+      const hh = String(now.getHours()).padStart(2, '0');
+      const mm = String(now.getMinutes()).padStart(2, '0');
+      return `${hh}:${mm}`;
+    }
+
+    // Show Toast Notification
+    function showToast(msg, iconClass = 'fa-circle-check text-emerald-400') {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      const toastIcon = document.getElementById('toastIcon');
+
+      toastMsg.textContent = msg;
+      toastIcon.className = `fa-solid ${iconClass}`;
+
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 3000);
+    }
+
+    // Load Data from LocalStorage
+    function loadLogs() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        visitorLogs = saved ? JSON.parse(saved) : [];
+      } catch (e) {
+        console.error('Failed to parse logs from LocalStorage', e);
+        visitorLogs = [];
+      }
+    }
+
+    // Save Data to LocalStorage
+    function saveLogs() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(visitorLogs));
+    }
+
+    function renderRecords() {
+      const searchTerm = searchInput.value.trim().toLowerCase();
+      const selectedMonth = monthFilter.value; // Format: YYYY-MM
+
+      const filteredLogs = visitorLogs.filter(log => {
+        // Keyword Search Check
+        const matchesKeyword = !searchTerm || [
+          log.visitorName,
+          log.companyName,
+          log.hostName,
+          log.purpose,
+          log.phone,
+          log.badgeNo,
+          log.notes
+        ].some(val => val && val.toLowerCase().includes(searchTerm));
+
+        // Month Filter Check
+        const matchesMonth = !selectedMonth || (log.visitDate && log.visitDate.startsWith(selectedMonth));
+
+        return matchesKeyword && matchesMonth;
+      });
+
+      // Sort by Date Descending then EntryTime Descending
+      filteredLogs.sort((a, b) => {
+        const dateTimeA = `${a.visitDate} ${a.entryTime || '00:00'}`;
+        const dateTimeB = `${b.visitDate} ${b.entryTime || '00:00'}`;
+        return dateTimeB.localeCompare(dateTimeA);
+      });
+
+      recordCountBadge.textContent = `${filteredLogs.length} 筆`;
+
+      if (filteredLogs.length === 0) {
+        recordsTableBody.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+
+      recordsTableBody.innerHTML = filteredLogs.map(log => `
+        <tr class="hover:bg-slate-50 transition border-b border-slate-100 text-slate-700">
+          <td class="p-3 font-medium whitespace-nowrap">${log.visitDate || '-'}</td>
+          <td class="p-3 font-bold text-slate-900">${log.visitorName || '-'}</td>
+          <td class="p-3 text-center whitespace-nowrap">${log.visitorCount || 1}</td>
+          <td class="p-3">${log.companyName || '-'}</td>
+          <td class="p-3">${log.hostName || '-'}</td>
+          <td class="p-3 text-blue-700 font-semibold whitespace-nowrap">${log.entryTime || '-'}</td>
+          <td class="p-3 whitespace-nowrap">
+            ${log.exitTime 
+              ? `<span class="text-emerald-700 font-semibold">${log.exitTime}</span>` 
+              : `<button onclick="quickSetExitTime('${log.id}')" class="text-xs bg-amber-100 hover:bg-amber-200 text-amber-800 px-2 py-1 rounded transition font-medium">點擊登記出場</button>`
+            }
+          </td>
+          <td class="p-3">${log.purpose || '-'}</td>
+          <td class="p-3 whitespace-nowrap">${log.phone || '-'}</td>
+          <td class="p-3 font-mono font-medium">${log.badgeNo || '-'}</td>
+          <td class="p-3 max-w-[200px] truncate" title="${log.notes || ''}">${log.notes || '-'}</td>
+          <td class="p-3 text-center whitespace-nowrap">
+            <button onclick="deleteRecord('${log.id}')" class="text-rose-500 hover:text-rose-700 p-1.5 rounded hover:bg-rose-50 transition" title="刪除紀錄">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // Quick Exit Time Set
+    window.quickSetExitTime = function(id) {
+      const nowTime = getCurrentTimeString();
+      const index = visitorLogs.findIndex(item => item.id === id);
+      if (index !== -1) {
+        visitorLogs[index].exitTime = nowTime;
+        saveLogs();
+        renderRecords();
+        showToast(`已登記出廠時間: ${nowTime}`);
+      }
+    };
+
+    // Delete Record
+    window.deleteRecord = function(id) {
+      if (confirm('確定要刪除此筆備份紀錄嗎？')) {
+        visitorLogs = visitorLogs.filter(item => item.id !== id);
+        saveLogs();
+        renderRecords();
+        showToast('紀錄已成功刪除', 'fa-trash-can text-rose-400');
+      }
+    };
+
+    function exportToCSV() {
+      if (visitorLogs.length === 0) {
+        showToast('目前尚無紀錄可供匯出', 'fa-circle-exclamation text-amber-400');
+        return;
+      }
+
+      const headers = [
+        '日期', '訪客姓名', '來訪人數', '公司行號', '受訪人員姓名',
+        '進廠時間', '出廠時間', '事由', '電話', '編號', '注意事項/備註'
+      ];
+
+      const csvRows = [headers.join(',')];
+
+      visitorLogs.forEach(log => {
+        const row = [
+          `"${log.visitDate || ''}"`,
+          `"${log.visitorName || ''}"`,
+          `"${log.visitorCount || 1}"`,
+          `"${(log.companyName || '').replace(/"/g, '""')}"`,
+          `"${(log.hostName || '').replace(/"/g, '""')}"`,
+          `"${log.entryTime || ''}"`,
+          `"${log.exitTime || ''}"`,
+          `"${(log.purpose || '').replace(/"/g, '""')}"`,
+          `"${log.phone || ''}"`,
+          `"${(log.badgeNo || '').replace(/"/g, '""')}"`,
+          `"${(log.notes || '').replace(/"/g, '""')}"`
+        ];
+        csvRows.push(row.join(','));
+      });
+
+      // Add UTF-8 BOM to prevent Chinese character mess in Excel
+      const csvContent = '\uFEFF' + csvRows.join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      
+      const filename = `訪客登記簿備份_${getTodayString()}.csv`;
+      link.setAttribute('href', url);
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      showToast('Excel/CSV 檔案匯出成功');
+    }
+
+    function initEvents() {
+      // Form Submission
+      visitorForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const newLog = {
+          id: Date.now().toString(),
+          visitDate: visitDateInput.value,
+          visitorName: visitorNameInput.value.trim(),
+          visitorCount: visitorCountInput.value,
+          companyName: companyNameInput.value.trim(),
+          hostName: hostNameInput.value.trim(),
+          entryTime: entryTimeInput.value,
+          exitTime: exitTimeInput.value,
+          purpose: purposeInput.value.trim(),
+          phone: phoneInput.value.trim(),
+          badgeNo: badgeNoInput.value.trim(),
+          notes: notesInput.value.trim(),
+          createdAt: new Date().toISOString()
+        };
+
+        visitorLogs.push(newLog);
+        saveLogs();
+        renderRecords();
+
+        // Keep Visit Date, clear other input fields
+        const currentDateVal = visitDateInput.value;
+        visitorForm.reset();
+        visitDateInput.value = currentDateVal;
+        visitorCountInput.value = 1;
+
+        showToast('訪客紀錄備份成功！');
+      });
+
+      // Reset Button
+      resetFormBtn.addEventListener('click', () => {
+        visitorForm.reset();
+        visitDateInput.value = getTodayString();
+        visitorCountInput.value = 1;
+      });
+
+      // Set Time Now Buttons
+      setNowEntryBtn.addEventListener('click', () => {
+        entryTimeInput.value = getCurrentTimeString();
+      });
+
+      setNowExitBtn.addEventListener('click', () => {
+        exitTimeInput.value = getCurrentTimeString();
+      });
+
+      // Instant Search and Month Filter Trigger
+      searchInput.addEventListener('input', renderRecords);
+      monthFilter.addEventListener('change', renderRecords);
+
+      clearMonthBtn.addEventListener('click', () => {
+        monthFilter.value = '';
+        renderRecords();
+      });
+
+      // Export CSV
+      exportCsvBtn.addEventListener('click', exportToCSV);
+
+      // Policy Accordion Toggle
+      togglePolicyBtn.addEventListener('click', () => {
+        policySection.classList.toggle('hidden');
+      });
+
+      closePolicyBtn.addEventListener('click', () => {
+        policySection.classList.add('hidden');
+      });
+    }
+
+    window.onload = function() {
+      // Set Default Date
+      visitDateInput.value = getTodayString();
+      
+      // Load and Render Logs
+      loadLogs();
+      renderRecords();
+
+      // Bind All Event Handlers
+      initEvents();
+    };
+  </script>
+</body>
+</html>
