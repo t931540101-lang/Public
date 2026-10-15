@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>點餐系統 - 廚房接單後台</title>
+  <style>
+    :root {
+      --bg-color: #f4f6f9;
+      --card-bg: #ffffff;
+      --primary: #2563eb;
+      --warning: #f59e0b;
+      --success: #10b981;
+      --danger: #ef4444;
+      --text: #1f2937;
+      --border: #e5e7eb;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text);
+      padding: 12px;
+      max-width: 480px; /* 手機窄螢幕最佳化 */
+      margin: 0 auto;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      font-weight: bold;
+    }
+
+    .btn-action {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    /* 狀態篩選頁籤 */
+    .filter-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 8px 0;
+      background: #e0e7ff;
+      color: #3730a3;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    /* 訂單卡片列表 */
+    .order-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .order-card {
+      background: var(--card-bg);
+      border-radius: 8px;
+      padding: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      border-left: 5px solid var(--warning);
+    }
+
+    .order-card.status-cooking {
+      border-left-color: var(--primary);
+    }
+
+    .order-card.status-completed {
+      border-left-color: var(--success);
+      opacity: 0.7;
+    }
+
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      font-weight: bold;
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+
+    .order-time {
+      font-size: 0.75rem;
+      color: #6b7280;
+    }
+
+    .order-items {
+      list-style: none;
+      margin-bottom: 10px;
+      border-top: 1px dashed var(--border);
+      border-bottom: 1px dashed var(--border);
+      padding: 8px 0;
+    }
+
+    .order-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 4px;
+      font-size: 0.9rem;
+    }
+
+    .item-note {
+      font-size: 0.75rem;
+      color: var(--danger);
+      margin-left: 6px;
+    }
+
+    .order-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .total-price {
+      font-weight: bold;
+      color: #111827;
+    }
+
+    .status-btn {
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    .btn-pending { background: var(--warning); color: white; }
+    .btn-cooking { background: var(--primary); color: white; }
+    .btn-completed { background: var(--success); color: white; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>🍳 廚房接單後台</h1>
+    <button class="btn-action" onclick="addMockOrder()">+ 模擬新訂單</button>
+  </header>
+
+  <!-- 狀態切換頁籤 -->
+  <div class="filter-tabs">
+    <button class="tab-btn active" onclick="filterOrders('all', this)">全部</button>
+    <button class="tab-btn" onclick="filterOrders('pending', this)">待製作</button>
+    <button class="tab-btn" onclick="filterOrders('cooking', this)">製作中</button>
+    <button class="tab-btn" onclick="filterOrders('completed', this)">已完成</button>
+  </div>
+
+  <!-- 訂單列表容器 -->
+  <div class="order-list" id="orderContainer"></div>
+
+  <script>
+    // 預設/讀取 LocalStorage 訂單資料
+    let orders = JSON.parse(localStorage.getItem('k9_restaurant_orders')) || [
+      {
+        id: 'A01',
+        table: '桌號 3',
+        time: '12:30',
+        status: 'pending', // pending, cooking, completed
+        items: [
+          { name: '牛肉漢堡', qty: 1, note: '不加洋蔥' },
+          { name: '冰美式', qty: 1, note: '去冰' }
+        ],
+        total: 180
+      },
+      {
+        id: 'A02',
+        table: '外帶 02',
+        time: '12:32',
+        status: 'cooking',
+        items: [
+          { name: '卡拉雞腿堡', qty: 2, note: '加辣' },
+          { name: '鮮奶茶', qty: 2, note: '微糖' }
+        ],
+        total: 260
+      }
+    ];
+
+    let currentFilter = 'all';
+
+    // 儲存至 LocalStorage
+    function saveOrders() {
+      localStorage.setItem('k9_restaurant_orders', JSON.stringify(orders));
+      renderOrders();
+    }
+
+    // 切換訂單狀態
+    function toggleStatus(orderId) {
+      const order = orders.find(o => o.id === orderId);
+      if (!order) return;
+
+      if (order.status === 'pending') order.status = 'cooking';
+      else if (order.status === 'cooking') order.status = 'completed';
+      else if (order.status === 'completed') order.status = 'pending';
+
+      saveOrders();
+    }
+
+    // 新增模擬訂單
+    function addMockOrder() {
+      const newId = 'A' + String(orders.length + 1).padStart(2, '0');
+      const now = new Date();
+      const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      
+      orders.unshift({
+        id: newId,
+        table: `桌號 ${Math.floor(Math.random() * 10) + 1}`,
+        time: timeStr,
+        status: 'pending',
+        items: [
+          { name: '招牌蛋餅', qty: 1, note: '醬油膏多' },
+          { name: '大杯豆漿', qty: 1, note: '溫糖' }
+        ],
+        total: 75
+      });
+
+      saveOrders();
+    }
+
+    // 篩選訂單
+    function filterOrders(status, btn) {
+      currentFilter = status;
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderOrders();
+    }
+
+    // 渲染畫面
+    function renderOrders() {
+      const container = document.getElementById('orderContainer');
+      container.innerHTML = '';
+
+      const filtered = orders.filter(o => currentFilter === 'all' || o.status === currentFilter);
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<p style="text-align:center; color:#9ca3af; padding: 20px;">目前沒有訂單</p>`;
+        return;
+      }
+
+      filtered.forEach(order => {
+        const card = document.createElement('div');
+        card.className = `order-card status-${order.status}`;
+
+        let statusText = '待製作';
+        let btnClass = 'btn-pending';
+        if (order.status === 'cooking') { statusText = '製作中'; btnClass = 'btn-cooking'; }
+        if (order.status === 'completed') { statusText = '已完成'; btnClass = 'btn-completed'; }
+
+        const itemsHtml = order.items.map(item => `
+          <li class="order-item">
+            <span>${item.name} x${item.qty} ${item.note ? `<span class="item-note">(${item.note})</span>` : ''}</span>
+          </li>
+        `).join('');
+
+        card.innerHTML = `
+          <div class="order-header">
+            <span>#${order.id} - ${order.table}</span>
+            <span class="order-time">${order.time}</span>
+          </div>
+          <ul class="order-items">
+            ${itemsHtml}
+          </ul>
+          <div class="order-footer">
+            <span class="total-price">$${order.total}</span>
+            <button class="status-btn ${btnClass}" onclick="toggleStatus('${order.id}')">${statusText}</button>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    // 首次載入
+    renderOrders();
+  </script>
+</body>
+</html>
