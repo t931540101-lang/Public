@@ -3,284 +3,1190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>黑創 e-GO | HR 人事管理系統</title>
-    <!-- Tailwind CSS -->
+    <title>黑創 e-GO | 企業級 HR 人事管理系統</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome 圖標庫 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Inter 字體 -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'Microsoft JhengHei', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            900: '#064e3b',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        @media print {
+            body * { visibility: hidden; }
+            #print-area, #print-area * { visibility: visible; }
+            #print-area { position: absolute; left: 0; top: 0; width: 100%; }
+        }
     </style>
 </head>
-<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col md:flex-row">
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col md:flex-row antialiased selection:bg-brand-500 selection:text-white">
 
-    <!-- 側邊導覽列 (Mobile 頂部 / Desktop 側邊) -->
-    <aside class="w-full md:w-64 bg-slate-900 text-slate-300 flex-shrink-0 flex flex-col justify-between p-4">
+    <!-- 手機端頂部 Bar -->
+    <div class="md:hidden bg-slate-900 text-white p-4 flex justify-between items-center sticky top-0 z-40 shadow-md">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 bg-brand-500 rounded-lg flex items-center justify-center text-white font-black text-xl shadow-lg shadow-brand-500/30">黑</div>
+            <div>
+                <h1 class="text-base font-bold tracking-wider leading-tight">黑創 e-GO</h1>
+                <p class="text-[10px] text-slate-400">HR 人事管理系統 Enterprise</p>
+            </div>
+        </div>
+        <button onclick="toggleSidebar()" class="p-2 text-slate-300 hover:text-white focus:outline-none">
+            <i class="fa-solid fa-bars text-xl"></i>
+        </button>
+    </div>
+
+    <!-- 側邊選單導覽列 (Mobile 抽屜 / Desktop 固定) -->
+    <aside id="sidebar" class="fixed md:static inset-y-0 left-0 z-50 w-64 bg-slate-900 text-slate-300 flex-shrink-0 flex flex-col justify-between p-4 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out shadow-xl md:shadow-none">
         <div>
-            <div class="flex items-center gap-3 mb-8 px-2 pt-2">
-                <div class="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center text-white font-bold text-lg">黑</div>
+            <!-- Desktop 標頭 -->
+            <div class="hidden md:flex items-center gap-3 mb-8 px-2 pt-2">
+                <div class="w-10 h-10 bg-brand-500 rounded-xl flex items-center justify-center text-white font-black text-2xl shadow-lg shadow-brand-500/30">黑</div>
                 <div>
-                    <h1 class="text-white font-bold tracking-wide">黑創 e-GO</h1>
-                    <p class="text-xs text-slate-400">HR 人事管理系統 v1.0</p>
+                    <h1 class="text-lg font-bold text-white tracking-wide leading-tight">黑創 e-GO</h1>
+                    <p class="text-xs text-brand-500 font-semibold tracking-wider uppercase">HR Enterprise v2.5</p>
                 </div>
             </div>
 
-            <!-- 選單按鈕 -->
-            <nav class="space-y-1">
-                <button onclick="switchView('dashboard')" id="nav-dashboard" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium bg-emerald-600 text-white transition">
-                    📊 總覽儀表板
+            <div class="text-[11px] font-bold text-slate-500 uppercase px-3 mb-2 tracking-wider">主要功能模組</div>
+
+            <!-- 選單導覽 -->
+            <nav class="space-y-1.5">
+                <button onclick="switchView('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center gap-3.5 px-3.5 py-3 rounded-xl text-sm font-medium bg-brand-600 text-white shadow-lg shadow-brand-600/30 transition">
+                    <i class="fa-solid fa-chart-pie w-5 text-center text-base"></i>
+                    <span>📊 總覽儀表板</span>
                 </button>
-                <button onclick="switchView('employees')" id="nav-employees" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 hover:text-white transition">
-                    👥 員工檔案管理
+                <button onclick="switchView('employees')" id="nav-employees" class="nav-btn w-full flex items-center gap-3.5 px-3.5 py-3 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition">
+                    <i class="fa-solid fa-users w-5 text-center text-base"></i>
+                    <span>👥 員工檔案管理</span>
                 </button>
-                <button onclick="switchView('attendance')" id="nav-attendance" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 hover:text-white transition">
-                    ⏰ 出勤與打卡紀錄
+                <button onclick="switchView('attendance')" id="nav-attendance" class="nav-btn w-full flex items-center gap-3.5 px-3.5 py-3 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition">
+                    <i class="fa-solid fa-clock w-5 text-center text-base"></i>
+                    <span>⏰ 出勤打卡紀錄</span>
                 </button>
-                <button onclick="switchView('leaves')" id="nav-leaves" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium hover:bg-slate-800 hover:text-white transition">
-                    📝 請假簽核管理
+                <button onclick="switchView('leaves')" id="nav-leaves" class="nav-btn w-full flex items-center gap-3.5 px-3.5 py-3 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition">
+                    <i class="fa-solid fa-file-signature w-5 text-center text-base"></i>
+                    <span>📝 請假簽核管理</span>
+                </button>
+                <button onclick="switchView('payroll')" id="nav-payroll" class="nav-btn w-full flex items-center gap-3.5 px-3.5 py-3 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition">
+                    <i class="fa-solid fa-sack-dollar w-5 text-center text-base"></i>
+                    <span>💰 薪資與計薪試算</span>
                 </button>
             </nav>
         </div>
 
-        <!-- 底部系統動作 -->
-        <div class="pt-4 border-t border-slate-800 space-y-2">
-            <button onclick="exportData()" class="w-full text-left text-xs text-slate-400 hover:text-white px-3 py-1.5 rounded transition">
-                📥 匯出資料庫 (JSON)
+        <!-- 底部資料庫維護 -->
+        <div class="pt-4 border-t border-slate-800/80 space-y-2">
+            <div class="text-[11px] font-bold text-slate-500 uppercase px-2 mb-1 tracking-wider">系統數據備份</div>
+            <button onclick="exportJSON()" class="w-full flex items-center gap-2.5 text-xs text-slate-400 hover:text-white px-3 py-2 rounded-lg hover:bg-slate-800 transition">
+                <i class="fa-solid fa-download text-slate-500"></i>
+                <span>匯出 JSON 資料庫</span>
             </button>
-            <button onclick="importData()" class="w-full text-left text-xs text-slate-400 hover:text-white px-3 py-1.5 rounded transition">
-                📤 匯入資料庫 (JSON)
+            <button onclick="importJSON()" class="w-full flex items-center gap-2.5 text-xs text-slate-400 hover:text-white px-3 py-2 rounded-lg hover:bg-slate-800 transition">
+                <i class="fa-solid fa-upload text-slate-500"></i>
+                <span>匯入 JSON 資料庫</span>
+            </button>
+            <button onclick="resetData()" class="w-full flex items-center gap-2.5 text-xs text-rose-400/80 hover:text-rose-300 px-3 py-2 rounded-lg hover:bg-rose-950/30 transition">
+                <i class="fa-solid fa-rotate-right text-rose-500/70"></i>
+                <span>重置為預設展示資料</span>
             </button>
         </div>
     </aside>
 
-    <!-- 主要內容區 -->
-    <main class="flex-1 p-4 md:p-8 overflow-y-auto h-screen">
+    <!-- 遮罩 (Mobile 側邊欄展開時用) -->
+    <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/60 z-40 hidden md:hidden backdrop-blur-sm"></div>
 
-        <!-- 視圖 1: 總覽儀表板 -->
+    <!-- 主要內容區 (Main Content) -->
+    <main class="flex-1 p-4 md:p-8 overflow-y-auto max-h-screen">
+
+        <!-- 視圖 1: 📊 總覽儀表板 (Dashboard) -->
         <section id="view-dashboard" class="view-panel space-y-6">
-            <h2 class="text-2xl font-bold text-slate-800">人事總覽 📊</h2>
-
-            <!-- 數據卡片區 -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-                    <p class="text-xs font-semibold text-slate-400">總員工人數</p>
-                    <p class="text-3xl font-extrabold text-slate-800 mt-2" id="dash-total-emp">0</p>
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h2 class="text-2xl font-black text-slate-800 tracking-tight">人事總覽儀表板 📊</h2>
+                    <p class="text-xs text-slate-500 mt-1">即時掌握企業全體員工考勤、請假簽核與預算估算</p>
                 </div>
-                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-                    <p class="text-xs font-semibold text-slate-400">今日出勤率</p>
-                    <p class="text-3xl font-extrabold text-emerald-600 mt-2">98%</p>
-                </div>
-                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-                    <p class="text-xs font-semibold text-slate-400">待簽核請假</p>
-                    <p class="text-3xl font-extrabold text-amber-500 mt-2">2 件</p>
-                </div>
-                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
-                    <p class="text-xs font-semibold text-slate-400">本月預算/薪資支出</p>
-                    <p class="text-3xl font-extrabold text-slate-800 mt-2">NT$ --</p>
+                <!-- 模擬打卡卡片按鈕 -->
+                <div class="bg-white p-2 border border-slate-200 rounded-xl shadow-sm flex items-center gap-2">
+                    <span class="text-xs font-semibold text-slate-600 pl-2"><i class="fa-solid fa-user-clock text-brand-600 mr-1"></i>快捷模擬打卡：</span>
+                    <button onclick="quickPunch('上班')" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold text-xs rounded-lg transition border border-emerald-200">上班 08:30</button>
+                    <button onclick="quickPunch('下班')" class="px-3 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-xs rounded-lg transition border border-blue-200">下班 17:30</button>
                 </div>
             </div>
 
-            <!-- 快捷紀錄 / 近期動態 -->
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                <h3 class="font-bold text-slate-700 mb-4">近期考勤動態</h3>
-                <div class="text-sm text-slate-500 space-y-3">
-                    <div class="flex justify-between py-2 border-b border-slate-100">
-                        <span>張小明完成打卡（上班 08:00）</span>
-                        <span class="text-xs text-slate-400">今天 08:00</span>
+            <!-- 關鍵 KPI 卡片 -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 hover:shadow-md transition">
+                    <div class="flex justify-between items-center text-slate-400">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">總員工人數</span>
+                        <div class="w-9 h-9 bg-slate-100 rounded-xl flex items-center justify-center text-slate-600"><i class="fa-solid fa-users"></i></div>
                     </div>
-                    <div class="flex justify-between py-2 border-b border-slate-100">
-                        <span>李大華提出了「事假」申請</span>
-                        <span class="text-xs text-slate-400">昨天 16:30</span>
+                    <div class="mt-3 flex items-baseline gap-2">
+                        <span class="text-3xl font-black text-slate-800" id="dash-total-emp">0</span>
+                        <span class="text-xs text-slate-500">位正式與派遣</span>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 hover:shadow-md transition">
+                    <div class="flex justify-between items-center text-slate-400">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">今日出勤率</span>
+                        <div class="w-9 h-9 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600"><i class="fa-solid fa-user-check"></i></div>
+                    </div>
+                    <div class="mt-3 flex items-baseline gap-2">
+                        <span class="text-3xl font-black text-emerald-600" id="dash-attendance-rate">0%</span>
+                        <span class="text-xs text-emerald-600 font-medium" id="dash-attendance-detail">0 人打卡</span>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 hover:shadow-md transition">
+                    <div class="flex justify-between items-center text-slate-400">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">待審核請假</span>
+                        <div class="w-9 h-9 bg-amber-50 rounded-xl flex items-center justify-center text-amber-600"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                    </div>
+                    <div class="mt-3 flex items-baseline gap-2">
+                        <span class="text-3xl font-black text-amber-500" id="dash-pending-leaves">0</span>
+                        <span class="text-xs text-amber-600 font-medium">件待人資處理</span>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 hover:shadow-md transition">
+                    <div class="flex justify-between items-center text-slate-400">
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">本月預估薪資支出</span>
+                        <div class="w-9 h-9 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600"><i class="fa-solid fa-money-bill-wave"></i></div>
+                    </div>
+                    <div class="mt-3 flex items-baseline gap-2">
+                        <span class="text-2xl font-black text-slate-800" id="dash-total-payroll">NT$ 0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 兩欄：動態牆與請假快速通道 -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- 近期考勤與動態 -->
+                <div class="lg:col-span-7 bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                            <i class="fa-solid fa-bolt text-amber-500"></i> 即時考勤動態牆
+                        </h3>
+                        <span class="text-xs bg-slate-100 text-slate-500 px-2.5 py-1 rounded-full font-medium">即時更新</span>
+                    </div>
+                    <div id="dash-activity-wall" class="space-y-3 max-h-[300px] overflow-y-auto no-scrollbar pr-1">
+                        <!-- 動態注入內容 -->
+                    </div>
+                </div>
+
+                <!-- 待辦簽核快捷清單 -->
+                <div class="lg:col-span-5 bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 flex flex-col">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-slate-800 text-base flex items-center gap-2">
+                            <i class="fa-solid fa-circle-exclamation text-brand-600"></i> 待審核請假案件
+                        </h3>
+                        <button onclick="switchView('leaves')" class="text-xs text-brand-600 font-bold hover:underline">查看全部</button>
+                    </div>
+                    <div id="dash-pending-leaves-list" class="space-y-3 flex-1 overflow-y-auto max-h-[300px]">
+                        <!-- 動態注入內容 -->
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- 視圖 2: 員工檔案管理 -->
+        <!-- 視圖 2: 👥 員工檔案管理 (Employees) -->
         <section id="view-employees" class="view-panel hidden space-y-6">
-            <div class="flex justify-between items-center">
-                <h2 class="text-2xl font-bold text-slate-800">員工檔案管理 👥</h2>
-                <button onclick="openModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-sm px-4 py-2 rounded-lg font-medium shadow transition">
-                    + 新增員工
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h2 class="text-2xl font-black text-slate-800 tracking-tight">員工檔案管理 👥</h2>
+                    <p class="text-xs text-slate-500 mt-1">管理完整員工資料庫、薪資結構與緊急聯絡人資訊</p>
+                </div>
+                <button onclick="openEmployeeModal()" class="bg-brand-600 hover:bg-brand-500 text-white text-sm px-4 py-2.5 rounded-xl font-bold shadow-lg shadow-brand-600/30 transition flex items-center gap-2">
+                    <i class="fa-solid fa-user-plus"></i> 新增員工資料
                 </button>
             </div>
 
-            <!-- 員工列表表格 -->
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                <table class="w-full text-left border-collapse">
-                    <thead class="bg-slate-50 text-slate-500 text-xs font-semibold uppercase border-b border-slate-200">
-                        <tr>
-                            <th class="p-4">工號</th>
-                            <th class="p-4">姓名</th>
-                            <th class="p-4">部門</th>
-                            <th class="p-4">職稱</th>
-                            <th class="p-4">電話</th>
-                            <th class="p-4">狀態</th>
-                            <th class="p-4 text-right">操作</th>
-                        </tr>
-                    </thead>
-                    <tbody id="employee-table-body" class="divide-y divide-slate-100 text-sm">
-                        <!-- 動態注入欄位 -->
-                    </tbody>
-                </table>
+            <!-- 工具列：搜尋與篩選 -->
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col sm:flex-row gap-3 justify-between">
+                <div class="relative flex-1">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-sm"></i>
+                    <input type="text" id="emp-search" oninput="renderEmployees()" placeholder="搜尋姓名、工號、部門、手機..." 
+                           class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white transition">
+                </div>
+                <div class="flex gap-2">
+                    <select id="emp-filter-status" onchange="renderEmployees()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-600 focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <option value="ALL">全部狀態</option>
+                        <option value="在職">在職</option>
+                        <option value="離職">離職</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 員工表格 -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-50/80 text-slate-500 text-xs font-bold uppercase border-b border-slate-200/80">
+                            <tr>
+                                <th class="p-4">工號 / 姓名</th>
+                                <th class="p-4">部門 / 職稱</th>
+                                <th class="p-4">聯絡電話</th>
+                                <th class="p-4">薪資計費類型</th>
+                                <th class="p-4">到職日期</th>
+                                <th class="p-4">狀態</th>
+                                <th class="p-4 text-right">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="employee-table-body" class="divide-y divide-slate-100 text-sm">
+                            <!-- 動態注入內容 -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </section>
 
-        <!-- 視圖 3: 出勤紀錄 (預留) -->
+        <!-- 視圖 3: ⏰ 出勤與打卡紀錄 (Attendance) -->
         <section id="view-attendance" class="view-panel hidden space-y-6">
-            <h2 class="text-2xl font-bold text-slate-800">出勤與打卡紀錄 ⏰</h2>
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 text-slate-500">
-                出勤打卡數據與月度考勤統計模組準備中...
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h2 class="text-2xl font-black text-slate-800 tracking-tight">出勤與打卡紀錄 ⏰</h2>
+                    <p class="text-xs text-slate-500 mt-1">查閱當日打卡流水帳、考勤異常補打卡與月度出勤彙總</p>
+                </div>
+                <button onclick="openPunchModal()" class="bg-slate-800 hover:bg-slate-700 text-white text-sm px-4 py-2.5 rounded-xl font-bold shadow transition flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square"></i> 手動補打卡
+                </button>
+            </div>
+
+            <!-- 打卡流水帳列表卡片 -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
+                <div class="p-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                    <h3 class="font-bold text-slate-700 text-sm">打卡紀錄紀錄池 (Punch Logs)</h3>
+                    <span class="text-xs text-slate-400">顯示最新 50 筆紀錄</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-50 text-slate-500 text-xs font-bold uppercase border-b border-slate-200">
+                            <tr>
+                                <th class="p-4">員工</th>
+                                <th class="p-4">打卡時間</th>
+                                <th class="p-4">打卡類型</th>
+                                <th class="p-4">考勤狀態</th>
+                                <th class="p-4">打卡來源/地點</th>
+                                <th class="p-4 text-right">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendance-table-body" class="divide-y divide-slate-100 text-sm">
+                            <!-- 動態注入內容 -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </section>
 
-        <!-- 視圖 4: 請假簽核 (預留) -->
+        <!-- 視圖 4: 📝 請假簽核管理 (Leaves) -->
         <section id="view-leaves" class="view-panel hidden space-y-6">
-            <h2 class="text-2xl font-bold text-slate-800">請假簽核管理 📝</h2>
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 text-slate-500">
-                線上請假簽核與特休計算模組準備中...
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h2 class="text-2xl font-black text-slate-800 tracking-tight">請假簽核管理 📝</h2>
+                    <p class="text-xs text-slate-500 mt-1">線上請假申請簽核、假別額度扣抵與審查管理</p>
+                </div>
+                <button onclick="openLeaveApplyModal()" class="bg-brand-600 hover:bg-brand-500 text-white text-sm px-4 py-2.5 rounded-xl font-bold shadow-lg shadow-brand-600/30 transition flex items-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> 提出請假申請
+                </button>
+            </div>
+
+            <!-- 簽核案件表格 -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
+                <div class="p-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                    <h3 class="font-bold text-slate-700 text-sm">請假申請紀錄單據</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-50 text-slate-500 text-xs font-bold uppercase border-b border-slate-200">
+                            <tr>
+                                <th class="p-4">請假員工</th>
+                                <th class="p-4">假別</th>
+                                <th class="p-4">請假起訖時間</th>
+                                <th class="p-4">天數/時數</th>
+                                <th class="p-4">請假事由</th>
+                                <th class="p-4">簽核狀態</th>
+                                <th class="p-4 text-right">審核操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaves-table-body" class="divide-y divide-slate-100 text-sm">
+                            <!-- 動態注入內容 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- 視圖 5: 💰 薪資與計薪試算 (Payroll) -->
+        <section id="view-payroll" class="view-panel hidden space-y-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <h2 class="text-2xl font-black text-slate-800 tracking-tight">薪資與計薪試算 💰</h2>
+                    <p class="text-xs text-slate-500 mt-1">依據底薪、加班加項與請假扣款自動試算，可生成專業薪資明細單</p>
+                </div>
+                <div class="text-xs text-slate-500 bg-white border border-slate-200 px-3 py-2 rounded-xl">
+                    <i class="fa-solid fa-circle-info text-brand-600 mr-1"></i>當前計算月份：<span class="font-bold text-slate-800">2026 年 10 月</span>
+                </div>
+            </div>
+
+            <!-- 薪資列表表格 -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-50 text-slate-500 text-xs font-bold uppercase border-b border-slate-200">
+                            <tr>
+                                <th class="p-4">員工 / 職稱</th>
+                                <th class="p-4">計費方式</th>
+                                <th class="p-4">約定底薪/時薪</th>
+                                <th class="p-4">加班加項估算</th>
+                                <th class="p-4">缺勤扣款估算</th>
+                                <th class="p-4">應發薪資總額</th>
+                                <th class="p-4 text-right">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="payroll-table-body" class="divide-y divide-slate-100 text-sm">
+                            <!-- 動態注入內容 -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </section>
 
     </main>
 
-    <!-- 新增/編輯員工 Modal 彈窗 -->
-    <div id="emp-modal" class="fixed inset-0 bg-slate-900/50 hidden backdrop-blur-sm flex items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-xl shadow-xl max-w-xl w-full p-6 space-y-4">
-            <h3 class="text-lg font-bold text-slate-800" id="modal-title">新增員工資料</h3>
-            <form onsubmit="saveEmployee(event)" class="space-y-4">
+    <!-- ----------------------- MODALS 彈窗區 ----------------------- -->
+
+    <!-- Modal 1: 員工新增/編輯 Modal -->
+    <div id="modal-employee" class="fixed inset-0 bg-slate-900/60 hidden backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full my-8 overflow-hidden transform transition-all border border-slate-100">
+            <div class="bg-slate-900 text-white p-5 flex justify-between items-center">
+                <h3 class="text-lg font-bold flex items-center gap-2" id="modal-employee-title">
+                    <i class="fa-solid fa-user-gear text-brand-500"></i> 編輯員工資料
+                </h3>
+                <button onclick="closeModal('modal-employee')" class="text-slate-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form onsubmit="saveEmployee(event)" class="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
                 <input type="hidden" id="emp-id">
-                <div class="grid grid-cols-2 gap-4">
+                
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-xs font-medium text-slate-600 mb-1">工號</label>
-                        <input type="text" id="emp-code" required class="w-full p-2 border border-slate-200 rounded-lg text-sm">
+                        <label class="block text-xs font-bold text-slate-600 mb-1">工號 <span class="text-rose-500">*</span></label>
+                        <input type="text" id="emp-code" required placeholder="EMP001" class="w-full p-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-600 mb-1">姓名</label>
-                        <input type="text" id="emp-name" required class="w-full p-2 border border-slate-200 rounded-lg text-sm">
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-medium text-slate-600 mb-1">部門</label>
-                        <input type="text" id="emp-dept" placeholder="如：管理部、勤務組" class="w-full p-2 border border-slate-200 rounded-lg text-sm">
+                        <label class="block text-xs font-bold text-slate-600 mb-1">姓名 <span class="text-rose-500">*</span></label>
+                        <input type="text" id="emp-name" required placeholder="請輸入姓名" class="w-full p-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-slate-600 mb-1">職稱</label>
-                        <input type="text" id="emp-title" placeholder="如：專案經理、組長" class="w-full p-2 border border-slate-200 rounded-lg text-sm">
+                        <label class="block text-xs font-bold text-slate-600 mb-1">身分證字號</label>
+                        <input type="text" id="emp-idcard" placeholder="A123456789" class="w-full p-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
                     </div>
                 </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">部門</label>
+                        <input type="text" id="emp-dept" placeholder="如：特勤部、管理組" class="w-full p-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">職稱</label>
+                        <input type="text" id="emp-title" placeholder="如：專案隊長" class="w-full p-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">在職狀態</label>
+                        <select id="emp-status" class="w-full p-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                            <option value="在職">在職</option>
+                            <option value="離職">離職</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">手機號碼</label>
+                        <input type="tel" id="emp-phone" placeholder="0912-345678" class="w-full p-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">到職日期</label>
+                        <input type="date" id="emp-startdate" class="w-full p-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                    </div>
+                </div>
+
+                <!-- 薪資計算基礎 -->
+                <div class="p-4 bg-slate-50 rounded-xl border border-slate-200/80 space-y-3">
+                    <span class="text-xs font-bold text-slate-700 uppercase tracking-wider block">💰 薪資結構設定</span>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">計薪類型</label>
+                            <select id="emp-paytype" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-white">
+                                <option value="月薪">月薪制</option>
+                                <option value="時薪">時薪制</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">約定薪資 (NT$)</label>
+                            <input type="number" id="emp-salary" placeholder="42000" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-white">
+                        </div>
+                    </div>
+                </div>
+
                 <div>
-                    <label class="block text-xs font-medium text-slate-600 mb-1">聯絡電話</label>
-                    <input type="tel" id="emp-phone" class="w-full p-2 border border-slate-200 rounded-lg text-sm">
+                    <label class="block text-xs font-bold text-slate-600 mb-1">緊急聯絡人與電話</label>
+                    <input type="text" id="emp-emergency" placeholder="王小美 (0988-111222)" class="w-full p-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
                 </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">專長與備註</label>
+                    <textarea id="emp-notes" rows="2" placeholder="備註特殊技能、證照或派遣狀況..." class="w-full p-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none"></textarea>
+                </div>
+
                 <div class="flex justify-end gap-2 pt-4 border-t border-slate-100">
-                    <button type="button" onclick="closeModal()" class="px-4 py-2 bg-slate-100 text-slate-600 text-sm rounded-lg">取消</button>
-                    <button type="submit" class="px-4 py-2 bg-emerald-600 text-white text-sm rounded-lg font-medium">儲存</button>
+                    <button type="button" onclick="closeModal('modal-employee')" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-sm font-bold rounded-xl transition">取消</button>
+                    <button type="submit" class="px-5 py-2.5 bg-brand-600 hover:bg-brand-500 text-white text-sm font-bold rounded-xl shadow-lg shadow-brand-600/30 transition">儲存資料</button>
                 </div>
             </form>
         </div>
     </div>
 
+    <!-- Modal 2: 手動補打卡 Modal -->
+    <div id="modal-punch" class="fixed inset-0 bg-slate-900/60 hidden backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-100">
+            <div class="bg-slate-900 text-white p-5 flex justify-between items-center">
+                <h3 class="text-lg font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-clock text-brand-500"></i> 手動考勤補打卡
+                </h3>
+                <button onclick="closeModal('modal-punch')" class="text-slate-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form onsubmit="savePunch(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">選擇員工</label>
+                    <select id="punch-emp-id" required class="w-full p-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500">
+                        <!-- 動態載入員工 -->
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">打卡時間</label>
+                    <input type="datetime-local" id="punch-time" required class="w-full p-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">打卡類型</label>
+                    <select id="punch-type" class="w-full p-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500">
+                        <option value="上班">上班</option>
+                        <option value="下班">下班</option>
+                        <option value="加班">加班</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">考勤註記</label>
+                    <select id="punch-status" class="w-full p-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500">
+                        <option value="正常">正常</option>
+                        <option value="遲到">遲到</option>
+                        <option value="早退">早退</option>
+                        <option value="補簽">管理員補簽</option>
+                    </select>
+                </div>
+                <div class="flex justify-end gap-2 pt-4 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('modal-punch')" class="px-5 py-2.5 bg-slate-100 text-slate-600 text-sm font-bold rounded-xl">取消</button>
+                    <button type="submit" class="px-5 py-2.5 bg-brand-600 text-white text-sm font-bold rounded-xl shadow-lg shadow-brand-600/30">新增打卡紀錄</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 3: 請假申請 Modal -->
+    <div id="modal-leave" class="fixed inset-0 bg-slate-900/60 hidden backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-100">
+            <div class="bg-slate-900 text-white p-5 flex justify-between items-center">
+                <h3 class="text-lg font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-paper-plane text-brand-500"></i> 提出請假簽核單
+                </h3>
+                <button onclick="closeModal('modal-leave')" class="text-slate-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form onsubmit="saveLeaveApply(event)" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">請假員工</label>
+                    <select id="leave-emp-id" required class="w-full p-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500">
+                        <!-- 動態載入員工 -->
+                    </select>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">假別</label>
+                        <select id="leave-type" class="w-full p-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500">
+                            <option value="特休">特休</option>
+                            <option value="事假">事假 (無薪)</option>
+                            <option value="病假">病假 (半薪)</option>
+                            <option value="公假">公假</option>
+                            <option value="婚喪假">婚喪假</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">請假時數 (小時)</label>
+                        <input type="number" id="leave-hours" required value="8" min="1" class="w-full p-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">開始時間</label>
+                        <input type="date" id="leave-start" required class="w-full p-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">結束時間</label>
+                        <input type="date" id="leave-end" required class="w-full p-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">請假事由</label>
+                    <textarea id="leave-reason" rows="2" placeholder="填寫請假詳細原因..." class="w-full p-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500"></textarea>
+                </div>
+                <div class="flex justify-end gap-2 pt-4 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('modal-leave')" class="px-5 py-2.5 bg-slate-100 text-slate-600 text-sm font-bold rounded-xl">取消</button>
+                    <button type="submit" class="px-5 py-2.5 bg-brand-600 text-white text-sm font-bold rounded-xl shadow-lg shadow-brand-600/30">提交送審</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 4: 薪資單預覽與列印 Modal -->
+    <div id="modal-paystub" class="fixed inset-0 bg-slate-900/60 hidden backdrop-blur-sm flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-100">
+            <div id="print-area" class="p-6">
+                <!-- 薪資表單標頭 -->
+                <div class="flex justify-between items-center border-b border-slate-200 pb-4 mb-4">
+                    <div>
+                        <h2 class="text-xl font-black text-slate-900">黑創 e-GO 薪資明細單</h2>
+                        <p class="text-xs text-slate-500">發放月份：2026 年 10 月</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs font-mono font-bold text-brand-600 bg-brand-50 px-2 py-1 rounded">機密文件</span>
+                    </div>
+                </div>
+
+                <!-- 員工基本資料 -->
+                <div class="grid grid-cols-2 gap-2 text-xs bg-slate-50 p-3 rounded-xl mb-4 text-slate-600">
+                    <div>員工姓名：<span class="font-bold text-slate-800" id="ps-name">--</span></div>
+                    <div>員工工號：<span class="font-bold text-slate-800" id="ps-code">--</span></div>
+                    <div>所屬部門：<span class="font-bold text-slate-800" id="ps-dept">--</span></div>
+                    <div>職務稱謂：<span class="font-bold text-slate-800" id="ps-title">--</span></div>
+                </div>
+
+                <!-- 應給與應扣明細 -->
+                <div class="space-y-3 text-sm">
+                    <div class="border-b border-slate-100 pb-2">
+                        <div class="text-xs font-bold text-slate-400 mb-1">【 應支給項目 】</div>
+                        <div class="flex justify-between"><span>基本底薪 / 時薪結算</span><span class="font-mono font-bold" id="ps-base">NT$ 0</span></div>
+                        <div class="flex justify-between text-emerald-600"><span>加班/津貼加項</span><span class="font-mono font-bold" id="ps-overtime">+ NT$ 0</span></div>
+                    </div>
+                    <div class="border-b border-slate-100 pb-2">
+                        <div class="text-xs font-bold text-slate-400 mb-1">【 應扣減項目 】</div>
+                        <div class="flex justify-between text-rose-500"><span>缺勤/事假扣款</span><span class="font-mono font-bold" id="ps-deduction">- NT$ 0</span></div>
+                    </div>
+                    <div class="pt-2 flex justify-between items-center text-lg font-black text-slate-900 bg-emerald-50 p-3 rounded-xl">
+                        <span>實領薪資淨額：</span>
+                        <span class="text-brand-600 font-mono text-xl" id="ps-net">NT$ 0</span>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-slate-50 p-4 border-t border-slate-100 flex justify-end gap-2">
+                <button onclick="closeModal('modal-paystub')" class="px-4 py-2 bg-slate-200 text-slate-600 text-xs font-bold rounded-xl">關閉</button>
+                <button onclick="window.print()" class="px-4 py-2 bg-slate-900 text-white text-xs font-bold rounded-xl shadow"><i class="fa-solid fa-print mr-1"></i>列印薪資單</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ----------------------- JAVASCRIPT 邏輯 ----------------------- -->
     <script>
-        const DB_KEY = 'obsidian_hr_employees';
-        let employees = JSON.parse(localStorage.getItem(DB_KEY)) || [
-            { id: '1', code: 'EMP001', name: '張小明', dept: '勤務組', title: '現場組長', phone: '0912-345678', status: '在職' },
-            { id: '2', code: 'EMP002', name: '李大華', dept: '管理部', title: '行政專員', phone: '0988-765432', status: '在職' }
+        // 本地 LocalStorage 儲存 Key
+        const DB_EMP_KEY = 'ego_hr_employees_v2';
+        const DB_PUNCH_KEY = 'ego_hr_punches_v2';
+        const DB_LEAVE_KEY = 'ego_hr_leaves_v2';
+
+        // 預設高品質範例資料 (第一次載入時寫入)
+        const DEFAULT_EMPLOYEES = [
+            { id: 'emp_1', code: 'E001', name: '張小黑', idCard: 'A123456789', dept: '特勤指揮部', title: '營運隊長', phone: '0912-345678', startDate: '2022-03-01', payType: '月薪', salary: 55000, emergency: '張太太 (0911-000111)', notes: '特勤幹部、防火管理人', status: '在職' },
+            { id: 'emp_2', code: 'E002', name: '林柔柔', idCard: 'B220987654', dept: '行政管理部', title: 'HR 專案總監', phone: '0988-654321', startDate: '2023-01-15', payType: '月薪', salary: 48000, emergency: '林先生 (0922-333444)', notes: '人資系統規劃主管', status: '在職' },
+            { id: 'emp_3', code: 'E003', name: '陳志明', idCard: 'C100222333', dept: '勤務支援組', title: '派遣機動員', phone: '0933-111222', startDate: '2024-05-10', payType: '時薪', salary: 220, emergency: '陳媽媽 (0955-666777)', notes: '可配合夜班機動', status: '在職' }
         ];
 
+        const TODAY_STR = new Date().toISOString().slice(0, 10);
+
+        const DEFAULT_PUNCHES = [
+            { id: 'p_1', empId: 'emp_1', empName: '張小黑', time: `${TODAY_STR} 08:25`, type: '上班', status: '正常', location: '總部大門感應器' },
+            { id: 'p_2', empId: 'emp_2', empName: '林柔柔', time: `${TODAY_STR} 08:31`, type: '上班', status: '遲到', location: '手機 GPS 打卡' }
+        ];
+
+        const DEFAULT_LEAVES = [
+            { id: 'l_1', empId: 'emp_3', empName: '陳志明', type: '事假', hours: 8, start: TODAY_STR, end: TODAY_STR, reason: '處理家中緊急個人事務', status: '待審核' },
+            { id: 'l_2', empId: 'emp_1', empName: '張小黑', type: '特休', hours: 4, start: '2026-10-01', end: '2026-10-01', reason: '年度定期健康檢查', status: '已核准' }
+        ];
+
+        // 全域 State 變數
+        let employees = JSON.parse(localStorage.getItem(DB_EMP_KEY)) || DEFAULT_EMPLOYEES;
+        let punches = JSON.parse(localStorage.getItem(DB_PUNCH_KEY)) || DEFAULT_PUNCHES;
+        let leaves = JSON.parse(localStorage.getItem(DB_LEAVE_KEY)) || DEFAULT_LEAVES;
+
+        // 初始化
         document.addEventListener('DOMContentLoaded', () => {
-            renderEmployees();
+            saveStateToStorage();
+            refreshAllViews();
         });
 
-        // 頁面視圖切換
+        function saveStateToStorage() {
+            localStorage.setItem(DB_EMP_KEY, JSON.stringify(employees));
+            localStorage.setItem(DB_PUNCH_KEY, JSON.stringify(punches));
+            localStorage.setItem(DB_LEAVE_KEY, JSON.stringify(leaves));
+        }
+
+        function refreshAllViews() {
+            renderDashboard();
+            renderEmployees();
+            renderAttendance();
+            renderLeaves();
+            renderPayroll();
+            populateSelectOptions();
+        }
+
+        // 側邊欄開關 (Mobile)
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
+
+        // 視圖切換
         function switchView(viewName) {
             document.querySelectorAll('.view-panel').forEach(el => el.classList.add('hidden'));
             document.getElementById(`view-${viewName}`).classList.remove('hidden');
 
-            document.querySelectorAll('nav button').forEach(btn => {
-                btn.classList.remove('bg-emerald-600', 'text-white');
-                btn.classList.add('hover:bg-slate-800', 'hover:text-white');
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-brand-600', 'text-white', 'shadow-lg', 'shadow-brand-600/30');
+                btn.classList.add('text-slate-400', 'hover:bg-slate-800', 'hover:text-white');
             });
 
             const activeBtn = document.getElementById(`nav-${viewName}`);
-            activeBtn.classList.add('bg-emerald-600', 'text-white');
-            activeBtn.classList.remove('hover:bg-slate-800');
+            activeBtn.classList.add('bg-brand-600', 'text-white', 'shadow-lg', 'shadow-brand-600/30');
+            activeBtn.classList.remove('text-slate-400', 'hover:bg-slate-800');
+
+            // 自動關閉 Mobile 側邊欄
+            if (window.innerWidth < 768) {
+                document.getElementById('sidebar').classList.add('-translate-x-full');
+                document.getElementById('sidebar-overlay').classList.add('hidden');
+            }
         }
 
-        // 渲染員工列表
+        // ----------------------- 視圖 1: 📊 總覽儀表板 -----------------------
+        function renderDashboard() {
+            // 1. KPI 總人數
+            const activeEmps = employees.filter(e => e.status === '在職');
+            document.getElementById('dash-total-emp').innerText = activeEmps.length;
+
+            // 2. 今日出勤率
+            const todayPunches = punches.filter(p => p.time.startsWith(TODAY_STR) && p.type === '上班');
+            const uniqueEmpPunched = new Set(todayPunches.map(p => p.empId)).size;
+            const rate = activeEmps.length > 0 ? Math.round((uniqueEmpPunched / activeEmps.length) * 100) : 0;
+            document.getElementById('dash-attendance-rate').innerText = `${rate}%`;
+            document.getElementById('dash-attendance-detail').innerText = `${uniqueEmpPunched} / ${activeEmps.length} 人打卡`;
+
+            // 3. 待審核請假
+            const pendingLeaves = leaves.filter(l => l.status === '待審核');
+            document.getElementById('dash-pending-leaves').innerText = pendingLeaves.length;
+
+            // 4. 本月估算薪資支出
+            let totalSalary = 0;
+            employees.forEach(e => {
+                if (e.status === '在職') {
+                    if (e.payType === '月薪') totalSalary += Number(e.salary || 0);
+                    else totalSalary += Number(e.salary || 0) * 160; // 估算 160 小時
+                }
+            });
+            document.getElementById('dash-total-payroll').innerText = `NT$ ${totalSalary.toLocaleString()}`;
+
+            // 5. 動態牆渲染
+            const wallEl = document.getElementById('dash-activity-wall');
+            wallEl.innerHTML = '';
+            
+            // 結合打卡與請假事件混合排序
+            const recentPunches = punches.slice(-5).reverse();
+            if (recentPunches.length === 0) {
+                wallEl.innerHTML = `<div class="text-xs text-slate-400 py-4 text-center">今日尚無打卡活動</div>`;
+            } else {
+                recentPunches.forEach(p => {
+                    const item = document.createElement('div');
+                    item.className = 'flex justify-between items-center p-3 bg-slate-50/80 rounded-xl border border-slate-100 text-xs';
+                    const statusBadge = p.status === '遲到' ? '<span class="text-rose-500 font-bold">遲到</span>' : '<span class="text-emerald-600 font-bold">正常</span>';
+                    item.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 bg-brand-50 rounded-lg flex items-center justify-center text-brand-600 font-bold"><i class="fa-solid fa-fingerprint"></i></div>
+                            <div>
+                                <div class="font-bold text-slate-800">${p.empName} 完成了【${p.type}】打卡</div>
+                                <div class="text-slate-400 text-[11px]">${p.location || '線上打卡'}</div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-mono font-medium text-slate-600">${p.time.slice(11)}</div>
+                            <div>${statusBadge}</div>
+                        </div>
+                    `;
+                    wallEl.appendChild(item);
+                });
+            }
+
+            // 6. 待審核快捷清單
+            const pendingListEl = document.getElementById('dash-pending-leaves-list');
+            pendingListEl.innerHTML = '';
+            if (pendingLeaves.length === 0) {
+                pendingListEl.innerHTML = `<div class="text-xs text-slate-400 py-8 text-center bg-slate-50 rounded-xl">🎉 太棒了！目前沒有待審核的請假案件</div>`;
+            } else {
+                pendingLeaves.forEach(l => {
+                    const card = document.createElement('div');
+                    card.className = 'p-3 bg-amber-50/60 border border-amber-200/60 rounded-xl text-xs space-y-2';
+                    card.innerHTML = `
+                        <div class="flex justify-between items-center font-bold text-slate-800">
+                            <span>${l.empName} — <span class="text-amber-700">${l.type}</span> (${l.hours}小時)</span>
+                            <span class="text-[10px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">待簽核</span>
+                        </div>
+                        <p class="text-slate-600 text-[11px] truncate">${l.reason}</p>
+                        <div class="flex justify-end gap-2 pt-1">
+                            <button onclick="approveLeave('${l.id}', '已核准')" class="px-2.5 py-1 bg-emerald-600 text-white font-bold rounded-lg text-[11px]">核准</button>
+                            <button onclick="approveLeave('${l.id}', '已駁回')" class="px-2.5 py-1 bg-rose-500 text-white font-bold rounded-lg text-[11px]">駁回</button>
+                        </div>
+                    `;
+                    pendingListEl.appendChild(card);
+                });
+            }
+        }
+
+        // 快捷模擬打卡
+        function quickPunch(type) {
+            if (employees.length === 0) return alert('請先新增員工！');
+            const emp = employees[0]; // 預設拿第一個員工
+            const nowStr = `${TODAY_STR} ${new Date().toTimeString().slice(0,5)}`;
+            const newPunch = {
+                id: 'p_' + Date.now(),
+                empId: emp.id,
+                empName: emp.name,
+                time: nowStr,
+                type: type,
+                status: '正常',
+                location: '儀表板快捷打卡'
+            };
+            punches.push(newPunch);
+            saveStateToStorage();
+            refreshAllViews();
+        }
+
+        // ----------------------- 視圖 2: 👥 員工檔案管理 -----------------------
         function renderEmployees() {
             const tbody = document.getElementById('employee-table-body');
-            tbody.innerHTML = '';
-            document.getElementById('dash-total-emp').innerText = employees.length;
+            const searchKw = document.getElementById('emp-search').value.toLowerCase();
+            const filterStatus = document.getElementById('emp-filter-status').value;
 
-            employees.forEach(emp => {
+            tbody.innerHTML = '';
+
+            const filtered = employees.filter(e => {
+                const matchKw = (e.name && e.name.toLowerCase().includes(searchKw)) ||
+                                (e.code && e.code.toLowerCase().includes(searchKw)) ||
+                                (e.dept && e.dept.toLowerCase().includes(searchKw)) ||
+                                (e.phone && e.phone.includes(searchKw));
+                const matchStatus = filterStatus === 'ALL' || e.status === filterStatus;
+                return matchKw && matchStatus;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400 text-xs">查無符合條件的員工檔案</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(e => {
                 const tr = document.createElement('tr');
-                tr.className = 'hover:bg-slate-50 transition';
+                tr.className = 'hover:bg-slate-50/80 transition';
+                const statusTag = e.status === '在職' ? 
+                    '<span class="bg-emerald-50 text-emerald-700 text-xs px-2.5 py-1 rounded-full font-bold border border-emerald-200/60">在職</span>' : 
+                    '<span class="bg-slate-100 text-slate-500 text-xs px-2.5 py-1 rounded-full font-bold">離職</span>';
+
                 tr.innerHTML = `
-                    <td class="p-4 font-mono font-medium text-slate-700">${emp.code}</td>
-                    <td class="p-4 font-bold text-slate-800">${emp.name}</td>
-                    <td class="p-4 text-slate-600">${emp.dept}</td>
-                    <td class="p-4 text-slate-600">${emp.title}</td>
-                    <td class="p-4 text-slate-600">${emp.phone}</td>
-                    <td class="p-4"><span class="bg-emerald-100 text-emerald-700 text-xs px-2 py-1 rounded-full font-medium">${emp.status || '在職'}</span></td>
-                    <td class="p-4 text-right">
-                        <button onclick="deleteEmployee('${emp.id}')" class="text-xs text-rose-500 hover:underline">刪除</button>
+                    <td class="p-4">
+                        <div class="font-bold text-slate-800">${e.name}</div>
+                        <div class="text-xs font-mono text-slate-400">${e.code}</div>
+                    </td>
+                    <td class="p-4">
+                        <div class="text-slate-700 font-medium">${e.dept || '未分配'}</div>
+                        <div class="text-xs text-slate-400">${e.title || '無職稱'}</div>
+                    </td>
+                    <td class="p-4 text-slate-600 font-mono text-xs">${e.phone || '--'}</td>
+                    <td class="p-4">
+                        <span class="font-semibold text-slate-700">${e.payType}</span>
+                        <span class="text-xs font-mono text-slate-500 block">NT$ ${(Number(e.salary)||0).toLocaleString()}</span>
+                    </td>
+                    <td class="p-4 text-xs text-slate-500 font-mono">${e.startDate || '--'}</td>
+                    <td class="p-4">${statusTag}</td>
+                    <td class="p-4 text-right space-x-2">
+                        <button onclick="editEmployee('${e.id}')" class="text-slate-600 hover:text-brand-600 font-bold text-xs"><i class="fa-solid fa-pen"></i> 編輯</button>
+                        <button onclick="deleteEmployee('${e.id}')" class="text-rose-400 hover:text-rose-600 font-bold text-xs"><i class="fa-solid fa-trash"></i> 刪除</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        // 開啟 Modal
-        function openModal() {
+        function openEmployeeModal() {
             document.getElementById('emp-id').value = '';
-            document.getElementById('emp-code').value = 'EMP' + String(employees.length + 1).padStart(3, '0');
+            document.getElementById('emp-code').value = 'E' + String(employees.length + 1).padStart(3, '0');
             document.getElementById('emp-name').value = '';
+            document.getElementById('emp-idcard').value = '';
             document.getElementById('emp-dept').value = '';
             document.getElementById('emp-title').value = '';
+            document.getElementById('emp-status').value = '在職';
             document.getElementById('emp-phone').value = '';
-            document.getElementById('emp-modal').classList.remove('hidden');
+            document.getElementById('emp-startdate').value = TODAY_STR;
+            document.getElementById('emp-paytype').value = '月薪';
+            document.getElementById('emp-salary').value = '42000';
+            document.getElementById('emp-emergency').value = '';
+            document.getElementById('emp-notes').value = '';
+            document.getElementById('modal-employee-title').innerText = '新增員工資料';
+            document.getElementById('modal-employee').classList.remove('hidden');
         }
 
-        function closeModal() {
-            document.getElementById('emp-modal').classList.add('hidden');
+        function editEmployee(id) {
+            const emp = employees.find(e => e.id === id);
+            if (!emp) return;
+
+            document.getElementById('emp-id').value = emp.id;
+            document.getElementById('emp-code').value = emp.code || '';
+            document.getElementById('emp-name').value = emp.name || '';
+            document.getElementById('emp-idcard').value = emp.idCard || '';
+            document.getElementById('emp-dept').value = emp.dept || '';
+            document.getElementById('emp-title').value = emp.title || '';
+            document.getElementById('emp-status').value = emp.status || '在職';
+            document.getElementById('emp-phone').value = emp.phone || '';
+            document.getElementById('emp-startdate').value = emp.startDate || '';
+            document.getElementById('emp-paytype').value = emp.payType || '月薪';
+            document.getElementById('emp-salary').value = emp.salary || 0;
+            document.getElementById('emp-emergency').value = emp.emergency || '';
+            document.getElementById('emp-notes').value = emp.notes || '';
+
+            document.getElementById('modal-employee-title').innerText = '編輯員工資料';
+            document.getElementById('modal-employee').classList.remove('hidden');
         }
 
-        // 儲存員工
         function saveEmployee(e) {
             e.preventDefault();
-            const newEmp = {
-                id: Date.now().toString(),
+            const id = document.getElementById('emp-id').value || 'emp_' + Date.now();
+            const empData = {
+                id: id,
                 code: document.getElementById('emp-code').value,
                 name: document.getElementById('emp-name').value,
+                idCard: document.getElementById('emp-idcard').value,
                 dept: document.getElementById('emp-dept').value,
                 title: document.getElementById('emp-title').value,
+                status: document.getElementById('emp-status').value,
                 phone: document.getElementById('emp-phone').value,
-                status: '在職'
+                startDate: document.getElementById('emp-startdate').value,
+                payType: document.getElementById('emp-paytype').value,
+                salary: Number(document.getElementById('emp-salary').value || 0),
+                emergency: document.getElementById('emp-emergency').value,
+                notes: document.getElementById('emp-notes').value
             };
-            employees.push(newEmp);
-            localStorage.setItem(DB_KEY, JSON.stringify(employees));
-            renderEmployees();
-            closeModal();
+
+            const idx = employees.findIndex(emp => emp.id === id);
+            if (idx > -1) employees[idx] = empData;
+            else employees.push(empData);
+
+            saveStateToStorage();
+            refreshAllViews();
+            closeModal('modal-employee');
         }
 
         function deleteEmployee(id) {
-            if(confirm('確定要刪除該員工嗎？')) {
+            if (confirm('確定要刪除該員工資料嗎？關聯紀錄將會一併調整。')) {
                 employees = employees.filter(e => e.id !== id);
-                localStorage.setItem(DB_KEY, JSON.stringify(employees));
-                renderEmployees();
+                saveStateToStorage();
+                refreshAllViews();
             }
         }
 
-        function exportData() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(employees, null, 2));
-            const anchor = document.createElement('a');
-            anchor.setAttribute("href", dataStr);
-            anchor.setAttribute("download", `hr_employees_${new Date().toISOString().slice(0,10)}.json`);
-            anchor.click();
+        // ----------------------- 視圖 3: ⏰ 出勤與打卡紀錄 -----------------------
+        function renderAttendance() {
+            const tbody = document.getElementById('attendance-table-body');
+            tbody.innerHTML = '';
+
+            const sortedPunches = [...punches].reverse();
+
+            if (sortedPunches.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-8 text-center text-slate-400 text-xs">目前無打卡紀錄</td></tr>`;
+                return;
+            }
+
+            sortedPunches.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50/80 transition';
+                
+                let badgeClass = 'bg-slate-100 text-slate-600';
+                if (p.status === '正常') badgeClass = 'bg-emerald-50 text-emerald-700 border border-emerald-200/60';
+                if (p.status === '遲到' || p.status === '早退') badgeClass = 'bg-rose-50 text-rose-600 border border-rose-200/60';
+
+                tr.innerHTML = `
+                    <td class="p-4 font-bold text-slate-800">${p.empName}</td>
+                    <td class="p-4 font-mono text-slate-600">${p.time}</td>
+                    <td class="p-4"><span class="font-bold text-slate-700">${p.type}</span></td>
+                    <td class="p-4"><span class="text-xs px-2.5 py-1 rounded-full font-bold ${badgeClass}">${p.status}</span></td>
+                    <td class="p-4 text-xs text-slate-500">${p.location || '系統紀錄'}</td>
+                    <td class="p-4 text-right">
+                        <button onclick="deletePunch('${p.id}')" class="text-rose-400 hover:text-rose-600 text-xs font-bold"><i class="fa-solid fa-xmark"></i> 刪除</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
         }
 
-        function importData() {
+        function openPunchModal() {
+            populateSelectOptions();
+            document.getElementById('punch-time').value = `${TODAY_STR}T08:30`;
+            document.getElementById('modal-punch').classList.remove('hidden');
+        }
+
+        function savePunch(e) {
+            e.preventDefault();
+            const empId = document.getElementById('punch-emp-id').value;
+            const emp = employees.find(e => e.id === empId);
+            if (!emp) return;
+
+            const rawTime = document.getElementById('punch-time').value;
+            const formattedTime = rawTime.replace('T', ' ');
+
+            const newPunch = {
+                id: 'p_' + Date.now(),
+                empId: emp.id,
+                empName: emp.name,
+                time: formattedTime,
+                type: document.getElementById('punch-type').value,
+                status: document.getElementById('punch-status').value,
+                location: '管理員手動補簽'
+            };
+
+            punches.push(newPunch);
+            saveStateToStorage();
+            refreshAllViews();
+            closeModal('modal-punch');
+        }
+
+        function deletePunch(id) {
+            punches = punches.filter(p => p.id !== id);
+            saveStateToStorage();
+            refreshAllViews();
+        }
+
+        // ----------------------- 視圖 4: 📝 請假簽核管理 -----------------------
+        function renderLeaves() {
+            const tbody = document.getElementById('leaves-table-body');
+            tbody.innerHTML = '';
+
+            const sortedLeaves = [...leaves].reverse();
+
+            if (sortedLeaves.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400 text-xs">目前無任何請假紀錄</td></tr>`;
+                return;
+            }
+
+            sortedLeaves.forEach(l => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50/80 transition';
+
+                let statusBadge = '<span class="bg-amber-50 text-amber-700 text-xs px-2.5 py-1 rounded-full font-bold border border-amber-200">待審核</span>';
+                if (l.status === '已核准') statusBadge = '<span class="bg-emerald-50 text-emerald-700 text-xs px-2.5 py-1 rounded-full font-bold border border-emerald-200">已核准</span>';
+                if (l.status === '已駁回') statusBadge = '<span class="bg-rose-50 text-rose-600 text-xs px-2.5 py-1 rounded-full font-bold border border-rose-200">已駁回</span>';
+
+                tr.innerHTML = `
+                    <td class="p-4 font-bold text-slate-800">${l.empName}</td>
+                    <td class="p-4 font-bold text-slate-700">${l.type}</td>
+                    <td class="p-4 font-mono text-xs text-slate-600">${l.start} ~ ${l.end}</td>
+                    <td class="p-4 font-bold text-slate-800">${l.hours} 小時</td>
+                    <td class="p-4 text-xs text-slate-500 max-w-xs truncate">${l.reason || '--'}</td>
+                    <td class="p-4">${statusBadge}</td>
+                    <td class="p-4 text-right space-x-1">
+                        ${l.status === '待審核' ? `
+                            <button onclick="approveLeave('${l.id}', '已核准')" class="px-2.5 py-1 bg-emerald-600 text-white font-bold rounded-lg text-xs shadow-sm">核准</button>
+                            <button onclick="approveLeave('${l.id}', '已駁回')" class="px-2.5 py-1 bg-rose-500 text-white font-bold rounded-lg text-xs shadow-sm">駁回</button>
+                        ` : `<span class="text-xs text-slate-400">已結案</span>`}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function openLeaveApplyModal() {
+            populateSelectOptions();
+            document.getElementById('leave-start').value = TODAY_STR;
+            document.getElementById('leave-end').value = TODAY_STR;
+            document.getElementById('modal-leave').classList.remove('hidden');
+        }
+
+        function saveLeaveApply(e) {
+            e.preventDefault();
+            const empId = document.getElementById('leave-emp-id').value;
+            const emp = employees.find(e => e.id === empId);
+            if (!emp) return;
+
+            const newLeave = {
+                id: 'l_' + Date.now(),
+                empId: emp.id,
+                empName: emp.name,
+                type: document.getElementById('leave-type').value,
+                hours: Number(document.getElementById('leave-hours').value),
+                start: document.getElementById('leave-start').value,
+                end: document.getElementById('leave-end').value,
+                reason: document.getElementById('leave-reason').value,
+                status: '待審核'
+            };
+
+            leaves.push(newLeave);
+            saveStateToStorage();
+            refreshAllViews();
+            closeModal('modal-leave');
+        }
+
+        function approveLeave(id, newStatus) {
+            const leave = leaves.find(l => l.id === id);
+            if (leave) {
+                leave.status = newStatus;
+                saveStateToStorage();
+                refreshAllViews();
+            }
+        }
+
+        // ----------------------- 視圖 5: 💰 薪資與計薪試算 -----------------------
+        function renderPayroll() {
+            const tbody = document.getElementById('payroll-table-body');
+            tbody.innerHTML = '';
+
+            const activeEmps = employees.filter(e => e.status === '在職');
+
+            if (activeEmps.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="p-8 text-center text-slate-400 text-xs">目前沒有在職員工資料</td></tr>`;
+                return;
+            }
+
+            activeEmps.forEach(e => {
+                // 計算請假扣款 (僅計算事假)
+                const empLeaves = leaves.filter(l => l.empId === e.id && l.status === '已核准' && l.type === '事假');
+                const leaveHours = empLeaves.reduce((sum, l) => sum + Number(l.hours || 0), 0);
+                
+                let basePay = Number(e.salary || 0);
+                let deduction = 0;
+                let overtime = 0;
+
+                if (e.payType === '月薪') {
+                    const hourlyRate = basePay / 240; // 假設月工時 240 小時
+                    deduction = Math.round(leaveHours * hourlyRate);
+                } else {
+                    // 時薪制假設基本工時 160小時
+                    basePay = basePay * 160;
+                }
+
+                const netPay = basePay + overtime - deduction;
+
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50/80 transition';
+                tr.innerHTML = `
+                    <td class="p-4 font-bold text-slate-800">
+                        <div>${e.name}</div>
+                        <div class="text-xs text-slate-400 font-normal">${e.title || '無職務'}</div>
+                    </td>
+                    <td class="p-4"><span class="text-xs font-bold px-2 py-1 bg-slate-100 rounded text-slate-700">${e.payType}</span></td>
+                    <td class="p-4 font-mono font-semibold text-slate-700">NT$ ${(Number(e.salary)||0).toLocaleString()}</td>
+                    <td class="p-4 font-mono text-emerald-600 font-semibold">+ NT$ ${overtime}</td>
+                    <td class="p-4 font-mono text-rose-500 font-semibold">- NT$ ${deduction.toLocaleString()}</td>
+                    <td class="p-4 font-mono font-black text-slate-900 text-base">NT$ ${netPay.toLocaleString()}</td>
+                    <td class="p-4 text-right">
+                        <button onclick="previewPaystub('${e.id}', ${basePay}, ${overtime}, ${deduction}, ${netPay})" class="px-3 py-1.5 bg-brand-50 hover:bg-brand-100 text-brand-700 font-bold rounded-xl text-xs transition border border-brand-200">
+                            <i class="fa-solid fa-file-invoice-dollar mr-1"></i>明細單
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function previewPaystub(empId, basePay, overtime, deduction, netPay) {
+            const emp = employees.find(e => e.id === empId);
+            if (!emp) return;
+
+            document.getElementById('ps-name').innerText = emp.name;
+            document.getElementById('ps-code').innerText = emp.code;
+            document.getElementById('ps-dept').innerText = emp.dept || '管理部';
+            document.getElementById('ps-title').innerText = emp.title || '同仁';
+
+            document.getElementById('ps-base').innerText = `NT$ ${basePay.toLocaleString()}`;
+            document.getElementById('ps-overtime').innerText = `+ NT$ ${overtime.toLocaleString()}`;
+            document.getElementById('ps-deduction').innerText = `- NT$ ${deduction.toLocaleString()}`;
+            document.getElementById('ps-net').innerText = `NT$ ${netPay.toLocaleString()}`;
+
+            document.getElementById('modal-paystub').classList.remove('hidden');
+        }
+
+        // ----------------------- 輔助函數 (Select 填充 & JSON 匯入匯出) -----------------------
+        function populateSelectOptions() {
+            const punchSelect = document.getElementById('punch-emp-id');
+            const leaveSelect = document.getElementById('leave-emp-id');
+
+            punchSelect.innerHTML = '';
+            leaveSelect.innerHTML = '';
+
+            employees.filter(e => e.status === '在職').forEach(e => {
+                const opt = `<option value="${e.id}">${e.name} (${e.code} - ${e.dept || '無部門'})</option>`;
+                punchSelect.innerHTML += opt;
+                leaveSelect.innerHTML += opt;
+            });
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        function exportJSON() {
+            const fullData = {
+                employees,
+                punches,
+                leaves,
+                exportAt: new Date().toISOString()
+            };
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(fullData, null, 2));
+            const anchor = document.createElement('a');
+            anchor.setAttribute("href", dataStr);
+            anchor.setAttribute("download", `EGO_HR_Backup_${TODAY_STR}.json`);
+            document.body.appendChild(anchor);
+            anchor.click();
+            anchor.remove();
+        }
+
+        function importJSON() {
             const input = document.createElement('input');
             input.type = 'file';
             input.accept = 'application/json';
@@ -289,12 +1195,35 @@
                 const reader = new FileReader();
                 reader.readAsText(file, 'UTF-8');
                 reader.onload = readerEvent => {
-                    employees = JSON.parse(readerEvent.target.result);
-                    localStorage.setItem(DB_KEY, JSON.stringify(employees));
-                    renderEmployees();
+                    try {
+                        const imported = JSON.parse(readerEvent.target.result);
+                        if (imported.employees && imported.punches && imported.leaves) {
+                            employees = imported.employees;
+                            punches = imported.punches;
+                            leaves = imported.leaves;
+                            saveStateToStorage();
+                            refreshAllViews();
+                            alert('🎉 成功匯入資料庫數據！');
+                        } else {
+                            alert('⚠️ 匯入失敗：JSON 資料格式無效！');
+                        }
+                    } catch (err) {
+                        alert('⚠️ 讀取檔案失敗：請確保選擇正確的 JSON 檔案');
+                    }
                 }
             }
             input.click();
+        }
+
+        function resetData() {
+            if (confirm('確定要將系統恢復為預設範例資料嗎？當前新增的紀錄將會被覆蓋。')) {
+                employees = DEFAULT_EMPLOYEES;
+                punches = DEFAULT_PUNCHES;
+                leaves = DEFAULT_LEAVES;
+                saveStateToStorage();
+                refreshAllViews();
+                alert('系統已重置為預設範例資料！');
+            }
         }
     </script>
 </body>
