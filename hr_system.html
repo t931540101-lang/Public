@@ -9,7 +9,7 @@
     <!-- FontAwesome 圖標庫 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Inter 字體 -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
@@ -34,10 +34,6 @@
     <style>
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-        }
         @media print {
             body * { visibility: hidden; }
             #print-area, #print-area * { visibility: visible; }
@@ -69,7 +65,7 @@
                 <div class="w-10 h-10 bg-brand-500 rounded-xl flex items-center justify-center text-white font-black text-2xl shadow-lg shadow-brand-500/30">黑</div>
                 <div>
                     <h1 class="text-lg font-bold text-white tracking-wide leading-tight">黑創 e-GO</h1>
-                    <p class="text-xs text-brand-500 font-semibold tracking-wider uppercase">HR Enterprise v2.5</p>
+                    <p class="text-xs text-brand-500 font-semibold tracking-wider uppercase">HR Enterprise v2.8</p>
                 </div>
             </div>
 
@@ -95,7 +91,7 @@
                 </button>
                 <button onclick="switchView('payroll')" id="nav-payroll" class="nav-btn w-full flex items-center gap-3.5 px-3.5 py-3 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition">
                     <i class="fa-solid fa-sack-dollar w-5 text-center text-base"></i>
-                    <span>💰 薪資與計薪試算</span>
+                    <span>💰 薪資結算與清冊</span>
                 </button>
             </nav>
         </div>
@@ -176,7 +172,7 @@
 
                 <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 hover:shadow-md transition">
                     <div class="flex justify-between items-center text-slate-400">
-                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">本月預估薪資支出</span>
+                        <span class="text-xs font-bold uppercase tracking-wider text-slate-500">本月預估薪資總支出</span>
                         <div class="w-9 h-9 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600"><i class="fa-solid fa-money-bill-wave"></i></div>
                     </div>
                     <div class="mt-3 flex items-baseline gap-2">
@@ -252,7 +248,7 @@
                                 <th class="p-4">工號 / 姓名</th>
                                 <th class="p-4">部門 / 職稱</th>
                                 <th class="p-4">聯絡電話</th>
-                                <th class="p-4">薪資計費類型</th>
+                                <th class="p-4">預設底薪/薪資類型</th>
                                 <th class="p-4">到職日期</th>
                                 <th class="p-4">狀態</th>
                                 <th class="p-4 text-right">操作</th>
@@ -309,17 +305,17 @@
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <h2 class="text-2xl font-black text-slate-800 tracking-tight">請假簽核管理 📝</h2>
-                    <p class="text-xs text-slate-500 mt-1">線上請假申請簽核、假別額度扣抵與審查管理</p>
+                    <p class="text-xs text-slate-500 mt-1">線上請假申請簽核、假別額度扣抵與自由編輯修改請假紀錄</p>
                 </div>
-                <button onclick="openLeaveApplyModal()" class="bg-brand-600 hover:bg-brand-500 text-white text-sm px-4 py-2.5 rounded-xl font-bold shadow-lg shadow-brand-600/30 transition flex items-center gap-2">
-                    <i class="fa-solid fa-paper-plane"></i> 提出請假申請
+                <button onclick="openLeaveModal()" class="bg-brand-600 hover:bg-brand-500 text-white text-sm px-4 py-2.5 rounded-xl font-bold shadow-lg shadow-brand-600/30 transition flex items-center gap-2">
+                    <i class="fa-solid fa-paper-plane"></i> 提出/新增請假單
                 </button>
             </div>
 
             <!-- 簽核案件表格 -->
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
                 <div class="p-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-                    <h3 class="font-bold text-slate-700 text-sm">請假申請紀錄單據</h3>
+                    <h3 class="font-bold text-slate-700 text-sm">請假申請紀錄與簽核池</h3>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-left border-collapse">
@@ -331,7 +327,7 @@
                                 <th class="p-4">天數/時數</th>
                                 <th class="p-4">請假事由</th>
                                 <th class="p-4">簽核狀態</th>
-                                <th class="p-4 text-right">審核操作</th>
+                                <th class="p-4 text-right">管理與審核操作</th>
                             </tr>
                         </thead>
                         <tbody id="leaves-table-body" class="divide-y divide-slate-100 text-sm">
@@ -342,15 +338,20 @@
             </div>
         </section>
 
-        <!-- 視圖 5: 💰 薪資與計薪試算 (Payroll) -->
+        <!-- 視圖 5: 💰 薪資與清冊 (Payroll) -->
         <section id="view-payroll" class="view-panel hidden space-y-6">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
-                    <h2 class="text-2xl font-black text-slate-800 tracking-tight">薪資與計薪試算 💰</h2>
-                    <p class="text-xs text-slate-500 mt-1">依據底薪、加班加項與請假扣款自動試算，可生成專業薪資明細單</p>
+                    <h2 class="text-2xl font-black text-slate-800 tracking-tight">薪資結算與清冊 💰</h2>
+                    <p class="text-xs text-slate-500 mt-1">支援動態修改底薪、津貼、加班與扣款細項，自動產生薪資清冊</p>
                 </div>
-                <div class="text-xs text-slate-500 bg-white border border-slate-200 px-3 py-2 rounded-xl">
-                    <i class="fa-solid fa-circle-info text-brand-600 mr-1"></i>當前計算月份：<span class="font-bold text-slate-800">2026 年 10 月</span>
+                <div class="flex items-center gap-3">
+                    <div class="text-xs text-slate-500 bg-white border border-slate-200 px-3 py-2 rounded-xl">
+                        <i class="fa-solid fa-calendar-days text-brand-600 mr-1"></i>當前月份：<span class="font-bold text-slate-800">2026 年 10 月</span>
+                    </div>
+                    <button onclick="openPayrollModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-sm px-4 py-2 rounded-xl font-bold shadow-lg shadow-indigo-600/30 transition flex items-center gap-2">
+                        <i class="fa-solid fa-plus"></i> 新增/調整薪資紀錄
+                    </button>
                 </div>
             </div>
 
@@ -361,12 +362,12 @@
                         <thead class="bg-slate-50 text-slate-500 text-xs font-bold uppercase border-b border-slate-200">
                             <tr>
                                 <th class="p-4">員工 / 職稱</th>
-                                <th class="p-4">計費方式</th>
-                                <th class="p-4">約定底薪/時薪</th>
-                                <th class="p-4">加班加項估算</th>
-                                <th class="p-4">缺勤扣款估算</th>
-                                <th class="p-4">應發薪資總額</th>
-                                <th class="p-4 text-right">操作</th>
+                                <th class="p-4">基本底薪</th>
+                                <th class="p-4">加項津貼總計</th>
+                                <th class="p-4">扣減項目總計</th>
+                                <th class="p-4">實發薪資 (淨額)</th>
+                                <th class="p-4">發放狀態</th>
+                                <th class="p-4 text-right">細項編輯與操作</th>
                             </tr>
                         </thead>
                         <tbody id="payroll-table-body" class="divide-y divide-slate-100 text-sm">
@@ -439,7 +440,7 @@
 
                 <!-- 薪資計算基礎 -->
                 <div class="p-4 bg-slate-50 rounded-xl border border-slate-200/80 space-y-3">
-                    <span class="text-xs font-bold text-slate-700 uppercase tracking-wider block">💰 薪資結構設定</span>
+                    <span class="text-xs font-bold text-slate-700 uppercase tracking-wider block">💰 預設薪資結構設定</span>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-semibold text-slate-600 mb-1">計薪類型</label>
@@ -449,7 +450,7 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">約定薪資 (NT$)</label>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">約定預設底薪 (NT$)</label>
                             <input type="number" id="emp-salary" placeholder="42000" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-white">
                         </div>
                     </div>
@@ -518,16 +519,17 @@
         </div>
     </div>
 
-    <!-- Modal 3: 請假申請 Modal -->
+    <!-- Modal 3: 請假申請/編輯 Modal (升級新增/編輯通用) -->
     <div id="modal-leave" class="fixed inset-0 bg-slate-900/60 hidden backdrop-blur-sm flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-100">
             <div class="bg-slate-900 text-white p-5 flex justify-between items-center">
-                <h3 class="text-lg font-bold flex items-center gap-2">
-                    <i class="fa-solid fa-paper-plane text-brand-500"></i> 提出請假簽核單
+                <h3 class="text-lg font-bold flex items-center gap-2" id="modal-leave-title">
+                    <i class="fa-solid fa-paper-plane text-brand-500"></i> 請假紀錄管理
                 </h3>
                 <button onclick="closeModal('modal-leave')" class="text-slate-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
             </div>
-            <form onsubmit="saveLeaveApply(event)" class="p-6 space-y-4">
+            <form onsubmit="saveLeave(event)" class="p-6 space-y-4">
+                <input type="hidden" id="leave-id">
                 <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1">請假員工</label>
                     <select id="leave-emp-id" required class="w-full p-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500">
@@ -542,7 +544,8 @@
                             <option value="事假">事假 (無薪)</option>
                             <option value="病假">病假 (半薪)</option>
                             <option value="公假">公假</option>
-                            <option value="婚喪假">婚喪假</option>
+                            <option value="喪假">喪假</option>
+                            <option value="婚假">婚假</option>
                         </select>
                     </div>
                     <div>
@@ -552,13 +555,21 @@
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">開始時間</label>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">開始日期</label>
                         <input type="date" id="leave-start" required class="w-full p-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 mb-1">結束時間</label>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">結束日期</label>
                         <input type="date" id="leave-end" required class="w-full p-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500">
                     </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">簽核狀態</label>
+                    <select id="leave-status" class="w-full p-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500">
+                        <option value="待審核">待審核</option>
+                        <option value="已核准">已核准</option>
+                        <option value="已駁回">已駁回</option>
+                    </select>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-slate-600 mb-1">請假事由</label>
@@ -566,13 +577,99 @@
                 </div>
                 <div class="flex justify-end gap-2 pt-4 border-t border-slate-100">
                     <button type="button" onclick="closeModal('modal-leave')" class="px-5 py-2.5 bg-slate-100 text-slate-600 text-sm font-bold rounded-xl">取消</button>
-                    <button type="submit" class="px-5 py-2.5 bg-brand-600 text-white text-sm font-bold rounded-xl shadow-lg shadow-brand-600/30">提交送審</button>
+                    <button type="submit" class="px-5 py-2.5 bg-brand-600 text-white text-sm font-bold rounded-xl shadow-lg shadow-brand-600/30">儲存請假單</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Modal 4: 薪資單預覽與列印 Modal -->
+    <!-- Modal 4: 薪資紀錄細項編輯 Modal (升級全新功能) -->
+    <div id="modal-payroll" class="fixed inset-0 bg-slate-900/60 hidden backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full my-8 overflow-hidden border border-slate-100">
+            <div class="bg-slate-900 text-white p-5 flex justify-between items-center">
+                <h3 class="text-lg font-bold flex items-center gap-2" id="modal-payroll-title">
+                    <i class="fa-solid fa-calculator text-brand-500"></i> 編輯當月薪資清冊明細
+                </h3>
+                <button onclick="closeModal('modal-payroll')" class="text-slate-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form onsubmit="savePayroll(event)" class="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+                <input type="hidden" id="pay-id">
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">發放同仁</label>
+                        <select id="pay-emp-id" required class="w-full p-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500">
+                            <!-- 動態載入員工 -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">計薪月份</label>
+                        <input type="month" id="pay-month" value="2026-10" required class="w-full p-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-brand-500">
+                    </div>
+                </div>
+
+                <!-- 薪資加項與基本薪資 -->
+                <div class="p-4 bg-emerald-50/50 rounded-xl border border-emerald-100 space-y-3">
+                    <span class="text-xs font-bold text-emerald-800 uppercase tracking-wider block"><i class="fa-solid fa-circle-plus text-emerald-600 mr-1"></i> 應支給 (加項)</span>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">約定基本底薪 (NT$)</label>
+                            <input type="number" id="pay-base" oninput="calcPayrollTotal()" required class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-white font-mono">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">職務/績效津貼 (NT$)</label>
+                            <input type="number" id="pay-allowance" oninput="calcPayrollTotal()" value="0" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-white font-mono">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">伙食/交通津貼 (NT$)</label>
+                            <input type="number" id="pay-meal" oninput="calcPayrollTotal()" value="0" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-white font-mono">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">加班費 (NT$)</label>
+                            <input type="number" id="pay-overtime" oninput="calcPayrollTotal()" value="0" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-white font-mono">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 薪資扣項 -->
+                <div class="p-4 bg-rose-50/50 rounded-xl border border-rose-100 space-y-3">
+                    <span class="text-xs font-bold text-rose-800 uppercase tracking-wider block"><i class="fa-solid fa-circle-minus text-rose-500 mr-1"></i> 應扣減 (扣項)</span>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">勞保/健保自負額 (NT$)</label>
+                            <input type="number" id="pay-insurance" oninput="calcPayrollTotal()" value="0" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-white font-mono">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">事假缺勤/遲到扣款 (NT$)</label>
+                            <input type="number" id="pay-leave-deduct" oninput="calcPayrollTotal()" value="0" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-white font-mono">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 狀態與試算結果 -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center bg-slate-50 p-4 rounded-xl">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">發放狀態</label>
+                        <select id="pay-status" class="w-full p-2 border border-slate-200 rounded-lg text-sm bg-white">
+                            <option value="待發放">待發放</option>
+                            <option value="已發放">已發放</option>
+                        </select>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs font-bold text-slate-500 block">實發金額總計 (淨額)</span>
+                        <span class="text-xl font-black text-brand-600 font-mono" id="pay-net-preview">NT$ 0</span>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-4 border-t border-slate-100">
+                    <button type="button" onclick="closeModal('modal-payroll')" class="px-5 py-2.5 bg-slate-100 text-slate-600 text-sm font-bold rounded-xl">取消</button>
+                    <button type="submit" class="px-5 py-2.5 bg-indigo-600 text-white text-sm font-bold rounded-xl shadow-lg shadow-indigo-600/30">儲存薪資明細</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 5: 薪資單預覽與列印 Modal -->
     <div id="modal-paystub" class="fixed inset-0 bg-slate-900/60 hidden backdrop-blur-sm flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden border border-slate-100">
             <div id="print-area" class="p-6">
@@ -580,7 +677,7 @@
                 <div class="flex justify-between items-center border-b border-slate-200 pb-4 mb-4">
                     <div>
                         <h2 class="text-xl font-black text-slate-900">黑創 e-GO 薪資明細單</h2>
-                        <p class="text-xs text-slate-500">發放月份：2026 年 10 月</p>
+                        <p class="text-xs text-slate-500">發放月份：<span id="ps-month">2026 年 10 月</span></p>
                     </div>
                     <div class="text-right">
                         <span class="text-xs font-mono font-bold text-brand-600 bg-brand-50 px-2 py-1 rounded">機密文件</span>
@@ -597,14 +694,16 @@
 
                 <!-- 應給與應扣明細 -->
                 <div class="space-y-3 text-sm">
-                    <div class="border-b border-slate-100 pb-2">
+                    <div class="border-b border-slate-100 pb-2 space-y-1">
                         <div class="text-xs font-bold text-slate-400 mb-1">【 應支給項目 】</div>
-                        <div class="flex justify-between"><span>基本底薪 / 時薪結算</span><span class="font-mono font-bold" id="ps-base">NT$ 0</span></div>
-                        <div class="flex justify-between text-emerald-600"><span>加班/津貼加項</span><span class="font-mono font-bold" id="ps-overtime">+ NT$ 0</span></div>
+                        <div class="flex justify-between"><span>基本底薪</span><span class="font-mono font-bold" id="ps-base">NT$ 0</span></div>
+                        <div class="flex justify-between text-emerald-600"><span>職務/伙食津貼</span><span class="font-mono font-bold" id="ps-allowance">+ NT$ 0</span></div>
+                        <div class="flex justify-between text-emerald-600"><span>加班費</span><span class="font-mono font-bold" id="ps-overtime">+ NT$ 0</span></div>
                     </div>
-                    <div class="border-b border-slate-100 pb-2">
+                    <div class="border-b border-slate-100 pb-2 space-y-1">
                         <div class="text-xs font-bold text-slate-400 mb-1">【 應扣減項目 】</div>
-                        <div class="flex justify-between text-rose-500"><span>缺勤/事假扣款</span><span class="font-mono font-bold" id="ps-deduction">- NT$ 0</span></div>
+                        <div class="flex justify-between text-rose-500"><span>勞/健保費</span><span class="font-mono font-bold" id="ps-insurance">- NT$ 0</span></div>
+                        <div class="flex justify-between text-rose-500"><span>缺勤/遲到扣款</span><span class="font-mono font-bold" id="ps-deduction">- NT$ 0</span></div>
                     </div>
                     <div class="pt-2 flex justify-between items-center text-lg font-black text-slate-900 bg-emerald-50 p-3 rounded-xl">
                         <span>實領薪資淨額：</span>
@@ -623,15 +722,16 @@
     <!-- ----------------------- JAVASCRIPT 邏輯 ----------------------- -->
     <script>
         // 本地 LocalStorage 儲存 Key
-        const DB_EMP_KEY = 'ego_hr_employees_v2';
-        const DB_PUNCH_KEY = 'ego_hr_punches_v2';
-        const DB_LEAVE_KEY = 'ego_hr_leaves_v2';
+        const DB_EMP_KEY = 'ego_hr_employees_v3';
+        const DB_PUNCH_KEY = 'ego_hr_punches_v3';
+        const DB_LEAVE_KEY = 'ego_hr_leaves_v3';
+        const DB_PAYROLL_KEY = 'ego_hr_payrolls_v3';
 
         // 預設高品質範例資料 (第一次載入時寫入)
         const DEFAULT_EMPLOYEES = [
             { id: 'emp_1', code: 'E001', name: '張小黑', idCard: 'A123456789', dept: '特勤指揮部', title: '營運隊長', phone: '0912-345678', startDate: '2022-03-01', payType: '月薪', salary: 55000, emergency: '張太太 (0911-000111)', notes: '特勤幹部、防火管理人', status: '在職' },
             { id: 'emp_2', code: 'E002', name: '林柔柔', idCard: 'B220987654', dept: '行政管理部', title: 'HR 專案總監', phone: '0988-654321', startDate: '2023-01-15', payType: '月薪', salary: 48000, emergency: '林先生 (0922-333444)', notes: '人資系統規劃主管', status: '在職' },
-            { id: 'emp_3', code: 'E003', name: '陳志明', idCard: 'C100222333', dept: '勤務支援組', title: '派遣機動員', phone: '0933-111222', startDate: '2024-05-10', payType: '時薪', salary: 220, emergency: '陳媽媽 (0955-666777)', notes: '可配合夜班機動', status: '在職' }
+            { id: 'emp_3', code: 'E003', name: '陳志明', idCard: 'C100222333', dept: '勤務支援組', title: '派遣機動員', phone: '0933-111222', startDate: '2024-05-10', payType: '月薪', salary: 38000, emergency: '陳媽媽 (0955-666777)', notes: '可配合夜班機動', status: '在職' }
         ];
 
         const TODAY_STR = new Date().toISOString().slice(0, 10);
@@ -646,10 +746,17 @@
             { id: 'l_2', empId: 'emp_1', empName: '張小黑', type: '特休', hours: 4, start: '2026-10-01', end: '2026-10-01', reason: '年度定期健康檢查', status: '已核准' }
         ];
 
+        const DEFAULT_PAYROLLS = [
+            { id: 'pay_1', empId: 'emp_1', month: '2026-10', base: 55000, allowance: 3000, meal: 2400, overtime: 2500, insurance: 2200, leaveDeduct: 0, status: '已發放' },
+            { id: 'pay_2', empId: 'emp_2', month: '2026-10', base: 48000, allowance: 2000, meal: 2400, overtime: 0, insurance: 1950, leaveDeduct: 500, status: '待發放' },
+            { id: 'pay_3', empId: 'emp_3', month: '2026-10', base: 38000, allowance: 1000, meal: 2400, overtime: 1200, insurance: 1500, leaveDeduct: 1200, status: '待發放' }
+        ];
+
         // 全域 State 變數
         let employees = JSON.parse(localStorage.getItem(DB_EMP_KEY)) || DEFAULT_EMPLOYEES;
         let punches = JSON.parse(localStorage.getItem(DB_PUNCH_KEY)) || DEFAULT_PUNCHES;
         let leaves = JSON.parse(localStorage.getItem(DB_LEAVE_KEY)) || DEFAULT_LEAVES;
+        let payrolls = JSON.parse(localStorage.getItem(DB_PAYROLL_KEY)) || DEFAULT_PAYROLLS;
 
         // 初始化
         document.addEventListener('DOMContentLoaded', () => {
@@ -661,6 +768,7 @@
             localStorage.setItem(DB_EMP_KEY, JSON.stringify(employees));
             localStorage.setItem(DB_PUNCH_KEY, JSON.stringify(punches));
             localStorage.setItem(DB_LEAVE_KEY, JSON.stringify(leaves));
+            localStorage.setItem(DB_PAYROLL_KEY, JSON.stringify(payrolls));
         }
 
         function refreshAllViews() {
@@ -691,8 +799,10 @@
             });
 
             const activeBtn = document.getElementById(`nav-${viewName}`);
-            activeBtn.classList.add('bg-brand-600', 'text-white', 'shadow-lg', 'shadow-brand-600/30');
-            activeBtn.classList.remove('text-slate-400', 'hover:bg-slate-800');
+            if (activeBtn) {
+                activeBtn.classList.add('bg-brand-600', 'text-white', 'shadow-lg', 'shadow-brand-600/30');
+                activeBtn.classList.remove('text-slate-400', 'hover:bg-slate-800');
+            }
 
             // 自動關閉 Mobile 側邊欄
             if (window.innerWidth < 768) {
@@ -714,16 +824,19 @@
             document.getElementById('dash-attendance-rate').innerText = `${rate}%`;
             document.getElementById('dash-attendance-detail').innerText = `${uniqueEmpPunched} / ${activeEmps.length} 人打卡`;
 
-            // 3. 待審核請假
+            // 3. 待審核請假 (即時計算)
             const pendingLeaves = leaves.filter(l => l.status === '待審核');
             document.getElementById('dash-pending-leaves').innerText = pendingLeaves.length;
 
-            // 4. 本月估算薪資支出
+            // 4. 本月估算薪資支出 (從現有薪資資料計算淨額)
             let totalSalary = 0;
-            employees.forEach(e => {
-                if (e.status === '在職') {
-                    if (e.payType === '月薪') totalSalary += Number(e.salary || 0);
-                    else totalSalary += Number(e.salary || 0) * 160; // 估算 160 小時
+            activeEmps.forEach(e => {
+                const p = payrolls.find(pr => pr.empId === e.id && pr.month === '2026-10');
+                if (p) {
+                    const net = (p.base + p.allowance + p.meal + p.overtime) - (p.insurance + p.leaveDeduct);
+                    totalSalary += net;
+                } else {
+                    totalSalary += Number(e.salary || 0);
                 }
             });
             document.getElementById('dash-total-payroll').innerText = `NT$ ${totalSalary.toLocaleString()}`;
@@ -732,7 +845,6 @@
             const wallEl = document.getElementById('dash-activity-wall');
             wallEl.innerHTML = '';
             
-            // 結合打卡與請假事件混合排序
             const recentPunches = punches.slice(-5).reverse();
             if (recentPunches.length === 0) {
                 wallEl.innerHTML = `<div class="text-xs text-slate-400 py-4 text-center">今日尚無打卡活動</div>`;
@@ -772,10 +884,10 @@
                             <span>${l.empName} — <span class="text-amber-700">${l.type}</span> (${l.hours}小時)</span>
                             <span class="text-[10px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full">待簽核</span>
                         </div>
-                        <p class="text-slate-600 text-[11px] truncate">${l.reason}</p>
+                        <p class="text-slate-600 text-[11px] truncate">${l.reason || '未填寫事由'}</p>
                         <div class="flex justify-end gap-2 pt-1">
-                            <button onclick="approveLeave('${l.id}', '已核准')" class="px-2.5 py-1 bg-emerald-600 text-white font-bold rounded-lg text-[11px]">核准</button>
-                            <button onclick="approveLeave('${l.id}', '已駁回')" class="px-2.5 py-1 bg-rose-500 text-white font-bold rounded-lg text-[11px]">駁回</button>
+                            <button onclick="approveLeave('${l.id}', '已核准')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-[11px] transition">核准</button>
+                            <button onclick="approveLeave('${l.id}', '已駁回')" class="px-2.5 py-1 bg-rose-500 hover:bg-rose-400 text-white font-bold rounded-lg text-[11px] transition">駁回</button>
                         </div>
                     `;
                     pendingListEl.appendChild(card);
@@ -786,7 +898,7 @@
         // 快捷模擬打卡
         function quickPunch(type) {
             if (employees.length === 0) return alert('請先新增員工！');
-            const emp = employees[0]; // 預設拿第一個員工
+            const emp = employees[0];
             const nowStr = `${TODAY_STR} ${new Date().toTimeString().slice(0,5)}`;
             const newPunch = {
                 id: 'p_' + Date.now(),
@@ -842,7 +954,7 @@
                     </td>
                     <td class="p-4 text-slate-600 font-mono text-xs">${e.phone || '--'}</td>
                     <td class="p-4">
-                        <span class="font-semibold text-slate-700">${e.payType}</span>
+                        <span class="font-semibold text-slate-700">${e.payType || '月薪'}</span>
                         <span class="text-xs font-mono text-slate-500 block">NT$ ${(Number(e.salary)||0).toLocaleString()}</span>
                     </td>
                     <td class="p-4 text-xs text-slate-500 font-mono">${e.startDate || '--'}</td>
@@ -1003,7 +1115,7 @@
             refreshAllViews();
         }
 
-        // ----------------------- 視圖 4: 📝 請假簽核管理 -----------------------
+        // ----------------------- 視圖 4: 📝 請假簽核管理 (升級編輯與新增) -----------------------
         function renderLeaves() {
             const tbody = document.getElementById('leaves-table-body');
             tbody.innerHTML = '';
@@ -1030,32 +1142,59 @@
                     <td class="p-4 font-bold text-slate-800">${l.hours} 小時</td>
                     <td class="p-4 text-xs text-slate-500 max-w-xs truncate">${l.reason || '--'}</td>
                     <td class="p-4">${statusBadge}</td>
-                    <td class="p-4 text-right space-x-1">
+                    <td class="p-4 text-right space-x-2">
+                        <button onclick="editLeave('${l.id}')" class="text-slate-600 hover:text-brand-600 font-bold text-xs"><i class="fa-solid fa-pen"></i> 編輯</button>
                         ${l.status === '待審核' ? `
-                            <button onclick="approveLeave('${l.id}', '已核准')" class="px-2.5 py-1 bg-emerald-600 text-white font-bold rounded-lg text-xs shadow-sm">核准</button>
-                            <button onclick="approveLeave('${l.id}', '已駁回')" class="px-2.5 py-1 bg-rose-500 text-white font-bold rounded-lg text-xs shadow-sm">駁回</button>
-                        ` : `<span class="text-xs text-slate-400">已結案</span>`}
+                            <button onclick="approveLeave('${l.id}', '已核准')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg text-xs shadow-sm transition">核准</button>
+                            <button onclick="approveLeave('${l.id}', '已駁回')" class="px-2.5 py-1 bg-rose-500 hover:bg-rose-400 text-white font-bold rounded-lg text-xs shadow-sm transition">駁回</button>
+                        ` : ''}
+                        <button onclick="deleteLeave('${l.id}')" class="text-rose-400 hover:text-rose-600 font-bold text-xs ml-1"><i class="fa-solid fa-trash"></i></button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        function openLeaveApplyModal() {
+        function openLeaveModal() {
             populateSelectOptions();
+            document.getElementById('leave-id').value = '';
             document.getElementById('leave-start').value = TODAY_STR;
             document.getElementById('leave-end').value = TODAY_STR;
+            document.getElementById('leave-hours').value = 8;
+            document.getElementById('leave-type').value = '特休';
+            document.getElementById('leave-status').value = '待審核';
+            document.getElementById('leave-reason').value = '';
+            document.getElementById('modal-leave-title').innerText = '提出/新增請假單';
             document.getElementById('modal-leave').classList.remove('hidden');
         }
 
-        function saveLeaveApply(e) {
+        function editLeave(id) {
+            populateSelectOptions();
+            const l = leaves.find(item => item.id === id);
+            if (!l) return;
+
+            document.getElementById('leave-id').value = l.id;
+            document.getElementById('leave-emp-id').value = l.empId;
+            document.getElementById('leave-type').value = l.type;
+            document.getElementById('leave-hours').value = l.hours;
+            document.getElementById('leave-start').value = l.start;
+            document.getElementById('leave-end').value = l.end;
+            document.getElementById('leave-status').value = l.status;
+            document.getElementById('leave-reason').value = l.reason || '';
+
+            document.getElementById('modal-leave-title').innerText = '編輯請假單';
+            document.getElementById('modal-leave').classList.remove('hidden');
+        }
+
+        function saveLeave(e) {
             e.preventDefault();
+            const id = document.getElementById('leave-id').value || 'l_' + Date.now();
             const empId = document.getElementById('leave-emp-id').value;
             const emp = employees.find(e => e.id === empId);
             if (!emp) return;
 
-            const newLeave = {
-                id: 'l_' + Date.now(),
+            const leaveData = {
+                id: id,
                 empId: emp.id,
                 empName: emp.name,
                 type: document.getElementById('leave-type').value,
@@ -1063,10 +1202,13 @@
                 start: document.getElementById('leave-start').value,
                 end: document.getElementById('leave-end').value,
                 reason: document.getElementById('leave-reason').value,
-                status: '待審核'
+                status: document.getElementById('leave-status').value
             };
 
-            leaves.push(newLeave);
+            const idx = leaves.findIndex(item => item.id === id);
+            if (idx > -1) leaves[idx] = leaveData;
+            else leaves.push(leaveData);
+
             saveStateToStorage();
             refreshAllViews();
             closeModal('modal-leave');
@@ -1081,7 +1223,15 @@
             }
         }
 
-        // ----------------------- 視圖 5: 💰 薪資與計薪試算 -----------------------
+        function deleteLeave(id) {
+            if (confirm('確定要刪除此筆請假紀錄嗎？')) {
+                leaves = leaves.filter(l => l.id !== id);
+                saveStateToStorage();
+                refreshAllViews();
+            }
+        }
+
+        // ----------------------- 視圖 5: 💰 薪資與清冊 (升級自訂編輯與試算) -----------------------
         function renderPayroll() {
             const tbody = document.getElementById('payroll-table-body');
             tbody.innerHTML = '';
@@ -1094,23 +1244,31 @@
             }
 
             activeEmps.forEach(e => {
-                // 計算請假扣款 (僅計算事假)
-                const empLeaves = leaves.filter(l => l.empId === e.id && l.status === '已核准' && l.type === '事假');
-                const leaveHours = empLeaves.reduce((sum, l) => sum + Number(l.hours || 0), 0);
-                
-                let basePay = Number(e.salary || 0);
-                let deduction = 0;
-                let overtime = 0;
-
-                if (e.payType === '月薪') {
-                    const hourlyRate = basePay / 240; // 假設月工時 240 小時
-                    deduction = Math.round(leaveHours * hourlyRate);
-                } else {
-                    // 時薪制假設基本工時 160小時
-                    basePay = basePay * 160;
+                // 尋找或預設生成當月薪資檔
+                let p = payrolls.find(pr => pr.empId === e.id && pr.month === '2026-10');
+                if (!p) {
+                    p = {
+                        id: 'pay_' + Date.now() + '_' + e.id,
+                        empId: e.id,
+                        month: '2026-10',
+                        base: Number(e.salary || 0),
+                        allowance: 1000,
+                        meal: 2400,
+                        overtime: 0,
+                        insurance: 1500,
+                        leaveDeduct: 0,
+                        status: '待發放'
+                    };
+                    payrolls.push(p);
                 }
 
-                const netPay = basePay + overtime - deduction;
+                const totalAddition = p.allowance + p.meal + p.overtime;
+                const totalDeduction = p.insurance + p.leaveDeduct;
+                const netPay = (p.base + totalAddition) - totalDeduction;
+
+                const statusTag = p.status === '已發放' ? 
+                    '<span class="bg-emerald-50 text-emerald-700 text-xs px-2.5 py-1 rounded-full font-bold border border-emerald-200">已發放</span>' : 
+                    '<span class="bg-amber-50 text-amber-700 text-xs px-2.5 py-1 rounded-full font-bold border border-amber-200">待發放</span>';
 
                 const tr = document.createElement('tr');
                 tr.className = 'hover:bg-slate-50/80 transition';
@@ -1119,33 +1277,127 @@
                         <div>${e.name}</div>
                         <div class="text-xs text-slate-400 font-normal">${e.title || '無職務'}</div>
                     </td>
-                    <td class="p-4"><span class="text-xs font-bold px-2 py-1 bg-slate-100 rounded text-slate-700">${e.payType}</span></td>
-                    <td class="p-4 font-mono font-semibold text-slate-700">NT$ ${(Number(e.salary)||0).toLocaleString()}</td>
-                    <td class="p-4 font-mono text-emerald-600 font-semibold">+ NT$ ${overtime}</td>
-                    <td class="p-4 font-mono text-rose-500 font-semibold">- NT$ ${deduction.toLocaleString()}</td>
+                    <td class="p-4 font-mono font-semibold text-slate-700">NT$ ${p.base.toLocaleString()}</td>
+                    <td class="p-4 font-mono text-emerald-600 font-semibold">+ NT$ ${totalAddition.toLocaleString()}</td>
+                    <td class="p-4 font-mono text-rose-500 font-semibold">- NT$ ${totalDeduction.toLocaleString()}</td>
                     <td class="p-4 font-mono font-black text-slate-900 text-base">NT$ ${netPay.toLocaleString()}</td>
-                    <td class="p-4 text-right">
-                        <button onclick="previewPaystub('${e.id}', ${basePay}, ${overtime}, ${deduction}, ${netPay})" class="px-3 py-1.5 bg-brand-50 hover:bg-brand-100 text-brand-700 font-bold rounded-xl text-xs transition border border-brand-200">
+                    <td class="p-4">${statusTag}</td>
+                    <td class="p-4 text-right space-x-2">
+                        <button onclick="editPayroll('${p.id}')" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition">
+                            <i class="fa-solid fa-pen-to-square mr-1"></i>編輯薪資
+                        </button>
+                        <button onclick="previewPaystubByRecord('${p.id}')" class="px-3 py-1.5 bg-brand-50 hover:bg-brand-100 text-brand-700 font-bold rounded-xl text-xs transition border border-brand-200">
                             <i class="fa-solid fa-file-invoice-dollar mr-1"></i>明細單
                         </button>
                     </td>
                 `;
                 tbody.appendChild(tr);
             });
+
+            saveStateToStorage();
         }
 
-        function previewPaystub(empId, basePay, overtime, deduction, netPay) {
-            const emp = employees.find(e => e.id === empId);
+        function openPayrollModal() {
+            populateSelectOptions();
+            if (employees.length > 0) {
+                const emp = employees[0];
+                document.getElementById('pay-id').value = '';
+                document.getElementById('pay-emp-id').value = emp.id;
+                document.getElementById('pay-month').value = '2026-10';
+                document.getElementById('pay-base').value = emp.salary || 40000;
+                document.getElementById('pay-allowance').value = 1000;
+                document.getElementById('pay-meal').value = 2400;
+                document.getElementById('pay-overtime').value = 0;
+                document.getElementById('pay-insurance').value = 1500;
+                document.getElementById('pay-leave-deduct').value = 0;
+                document.getElementById('pay-status').value = '待發放';
+                calcPayrollTotal();
+            }
+            document.getElementById('modal-payroll-title').innerText = '新增 / 編輯薪資清冊紀錄';
+            document.getElementById('modal-payroll').classList.remove('hidden');
+        }
+
+        function editPayroll(payrollId) {
+            populateSelectOptions();
+            const p = payrolls.find(item => item.id === payrollId);
+            if (!p) return;
+
+            document.getElementById('pay-id').value = p.id;
+            document.getElementById('pay-emp-id').value = p.empId;
+            document.getElementById('pay-month').value = p.month || '2026-10';
+            document.getElementById('pay-base').value = p.base;
+            document.getElementById('pay-allowance').value = p.allowance;
+            document.getElementById('pay-meal').value = p.meal;
+            document.getElementById('pay-overtime').value = p.overtime;
+            document.getElementById('pay-insurance').value = p.insurance;
+            document.getElementById('pay-leave-deduct').value = p.leaveDeduct;
+            document.getElementById('pay-status').value = p.status;
+
+            calcPayrollTotal();
+            document.getElementById('modal-payroll-title').innerText = '編輯員工當月薪資明細';
+            document.getElementById('modal-payroll').classList.remove('hidden');
+        }
+
+        function calcPayrollTotal() {
+            const base = Number(document.getElementById('pay-base').value || 0);
+            const allowance = Number(document.getElementById('pay-allowance').value || 0);
+            const meal = Number(document.getElementById('pay-meal').value || 0);
+            const overtime = Number(document.getElementById('pay-overtime').value || 0);
+            const insurance = Number(document.getElementById('pay-insurance').value || 0);
+            const deduct = Number(document.getElementById('pay-leave-deduct').value || 0);
+
+            const net = (base + allowance + meal + overtime) - (insurance + deduct);
+            document.getElementById('pay-net-preview').innerText = `NT$ ${net.toLocaleString()}`;
+        }
+
+        function savePayroll(e) {
+            e.preventDefault();
+            const id = document.getElementById('pay-id').value || 'pay_' + Date.now();
+            const empId = document.getElementById('pay-emp-id').value;
+
+            const payrollData = {
+                id: id,
+                empId: empId,
+                month: document.getElementById('pay-month').value,
+                base: Number(document.getElementById('pay-base').value || 0),
+                allowance: Number(document.getElementById('pay-allowance').value || 0),
+                meal: Number(document.getElementById('pay-meal').value || 0),
+                overtime: Number(document.getElementById('pay-overtime').value || 0),
+                insurance: Number(document.getElementById('pay-insurance').value || 0),
+                leaveDeduct: Number(document.getElementById('pay-leave-deduct').value || 0),
+                status: document.getElementById('pay-status').value
+            };
+
+            const idx = payrolls.findIndex(p => p.id === id);
+            if (idx > -1) payrolls[idx] = payrollData;
+            else payrolls.push(payrollData);
+
+            saveStateToStorage();
+            refreshAllViews();
+            closeModal('modal-payroll');
+        }
+
+        function previewPaystubByRecord(payrollId) {
+            const p = payrolls.find(item => item.id === payrollId);
+            if (!p) return;
+            const emp = employees.find(e => e.id === p.empId);
             if (!emp) return;
 
+            const totalAddition = p.allowance + p.meal + p.overtime;
+            const totalDeduction = p.insurance + p.leaveDeduct;
+            const netPay = (p.base + totalAddition) - totalDeduction;
+
+            document.getElementById('ps-month').innerText = `${p.month.slice(0,4)} 年 ${p.month.slice(5)} 月`;
             document.getElementById('ps-name').innerText = emp.name;
             document.getElementById('ps-code').innerText = emp.code;
             document.getElementById('ps-dept').innerText = emp.dept || '管理部';
             document.getElementById('ps-title').innerText = emp.title || '同仁';
 
-            document.getElementById('ps-base').innerText = `NT$ ${basePay.toLocaleString()}`;
-            document.getElementById('ps-overtime').innerText = `+ NT$ ${overtime.toLocaleString()}`;
-            document.getElementById('ps-deduction').innerText = `- NT$ ${deduction.toLocaleString()}`;
+            document.getElementById('ps-base').innerText = `NT$ ${p.base.toLocaleString()}`;
+            document.getElementById('ps-allowance').innerText = `+ NT$ ${(p.allowance + p.meal).toLocaleString()}`;
+            document.getElementById('ps-overtime').innerText = `+ NT$ ${p.overtime.toLocaleString()}`;
+            document.getElementById('ps-insurance').innerText = `- NT$ ${p.insurance.toLocaleString()}`;
+            document.getElementById('ps-deduction').innerText = `- NT$ ${p.leaveDeduct.toLocaleString()}`;
             document.getElementById('ps-net').innerText = `NT$ ${netPay.toLocaleString()}`;
 
             document.getElementById('modal-paystub').classList.remove('hidden');
@@ -1155,14 +1407,17 @@
         function populateSelectOptions() {
             const punchSelect = document.getElementById('punch-emp-id');
             const leaveSelect = document.getElementById('leave-emp-id');
+            const paySelect = document.getElementById('pay-emp-id');
 
-            punchSelect.innerHTML = '';
-            leaveSelect.innerHTML = '';
+            if (punchSelect) punchSelect.innerHTML = '';
+            if (leaveSelect) leaveSelect.innerHTML = '';
+            if (paySelect) paySelect.innerHTML = '';
 
             employees.filter(e => e.status === '在職').forEach(e => {
                 const opt = `<option value="${e.id}">${e.name} (${e.code} - ${e.dept || '無部門'})</option>`;
-                punchSelect.innerHTML += opt;
-                leaveSelect.innerHTML += opt;
+                if (punchSelect) punchSelect.innerHTML += opt;
+                if (leaveSelect) leaveSelect.innerHTML += opt;
+                if (paySelect) paySelect.innerHTML += opt;
             });
         }
 
@@ -1175,6 +1430,7 @@
                 employees,
                 punches,
                 leaves,
+                payrolls,
                 exportAt: new Date().toISOString()
             };
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(fullData, null, 2));
@@ -1201,6 +1457,7 @@
                             employees = imported.employees;
                             punches = imported.punches;
                             leaves = imported.leaves;
+                            if (imported.payrolls) payrolls = imported.payrolls;
                             saveStateToStorage();
                             refreshAllViews();
                             alert('🎉 成功匯入資料庫數據！');
@@ -1220,6 +1477,7 @@
                 employees = DEFAULT_EMPLOYEES;
                 punches = DEFAULT_PUNCHES;
                 leaves = DEFAULT_LEAVES;
+                payrolls = DEFAULT_PAYROLLS;
                 saveStateToStorage();
                 refreshAllViews();
                 alert('系統已重置為預設範例資料！');
