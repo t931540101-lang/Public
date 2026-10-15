@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>點餐系統 - 廚房接單後台</title>
+  <title>點餐系統 - 後台管理</title>
   <style>
     :root {
       --bg-color: #f4f6f9;
@@ -12,6 +12,7 @@
       --warning: #f59e0b;
       --success: #10b981;
       --danger: #ef4444;
+      --gray: #6b7280;
       --text: #1f2937;
       --border: #e5e7eb;
     }
@@ -31,17 +32,52 @@
       margin: 0 auto;
     }
 
+    /* 主頁籤 Navigation */
+    nav.nav-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      background: #e2e8f0;
+      padding: 4px;
+      border-radius: 8px;
+    }
+
+    .nav-btn {
+      flex: 1;
+      padding: 10px 0;
+      border: none;
+      background: transparent;
+      font-weight: bold;
+      font-size: 0.95rem;
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--gray);
+    }
+
+    .nav-btn.active {
+      background: white;
+      color: var(--primary);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .section-page {
+      display: none;
+    }
+
+    .section-page.active {
+      display: block;
+    }
+
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding-bottom: 12px;
-      border-bottom: 2px solid var(--border);
+      padding-bottom: 10px;
       margin-bottom: 12px;
     }
 
-    h1 {
-      font-size: 1.25rem;
+    h2 {
+      font-size: 1.15rem;
       font-weight: bold;
     }
 
@@ -55,7 +91,7 @@
       cursor: pointer;
     }
 
-    /* 狀態篩選頁籤 */
+    /* 訂單篩選頁籤 */
     .filter-tabs {
       display: flex;
       gap: 6px;
@@ -70,7 +106,7 @@
       border: none;
       border-radius: 6px;
       font-weight: bold;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       cursor: pointer;
     }
 
@@ -79,41 +115,32 @@
       color: white;
     }
 
-    /* 訂單卡片列表 */
-    .order-list {
+    /* 列表卡片通用樣式 */
+    .list-container {
       display: flex;
       flex-direction: column;
       gap: 12px;
     }
 
-    .order-card {
+    .card {
       background: var(--card-bg);
       border-radius: 8px;
       padding: 12px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    /* 訂單卡片特有樣式 */
+    .order-card {
       border-left: 5px solid var(--warning);
     }
-
-    .order-card.status-cooking {
-      border-left-color: var(--primary);
-    }
-
-    .order-card.status-completed {
-      border-left-color: var(--success);
-      opacity: 0.7;
-    }
+    .order-card.status-cooking { border-left-color: var(--primary); }
+    .order-card.status-completed { border-left-color: var(--success); opacity: 0.7; }
 
     .order-header {
       display: flex;
       justify-content: space-between;
       font-weight: bold;
       margin-bottom: 8px;
-      font-size: 0.95rem;
-    }
-
-    .order-time {
-      font-size: 0.75rem;
-      color: #6b7280;
     }
 
     .order-items {
@@ -131,21 +158,12 @@
       font-size: 0.9rem;
     }
 
-    .item-note {
-      font-size: 0.75rem;
-      color: var(--danger);
-      margin-left: 6px;
-    }
+    .item-note { font-size: 0.75rem; color: var(--danger); margin-left: 6px; }
 
     .order-footer {
       display: flex;
       justify-content: space-between;
       align-items: center;
-    }
-
-    .total-price {
-      font-weight: bold;
-      color: #111827;
     }
 
     .status-btn {
@@ -156,66 +174,211 @@
       font-size: 0.8rem;
       cursor: pointer;
     }
-
     .btn-pending { background: var(--warning); color: white; }
     .btn-cooking { background: var(--primary); color: white; }
     .btn-completed { background: var(--success); color: white; }
+
+    /* 菜單管理樣式 */
+    .menu-card {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-left: 5px solid var(--success);
+    }
+
+    .menu-card.off-sale {
+      border-left-color: var(--gray);
+      background: #f9fafb;
+    }
+
+    .menu-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .menu-name {
+      font-weight: bold;
+      font-size: 0.95rem;
+    }
+
+    .menu-meta {
+      font-size: 0.8rem;
+      color: var(--gray);
+    }
+
+    .menu-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toggle-btn {
+      padding: 6px 10px;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .btn-on { background: #d1fae5; color: #065f46; }
+    .btn-off { background: #fee2e2; color: #991b1b; }
+
+    .btn-edit {
+      background: #f3f4f6;
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    /* 表單彈窗Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 8px;
+      padding: 16px;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 16px;
+    }
   </style>
 </head>
 <body>
 
-  <header>
-    <h1>🍳 廚房接單後台</h1>
-    <button class="btn-action" onclick="addMockOrder()">+ 模擬新訂單</button>
-  </header>
+  <!-- 頂部切換頁籤 -->
+  <nav class="nav-tabs">
+    <button class="nav-btn active" onclick="switchPage('orders', this)">🍳 訂單看板</button>
+    <button class="nav-btn" onclick="switchPage('menu', this)">📜 菜單管理</button>
+  </nav>
 
-  <!-- 狀態切換頁籤 -->
-  <div class="filter-tabs">
-    <button class="tab-btn active" onclick="filterOrders('all', this)">全部</button>
-    <button class="tab-btn" onclick="filterOrders('pending', this)">待製作</button>
-    <button class="tab-btn" onclick="filterOrders('cooking', this)">製作中</button>
-    <button class="tab-btn" onclick="filterOrders('completed', this)">已完成</button>
+  <!-- 第一頁：訂單看板 -->
+  <section id="ordersPage" class="section-page active">
+    <header>
+      <h2>即時訂單列表</h2>
+      <button class="btn-action" onclick="addMockOrder()">+ 模擬新訂單</button>
+    </header>
+
+    <div class="filter-tabs">
+      <button class="tab-btn active" onclick="filterOrders('all', this)">全部</button>
+      <button class="tab-btn" onclick="filterOrders('pending', this)">待製作</button>
+      <button class="tab-btn" onclick="filterOrders('cooking', this)">製作中</button>
+      <button class="tab-btn" onclick="filterOrders('completed', this)">已完成</button>
+    </div>
+
+    <div class="list-container" id="orderContainer"></div>
+  </section>
+
+  <!-- 第二頁：菜單管理 -->
+  <section id="menuPage" class="section-page">
+    <header>
+      <h2>品項與庫存管理</h2>
+      <button class="btn-action" onclick="openMenuModal()">+ 新增品項</button>
+    </header>
+
+    <div class="list-container" id="menuContainer"></div>
+  </section>
+
+  <!-- 新增/編輯品項 彈窗 -->
+  <div class="modal" id="menuModal">
+    <div class="modal-content">
+      <h3 id="modalTitle" style="margin-bottom:12px;">新增品項</h3>
+      <input type="hidden" id="menuId">
+      <div class="form-group">
+        <label>餐點名稱</label>
+        <input type="text" id="menuName" placeholder="例如：牛肉漢堡">
+      </div>
+      <div class="form-group">
+        <label>分類</label>
+        <select id="menuCategory">
+          <option value="主餐">主餐</option>
+          <option value="點心">點心</option>
+          <option value="飲料">飲料</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>價格 ($)</label>
+        <input type="number" id="menuPrice" placeholder="120">
+      </div>
+      <div class="modal-footer">
+        <button class="btn-edit" onclick="closeMenuModal()">取消</button>
+        <button class="btn-action" onclick="saveMenuItem()">儲存</button>
+      </div>
+    </div>
   </div>
 
-  <!-- 訂單列表容器 -->
-  <div class="order-list" id="orderContainer"></div>
-
   <script>
-    // 預設/讀取 LocalStorage 訂單資料
+    // ---------------- LocalStorage 資料讀取 ----------------
     let orders = JSON.parse(localStorage.getItem('k9_restaurant_orders')) || [
       {
-        id: 'A01',
-        table: '桌號 3',
-        time: '12:30',
-        status: 'pending', // pending, cooking, completed
-        items: [
-          { name: '牛肉漢堡', qty: 1, note: '不加洋蔥' },
-          { name: '冰美式', qty: 1, note: '去冰' }
-        ],
-        total: 180
-      },
-      {
-        id: 'A02',
-        table: '外帶 02',
-        time: '12:32',
-        status: 'cooking',
-        items: [
-          { name: '卡拉雞腿堡', qty: 2, note: '加辣' },
-          { name: '鮮奶茶', qty: 2, note: '微糖' }
-        ],
-        total: 260
+        id: 'A01', table: '桌號 3', time: '12:30', status: 'pending',
+        items: [{ name: '牛肉漢堡', qty: 1, note: '不加洋蔥' }], total: 120
       }
+    ];
+
+    let menuItems = JSON.parse(localStorage.getItem('k9_restaurant_menu')) || [
+      { id: 'm1', name: '牛肉漢堡', category: '主餐', price: 120, isAvailable: true },
+      { id: 'm2', name: '卡拉雞腿堡', category: '主餐', price: 110, isAvailable: true },
+      { id: 'm3', name: '招牌蛋餅', category: '點心', price: 45, isAvailable: true },
+      { id: 'm4', name: '冰美式', category: '飲料', price: 60, isAvailable: false } // 預設售罄試看
     ];
 
     let currentFilter = 'all';
 
-    // 儲存至 LocalStorage
-    function saveOrders() {
+    function saveData() {
       localStorage.setItem('k9_restaurant_orders', JSON.stringify(orders));
+      localStorage.setItem('k9_restaurant_menu', JSON.stringify(menuItems));
       renderOrders();
+      renderMenu();
     }
 
-    // 切換訂單狀態
+    // ---------------- 頁面切換 ----------------
+    function switchPage(page, btn) {
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.section-page').forEach(p => p.classList.remove('active'));
+      
+      btn.classList.add('active');
+      document.getElementById(page + 'Page').classList.add('active');
+    }
+
+    // ---------------- 訂單看板邏輯 ----------------
     function toggleStatus(orderId) {
       const order = orders.find(o => o.id === orderId);
       if (!order) return;
@@ -224,11 +387,17 @@
       else if (order.status === 'cooking') order.status = 'completed';
       else if (order.status === 'completed') order.status = 'pending';
 
-      saveOrders();
+      saveData();
     }
 
-    // 新增模擬訂單
     function addMockOrder() {
+      const availableItems = menuItems.filter(m => m.isAvailable);
+      if (availableItems.length === 0) {
+        alert('目前所有品項皆已下架/售罄，無法生成模擬訂單！');
+        return;
+      }
+      
+      const randomItem = availableItems[Math.floor(Math.random() * availableItems.length)];
       const newId = 'A' + String(orders.length + 1).padStart(2, '0');
       const now = new Date();
       const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
@@ -238,17 +407,13 @@
         table: `桌號 ${Math.floor(Math.random() * 10) + 1}`,
         time: timeStr,
         status: 'pending',
-        items: [
-          { name: '招牌蛋餅', qty: 1, note: '醬油膏多' },
-          { name: '大杯豆漿', qty: 1, note: '溫糖' }
-        ],
-        total: 75
+        items: [{ name: randomItem.name, qty: 1, note: '' }],
+        total: randomItem.price
       });
 
-      saveOrders();
+      saveData();
     }
 
-    // 篩選訂單
     function filterOrders(status, btn) {
       currentFilter = status;
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -256,7 +421,6 @@
       renderOrders();
     }
 
-    // 渲染畫面
     function renderOrders() {
       const container = document.getElementById('orderContainer');
       container.innerHTML = '';
@@ -264,13 +428,13 @@
       const filtered = orders.filter(o => currentFilter === 'all' || o.status === currentFilter);
 
       if (filtered.length === 0) {
-        container.innerHTML = `<p style="text-align:center; color:#9ca3af; padding: 20px;">目前沒有訂單</p>`;
+        container.innerHTML = `<p style="text-align:center; color:var(--gray); padding: 20px;">目前沒有訂單</p>`;
         return;
       }
 
       filtered.forEach(order => {
         const card = document.createElement('div');
-        card.className = `order-card status-${order.status}`;
+        card.className = `card order-card status-${order.status}`;
 
         let statusText = '待製作';
         let btnClass = 'btn-pending';
@@ -286,23 +450,115 @@
         card.innerHTML = `
           <div class="order-header">
             <span>#${order.id} - ${order.table}</span>
-            <span class="order-time">${order.time}</span>
+            <span style="font-size:0.8rem; color:var(--gray);">${order.time}</span>
           </div>
-          <ul class="order-items">
-            ${itemsHtml}
-          </ul>
+          <ul class="order-items">${itemsHtml}</ul>
           <div class="order-footer">
-            <span class="total-price">$${order.total}</span>
+            <span style="font-weight:bold;">$${order.total}</span>
             <button class="status-btn ${btnClass}" onclick="toggleStatus('${order.id}')">${statusText}</button>
           </div>
         `;
+        container.appendChild(card);
+      });
+    }
 
+    // ---------------- 菜單管理邏輯 ----------------
+    function toggleAvailability(id) {
+      const item = menuItems.find(m => m.id === id);
+      if (item) {
+        item.isAvailable = !item.isAvailable;
+        saveData();
+      }
+    }
+
+    function openMenuModal(id = null) {
+      const modal = document.getElementById('menuModal');
+      modal.style.display = 'flex';
+
+      if (id) {
+        const item = menuItems.find(m => m.id === id);
+        document.getElementById('modalTitle').innerText = '編輯品項';
+        document.getElementById('menuId').value = item.id;
+        document.getElementById('menuName').value = item.name;
+        document.getElementById('menuCategory').value = item.category;
+        document.getElementById('menuPrice').value = item.price;
+      } else {
+        document.getElementById('modalTitle').innerText = '新增品項';
+        document.getElementById('menuId').value = '';
+        document.getElementById('menuName').value = '';
+        document.getElementById('menuCategory').value = '主餐';
+        document.getElementById('menuPrice').value = '';
+      }
+    }
+
+    function closeMenuModal() {
+      document.getElementById('menuModal').style.display = 'none';
+    }
+
+    function saveMenuItem() {
+      const id = document.getElementById('menuId').value;
+      const name = document.getElementById('menuName').value.trim();
+      const category = document.getElementById('menuCategory').value;
+      const price = Number(document.getElementById('menuPrice').value);
+
+      if (!name || isNaN(price) || price <= 0) {
+        alert('請填寫正確的餐點名稱與價格！');
+        return;
+      }
+
+      if (id) {
+        // 修改
+        const item = menuItems.find(m => m.id === id);
+        item.name = name;
+        item.category = category;
+        item.price = price;
+      } else {
+        // 新增
+        menuItems.push({
+          id: 'm' + Date.now(),
+          name: name,
+          category: category,
+          price: price,
+          isAvailable: true
+        });
+      }
+
+      closeMenuModal();
+      saveData();
+    }
+
+    function renderMenu() {
+      const container = document.getElementById('menuContainer');
+      container.innerHTML = '';
+
+      if (menuItems.length === 0) {
+        container.innerHTML = `<p style="text-align:center; color:var(--gray); padding: 20px;">尚無菜單資料</p>`;
+        return;
+      }
+
+      menuItems.forEach(item => {
+        const card = document.createElement('div');
+        card.className = `card menu-card ${item.isAvailable ? '' : 'off-sale'}`;
+
+        card.innerHTML = `
+          <div class="menu-info">
+            <span class="menu-name">${item.name}</span>
+            <span class="menu-meta">[${item.category}] - $${item.price}</span>
+          </div>
+          <div class="menu-actions">
+            <button class="btn-edit" onclick="openMenuModal('${item.id}')">修改</button>
+            <button class="toggle-btn ${item.isAvailable ? 'btn-on' : 'btn-off'}" onclick="toggleAvailability('${item.id}')">
+              ${item.isAvailable ? '販售中' : '已售罄'}
+            </button>
+          </div>
+        `;
         container.appendChild(card);
       });
     }
 
     // 首次載入
     renderOrders();
+    renderMenu();
   </script>
 </body>
 </html>
