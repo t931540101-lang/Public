@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>黑創 e-GO | 派遣員工管理系統</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* 隱藏滾動條但保持滾動 */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col">
+
+    <!-- 頂部導覽列 -->
+    <header class="bg-slate-900 text-white p-4 shadow-lg flex justify-between items-center sticky top-0 z-50">
+        <div class="flex items-center gap-3">
+            <span class="text-xl font-bold tracking-wider text-emerald-400">黑創 e-GO</span>
+            <span class="text-xs bg-slate-800 text-slate-300 px-2 py-1 rounded">派遣人力管理 v1.0</span>
+        </div>
+        <div class="flex gap-2">
+            <button onclick="exportData()" class="bg-slate-700 hover:bg-slate-600 text-xs px-3 py-1.5 rounded transition">匯出 JSON</button>
+            <button onclick="importData()" class="bg-slate-700 hover:bg-slate-600 text-xs px-3 py-1.5 rounded transition">匯入 JSON</button>
+        </div>
+    </header>
+
+    <!-- 主內容區 -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-3 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- 左側：人員列表 (3 欄) -->
+        <section class="lg:col-span-4 bg-white rounded-xl shadow-md p-4 flex flex-col h-[calc(100vh-120px)]">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-bold text-slate-700">人員名冊 (<span id="total-count">0</span>)</h2>
+                <button onclick="clearForm()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-sm px-3 py-1.5 rounded-lg font-medium shadow transition">
+                    + 新建人員
+                </button>
+            </div>
+            
+            <!-- 搜尋框 -->
+            <div class="mb-3">
+                <input type="text" id="search-input" oninput="renderList()" placeholder="搜尋姓名、電話、身分證..." 
+                       class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            </div>
+
+            <!-- 人員清單滾動區 -->
+            <div id="employee-list" class="flex-1 overflow-y-auto space-y-2 pr-1 no-scrollbar">
+                <!-- 動態注入人員列表卡片 -->
+            </div>
+        </section>
+
+        <!-- 右側：詳細表單 (8 欄) -->
+        <section class="lg:col-span-8 bg-white rounded-xl shadow-md p-4 md:p-6 flex flex-col h-[calc(100vh-120px)] overflow-y-auto">
+            
+            <!-- 表單頁籤 (Tabs) -->
+            <div class="flex border-b border-slate-200 mb-6 gap-2 text-sm font-medium">
+                <button type="button" onclick="switchTab('basic')" id="tab-basic" class="py-2 px-4 border-b-2 border-emerald-500 text-emerald-600 font-bold">基本資料</button>
+                <button type="button" onclick="switchTab('job')" id="tab-job" class="py-2 px-4 text-slate-500 hover:text-slate-800">派遣與排班</button>
+                <button type="button" onclick="switchTab('salary')" id="tab-salary" class="py-2 px-4 text-slate-500 hover:text-slate-800">薪資與條件</button>
+            </div>
+
+            <!-- 表單內容 -->
+            <form id="emp-form" onsubmit="saveEmployee(event)" class="space-y-6 flex-1">
+                <input type="hidden" id="emp-id">
+
+                <!-- Tab 1: 基本資料 -->
+                <div id="content-basic" class="tab-content space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">履歷編號</label>
+                            <input type="text" id="code" required placeholder="A0001" class="w-full p-2 border border-slate-200 rounded-lg text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">姓名</label>
+                            <input type="text" id="name" required placeholder="請輸入姓名" class="w-full p-2 border border-slate-200 rounded-lg text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">身分證字號</label>
+                            <input type="text" id="id-card" placeholder="A123456789" class="w-full p-2 border border-slate-200 rounded-lg text-sm">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">手機號碼</label>
+                            <input type="tel" id="mobile" placeholder="0912345678" class="w-full p-2 border border-slate-200 rounded-lg text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">市話</label>
+                            <input type="tel" id="phone" class="w-full p-2 border border-slate-200 rounded-lg text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">身高 (cm)</label>
+                            <input type="number" id="height" placeholder="175" class="w-full p-2 border border-slate-200 rounded-lg text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">體重 (kg)</label>
+                            <input type="number" id="weight" placeholder="70" class="w-full p-2 border border-slate-200 rounded-lg text-sm">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">戶籍/現居地址</label>
+                        <input type="text" id="address" placeholder="請輸入完整地址" class="w-full p-2 border border-slate-200 rounded-lg text-sm">
+                    </div>
+                </div>
+
+                <!-- Tab 2: 派遣與排班 -->
+                <div id="content-job" class="tab-content hidden space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">服務部門 / 案場</label>
+                            <input type="text" id="dept" placeholder="例如：安衛組 / 駐衛廠區" class="w-full p-2 border border-slate-200 rounded-lg text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">可上班日</label>
+                            <input type="date" id="start-date" class="w-full p-2 border border-slate-200 rounded-lg text-sm">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-2">配合班別</label>
+                        <div class="flex flex-wrap gap-4 text-sm">
+                            <label class="flex items-center gap-1.5"><input type="checkbox" name="shift" value="日班" class="rounded text-emerald-600"> 日班</label>
+                            <label class="flex items-center gap-1.5"><input type="checkbox" name="shift" value="夜班" class="rounded text-emerald-600"> 夜班</label>
+                            <label class="flex items-center gap-1.5"><input type="checkbox" name="shift" value="輪班" class="rounded text-emerald-600"> 輪班</label>
+                            <label class="flex items-center gap-1.5"><input type="checkbox" name="shift" value="12小時制" class="rounded text-emerald-600"> 12小時制</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab 3: 薪資與條件 -->
+                <div id="content-salary" class="tab-content hidden space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">期望薪資/時薪</label>
+                            <input type="text" id="salary" placeholder="例如：月薪 38,000 / 時薪 200" class="w-full p-2 border border-slate-200 rounded-lg text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-600 mb-1">交通工具</label>
+                            <input type="text" id="vehicle" placeholder="機車 / 汽車" class="w-full p-2 border border-slate-200 rounded-lg text-sm">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">專長與備註</label>
+                        <textarea id="notes" rows="3" placeholder="例如：具備防火管理人證照、CQB/特勤背景..." class="w-full p-2 border border-slate-200 rounded-lg text-sm"></textarea>
+                    </div>
+                </div>
+
+                <!-- 儲存與刪除按鈕 -->
+                <div class="pt-4 border-t border-slate-100 flex justify-between items-center">
+                    <button type="button" onclick="deleteEmployee()" id="btn-delete" class="bg-rose-50 hover:bg-rose-100 text-rose-600 text-sm px-4 py-2 rounded-lg font-medium transition hidden">
+                        刪除資料
+                    </button>
+                    <div class="flex gap-2 ml-auto">
+                        <button type="button" onclick="clearForm()" class="bg-slate-100 hover:bg-slate-200 text-slate-600 text-sm px-4 py-2 rounded-lg font-medium transition">
+                            取消/重置
+                        </button>
+                        <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white text-sm px-6 py-2 rounded-lg font-medium shadow transition">
+                            儲存人員資料
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <script>
+        // 本地 LocalStorage 資料儲存 Key
+        const STORAGE_KEY = 'obsidian_dispatch_employees';
+        let employees = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            renderList();
+        });
+
+        // 切換 Tab
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('[id^="tab-"]').forEach(el => {
+                el.classList.remove('border-b-2', 'border-emerald-500', 'text-emerald-600', 'font-bold');
+                el.classList.add('text-slate-500');
+            });
+
+            document.getElementById(`content-${tabName}`).classList.remove('hidden');
+            const activeTab = document.getElementById(`tab-${tabName}`);
+            activeTab.classList.add('border-b-2', 'border-emerald-500', 'text-emerald-600', 'font-bold');
+            activeTab.classList.remove('text-slate-500');
+        }
+
+        // 渲染左側名冊
+        function renderList() {
+            const listEl = document.getElementById('employee-list');
+            const keyword = document.getElementById('search-input').value.toLowerCase();
+            listEl.innerHTML = '';
+
+            const filtered = employees.filter(emp => 
+                (emp.name && emp.name.toLowerCase().includes(keyword)) ||
+                (emp.code && emp.code.toLowerCase().includes(keyword)) ||
+                (emp.mobile && emp.mobile.includes(keyword))
+            );
+
+            document.getElementById('total-count').innerText = filtered.length;
+
+            filtered.forEach(emp => {
+                const card = document.createElement('div');
+                card.className = 'p-3 border border-slate-100 rounded-lg hover:bg-slate-50 cursor-pointer transition flex justify-between items-center shadow-sm';
+                card.onclick = () => loadEmployee(emp.id);
+                card.innerHTML = `
+                    <div>
+                        <div class="font-bold text-slate-800 text-sm">${emp.name || '未命名'} <span class="text-xs font-normal text-slate-400">(${emp.code || '無編號'})</span></div>
+                        <div class="text-xs text-slate-500">${emp.mobile || '無電話'} | ${emp.dept || '未分配部門'}</div>
+                    </div>
+                    <span class="text-xs bg-emerald-50 text-emerald-600 px-2 py-1 rounded font-medium">查看</span>
+                `;
+                listEl.appendChild(card);
+            });
+        }
+
+        // 載入資料到表單
+        function loadEmployee(id) {
+            const emp = employees.find(e => e.id === id);
+            if (!emp) return;
+
+            document.getElementById('emp-id').value = emp.id;
+            document.getElementById('code').value = emp.code || '';
+            document.getElementById('name').value = emp.name || '';
+            document.getElementById('id-card').value = emp.idCard || '';
+            document.getElementById('mobile').value = emp.mobile || '';
+            document.getElementById('phone').value = emp.phone || '';
+            document.getElementById('height').value = emp.height || '';
+            document.getElementById('weight').value = emp.weight || '';
+            document.getElementById('address').value = emp.address || '';
+            document.getElementById('dept').value = emp.dept || '';
+            document.getElementById('start-date').value = emp.startDate || '';
+            document.getElementById('salary').value = emp.salary || '';
+            document.getElementById('vehicle').value = emp.vehicle || '';
+            document.getElementById('notes').value = emp.notes || '';
+
+            // Checkbox 班別
+            const shifts = emp.shifts || [];
+            document.querySelectorAll('input[name="shift"]').forEach(cb => {
+                cb.checked = shifts.includes(cb.value);
+            });
+
+            document.getElementById('btn-delete').classList.remove('hidden');
+            switchTab('basic');
+        }
+
+        // 儲存資料
+        function saveEmployee(e) {
+            e.preventDefault();
+            const id = document.getElementById('emp-id').value || Date.now().toString();
+
+            const selectedShifts = Array.from(document.querySelectorAll('input[name="shift"]:checked')).map(cb => cb.value);
+
+            const empData = {
+                id: id,
+                code: document.getElementById('code').value,
+                name: document.getElementById('name').value,
+                idCard: document.getElementById('id-card').value,
+                mobile: document.getElementById('mobile').value,
+                phone: document.getElementById('phone').value,
+                height: document.getElementById('height').value,
+                weight: document.getElementById('weight').value,
+                address: document.getElementById('address').value,
+                dept: document.getElementById('dept').value,
+                startDate: document.getElementById('start-date').value,
+                salary: document.getElementById('salary').value,
+                vehicle: document.getElementById('vehicle').value,
+                notes: document.getElementById('notes').value,
+                shifts: selectedShifts
+            };
+
+            const index = employees.findIndex(e => e.id === id);
+            if (index > -1) {
+                employees[index] = empData;
+            } else {
+                employees.push(empData);
+            }
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(employees));
+            renderList();
+            clearForm();
+            alert('人員資料已成功儲存！');
+        }
+
+        // 清空表單
+        function clearForm() {
+            document.getElementById('emp-form').reset();
+            document.getElementById('emp-id').value = '';
+            document.getElementById('btn-delete').classList.add('hidden');
+            switchTab('basic');
+        }
+
+        // 刪除人員
+        function deleteEmployee() {
+            const id = document.getElementById('emp-id').value;
+            if (!id) return;
+
+            if (confirm('確定要刪除這筆人員資料嗎？')) {
+                employees = employees.filter(e => e.id !== id);
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(employees));
+                renderList();
+                clearForm();
+            }
+        }
+
+        // 匯出 JSON 備份
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(employees, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `dispatch_employees_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        // 匯入 JSON
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'application/json';
+            input.onchange = e => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.readAsText(file, 'UTF-8');
+                reader.onload = readerEvent => {
+                    try {
+                        const content = JSON.parse(readerEvent.target.result);
+                        if (Array.isArray(content)) {
+                            employees = content;
+                            localStorage.setItem(STORAGE_KEY, JSON.stringify(employees));
+                            renderList();
+                            clearForm();
+                            alert('資料匯入成功！');
+                        }
+                    } catch (err) {
+                        alert('檔案格式錯誤！');
+                    }
+                }
+            }
+            input.click();
+        }
+    </script>
+</body>
+</html>
