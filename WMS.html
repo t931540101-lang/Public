@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>黑創 e-GO - WMS 倉儲管理系統</title>
+    <style>
+        :root {
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --primary-blue: #1e3a8a;
+            --accent-blue: #3b82f6;
+            --text-main: #1f2937;
+            --text-sub: #6b7280;
+            --border-color: #e5e7eb;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 12px;
+            box-sizing: border-box;
+        }
+
+        .header {
+            text-align: center;
+            padding: 12px 0;
+            background: var(--primary-blue);
+            color: white;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .header h1 {
+            font-size: 1.2rem;
+            margin: 0;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid var(--border-color);
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: bold;
+            color: var(--primary-blue);
+            margin-bottom: 8px;
+            border-bottom: 2px solid var(--accent-blue);
+            padding-bottom: 4px;
+        }
+
+        .btn-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .btn {
+            background: #eff6ff;
+            color: var(--primary-blue);
+            border: 1px solid #bfdbfe;
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            text-align: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn:active {
+            background: #dbeafe;
+        }
+
+        .status-box {
+            margin-top: 16px;
+            padding: 10px;
+            background: #e0f2fe;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: #0369a1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>黑創 e-GO | WMS 行動倉儲</h1>
+    </div>
+
+    <div class="grid-container">
+        <!-- 入庫管理 -->
+        <div class="card">
+            <div class="card-title">📥 入庫作業 (Inbound)</div>
+            <div class="btn-group">
+                <div class="btn" onclick="saveAction('到貨通知 (ASN)')">到貨通知 (ASN)</div>
+                <div class="btn" onclick="saveAction('品質驗收 (QC)')">品質驗收 (QC)</div>
+                <div class="btn" onclick="saveAction('退貨入庫')">退貨入庫</div>
+                <div class="btn" onclick="saveAction('商品上架')">商品上架</div>
+            </div>
+        </div>
+
+        <!-- 庫存管理 -->
+        <div class="card">
+            <div class="card-title">📦 倉庫管理 (Inventory)</div>
+            <div class="btn-group">
+                <div class="btn" onclick="saveAction('儲位查詢')">儲位查詢</div>
+                <div class="btn" onclick="saveAction('庫存盤點')">庫存盤點</div>
+                <div class="btn" onclick="saveAction('庫存調撥')">庫存調撥</div>
+                <div class="btn" onclick="saveAction('補貨作業')">補貨作業</div>
+            </div>
+        </div>
+
+        <!-- 出庫管理 -->
+        <div class="card">
+            <div class="card-title">📤 出庫作業 (Outbound)</div>
+            <div class="btn-group">
+                <div class="btn" onclick="saveAction('揀貨處理')">揀貨處理</div>
+                <div class="btn" onclick="saveAction('出貨確認')">出貨確認</div>
+                <div class="btn" onclick="saveAction('單據列印')">單據列印</div>
+                <div class="btn" onclick="saveAction('貨態追蹤')">貨態追蹤</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-box" id="statusLog">
+        最後操作紀錄：尚無紀錄
+    </div>
+
+    <script>
+        // LocalStorage 紀錄體驗
+        function saveAction(actionName) {
+            const time = new Date().toLocaleTimeString();
+            const logMsg = `[${time}] 點擊模組：${actionName}`;
+            localStorage.setItem('wms_last_action', logMsg);
+            document.getElementById('statusLog').innerText = '最後操作紀錄：' + logMsg;
+        }
+
+        // 頁面載入時讀取上次快取
+        window.onload = function() {
+            const lastAction = localStorage.getItem('wms_last_action');
+            if (lastAction) {
+                document.getElementById('statusLog').innerText = '最後操作紀錄：' + lastAction;
+            }
+        }
+    </script>
+</body>
+</html>
