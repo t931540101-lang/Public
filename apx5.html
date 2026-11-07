@@ -1,37 +1,21 @@
 <!DOCTYPE html>
-<html lang="zh-TW" data-bs-theme="dark">
+<html>
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>HRWebCooperation - 未刷卡單</title>
-  <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Bootstrap Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
   <style>
-    :root {
-      --bg-dark: #0d1117;
-      --card-bg: #161b22;
-      --nav-bg: #161e2e;
-      --input-bg: #090d16;
-      --border-color: #30363d;
-      --primary-blue: #0d6efd;
-    }
-
     body {
-      background-color: var(--bg-dark);
+      background-color: #12181f;
       color: #c9d1d9;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
     }
-
     .navbar-custom {
-      background-color: var(--nav-bg);
-      border-bottom: 1px solid var(--border-color);
+      background-color: #161e2e;
+      border-bottom: 1px solid #2a364f;
     }
-
     .lang-btn {
       width: 32px;
       height: 32px;
@@ -42,341 +26,140 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.2s;
     }
-    .lang-btn.active {
-      transform: scale(1.15);
-      box-shadow: 0 0 8px rgba(255,255,255,0.5);
+    .main-box {
+      background-color: #1a2332;
+      border: 1px solid #2a364f;
+      border-radius: 8px;
+      padding: 2.5rem;
+      margin-top: 2rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
     }
-
-    .main-container {
-      max-width: 1200px;
-      margin: 1.5rem auto;
-      padding: 0 1rem;
-      flex: 1;
-      width: 100%;
-    }
-
-    .form-card {
-      background-color: var(--card-bg);
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 2rem;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    }
-
     .form-control, .form-select {
-      background-color: var(--input-bg);
-      border: 1px solid var(--border-color);
+      background-color: #0f1520;
+      border: 1px solid #2a364f;
       color: #fff;
     }
-
     .form-control:focus, .form-select:focus {
-      background-color: var(--input-bg);
-      border-color: var(--primary-blue);
+      background-color: #0f1520;
+      border-color: #0d6efd;
       color: #fff;
-      box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+      box-shadow: none;
     }
-
-    /* 平板動態預覽卡片 */
-    .tablet-screen {
-      border: 8px solid #2d3748;
+    .tablet-box {
+      border: 12px solid #2d3748;
       border-radius: 16px;
-      background: #090d16;
-      min-height: 280px;
-      padding: 1.25rem;
-      box-shadow: inset 0 0 15px rgba(0,0,0,0.8);
+      background: #000;
+      height: 240px;
       display: flex;
-      flex-direction: column;
-      justify-content: space-between;
+      align-items: center;
+      justify-content: center;
     }
-
+    footer {
+      color: #6c757d;
+      font-size: 0.85rem;
+      padding: 1.5rem 0;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      text-align: center;
+    }
     .theme-toggle-btn {
       position: fixed;
       bottom: 20px;
       right: 20px;
-      z-index: 1000;
     }
   </style>
 </head>
 <body>
 
-  <!-- 導覽列 -->
+  <!-- 頂部導覽列 -->
   <nav class="navbar navbar-expand-md navbar-dark navbar-custom py-2">
-    <div class="container-fluid px-3 px-md-4">
-      <a class="navbar-brand d-flex align-items-center me-3" href="#">
-        <i class="bi bi-gear-wide-connected fs-4 text-primary me-2"></i>
-        <span class="fw-bold d-none d-sm-inline">APEX HR</span>
-      </a>
-      <div class="d-flex align-items-center me-auto">
-        <ul class="navbar-nav flex-row gap-3">
-          <li class="nav-item"><a class="nav-link text-secondary" href="#" id="nav-home">首頁</a></li>
-          <li class="nav-item"><a class="nav-link text-secondary" href="#" id="nav-leave">請假單</a></li>
-          <li class="nav-item"><a class="nav-link active fw-bold text-white border-bottom border-primary" href="#" id="nav-uncard">未刷卡</a></li>
+    <div class="container-fluid px-4">
+      <div class="collapse navbar-collapse">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link px-3 text-secondary" href="#">首頁</a></li>
+          <li class="nav-item"><a class="nav-link px-3 text-secondary" href="#">請假單</a></li>
+          <li class="nav-item"><a class="nav-link px-3 active fw-bold text-white" href="#">未刷卡</a></li>
         </ul>
-      </div>
-
-      <!-- 語系切換 -->
-      <div class="d-flex gap-2">
-        <button class="btn btn-danger lang-btn active" onclick="changeLang('TW')">TW</button>
-        <button class="btn btn-warning lang-btn text-dark" onclick="changeLang('TH')">TH</button>
-        <button class="btn btn-danger lang-btn" onclick="changeLang('ID')">ID</button>
+        <!-- 語系切換按鈕 -->
+        <div class="d-flex gap-2">
+          <button class="btn btn-danger lang-btn">TW</button>
+          <button class="btn btn-warning lang-btn text-dark">TH</button>
+          <button class="btn btn-danger lang-btn">ID</button>
+        </div>
       </div>
     </div>
   </nav>
 
-  <!-- 主區塊 -->
-  <main class="main-container">
-    <div class="form-card">
+  <!-- 主要內容區塊 -->
+  <div class="container" style="max-width: 1200px;">
+    <div class="main-box">
       <div class="row mb-4 align-items-center">
         <div class="col-6">
-          <button class="btn btn-primary px-3 py-2 fw-bold" data-bs-toggle="modal" data-bs-target="#historyModal" onclick="renderHistory()">
-            <i class="bi bi-journal-text me-1"></i> <span id="btn-history">申請記錄</span>
+          <button class="btn btn-primary px-4 py-2 fw-bold">
+            <i class="bi bi-journal-text me-2"></i>申請記錄
           </button>
         </div>
         <div class="col-6 text-end">
-          <h2 class="h3 fw-bold mb-0 text-white" id="page-title">未刷單</h2>
+          <h2 class="display-6 fw-bold mb-0 text-white">未刷單</h2>
         </div>
       </div>
 
-      <form id="uncardForm" onsubmit="handleFormSubmit(event)">
+      <form>
         <div class="row g-4">
-          <!-- 左側表單 -->
-          <div class="col-lg-7">
+          <!-- 左側輸入區 -->
+          <div class="col-md-7">
             <div class="row g-3">
               <div class="col-md-6">
-                <label for="empId" class="form-label text-secondary small" id="lbl-empId">工號</label>
-                <input type="text" class="form-control" id="empId" required placeholder="請輸入工號">
+                <label class="form-label text-secondary">工號</label>
+                <input type="text" class="form-control">
               </div>
               <div class="col-md-6">
-                <label for="idLastFour" class="form-label text-secondary small" id="lbl-idLast">身分證後四碼</label>
+                <label class="form-label text-secondary">身分證後四碼</label>
                 <div class="input-group">
-                  <input type="password" class="form-control" id="idLastFour" maxlength="4" required placeholder="四位數字">
-                  <button class="btn btn-outline-secondary" type="button" onclick="togglePassword()">
-                    <i class="bi bi-eye" id="eyeIcon"></i>
-                  </button>
+                  <input type="password" class="form-control" maxlength="4">
+                  <button class="btn btn-outline-secondary" type="button"><i class="bi bi-eye"></i></button>
                 </div>
               </div>
               <div class="col-md-6">
-                <label for="reason" class="form-label text-secondary small" id="lbl-reason">未刷卡原因</label>
-                <select class="form-select" id="reason" required>
-                  <option value="未帶卡">未帶卡 (No Card)</option>
-                  <option value="忘刷卡">忘刷卡 (Forgot)</option>
-                  <option value="卡片損壞">卡片損壞 (Damaged)</option>
-                  <option value="公出公差">公出公差 (Business)</option>
+                <label class="form-label text-secondary">未刷卡原因</label>
+                <select class="form-select">
+                  <option selected>未帶卡</option>
+                  <option>忘刷卡</option>
                 </select>
               </div>
               <div class="col-md-6">
-                <label for="uncardTime" class="form-label text-secondary small" id="lbl-time">未刷卡時間</label>
-                <input type="datetime-local" class="form-control" id="uncardTime" required>
+                <label class="form-label text-secondary">未刷卡時間</label>
+                <input type="text" class="form-control" placeholder="年 / 月 / 日 --:--:--">
               </div>
               <div class="col-12 mt-4">
-                <button type="submit" class="btn btn-primary w-100 py-2.5 fw-bold fs-5 shadow" id="btn-submit">送出</button>
+                <button type="submit" class="btn btn-primary w-100 py-2 fw-bold fs-5">送出</button>
               </div>
             </div>
           </div>
 
-          <!-- 右側實時平板預覽 -->
-          <div class="col-lg-5 d-flex align-items-center">
-            <div class="tablet-screen w-100">
-              <div class="d-flex justify-content-between align-items-center border-bottom border-secondary pb-2 mb-2">
-                <span class="badge bg-success" id="preview-status"><i class="bi bi-wifi me-1"></i>連線正常</span>
-                <small class="text-muted" id="realtime-clock">--:--:--</small>
-              </div>
-              
-              <div class="my-auto py-2">
-                <h6 class="text-primary fw-bold mb-3"><i class="bi bi-card-checklist me-2"></i>即時單據預覽</h6>
-                <div class="small text-light lh-lg">
-                  <div><strong>申請人：</strong> <span id="pv-emp">---</span></div>
-                  <div><strong>事由：</strong> <span id="pv-reason" class="text-warning">未帶卡</span></div>
-                  <div><strong>時間：</strong> <span id="pv-time" class="text-info">未設定</span></div>
-                  <div><strong>簽核流程：</strong> 單位主管 -> 差勤 HR</div>
-                </div>
-              </div>
-
-              <div class="text-center pt-2 border-top border-secondary">
-                <small class="text-muted"><i class="bi bi-tablet me-1"></i>Apex Smart Terminal v2.6</small>
+          <!-- 右側平板示意圖 -->
+          <div class="col-md-5 d-flex align-items-center justify-content-center">
+            <div class="tablet-box w-100">
+              <div class="text-center text-muted">
+                <i class="bi bi-tablet fs-1 text-secondary"></i>
               </div>
             </div>
           </div>
         </div>
       </form>
     </div>
-  </main>
+  </div>
 
-  <footer class="text-center mt-auto py-3 border-top border-secondary">
-    <small class="text-muted">&copy; APEX DYNAMICS 2026</small>
+  <!-- 頁尾與右下角切換鈕 -->
+  <footer>
+    &copy; APEX DYNAMICS 2026
   </footer>
 
-  <button class="btn btn-primary rounded-pill theme-toggle-btn shadow" onclick="toggleTheme()">
+  <button class="btn btn-primary theme-toggle-btn rounded-pill px-3 shadow">
     Toggle theme <i class="bi bi-moon-stars ms-1"></i>
   </button>
 
-  <!-- 歷史紀錄 Modal -->
-  <div class="modal fade" id="historyModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-      <div class="modal-content bg-dark text-white border-secondary">
-        <div class="modal-header border-secondary">
-          <h5 class="modal-title"><i class="bi bi-clock-history me-2"></i>未刷卡歷史紀錄 (LocalStorage)</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <div class="table-responsive">
-            <table class="table table-dark table-hover align-middle">
-              <thead>
-                <tr>
-                  <th>時間</th>
-                  <th>工號</th>
-                  <th>原因</th>
-                  <th>未刷卡時間</th>
-                  <th>操作</th>
-                </tr>
-              </thead>
-              <tbody id="historyTableBody">
-                <!-- 動態注入 -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div class="modal-footer border-secondary">
-          <button type="button" class="btn btn-outline-danger btn-sm" onclick="clearAllHistory()">清空歷史紀錄</button>
-          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">關閉</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-  <script>
-    // 語系字典
-    const i18n = {
-      TW: { home: "首頁", leave: "請假單", uncard: "未刷卡", title: "未刷單", history: "申請記錄", empId: "工號", idLast: "身分證後四碼", reason: "未刷卡原因", time: "未刷卡時間", submit: "送出" },
-      TH: { home: "หน้าแรก", leave: "ใบลา", uncard: "ไม่ได้สแกน卡", title: "แบบฟอร์มไม่ได้สแกน", history: "ประวัติการขอ", empId: "รหัสพนักงาน", idLast: "เลข 4 หลักสุดท้าย ID", reason: "สาเหตุ", time: "เวลาที่ไม่ได้สแกน", submit: "ส่งข้อมูล" },
-      ID: { home: "Beranda", leave: "Izin", uncard: "Lupa Absen", title: "Form Lupa Absen", history: "Riwayat", empId: "ID Karyawan", idLast: "4 Angka Terakhir KTP", reason: "Alasan", time: "Waktu Lupa Absen", submit: "Kirim" }
-    };
-
-    $(document).ready(function() {
-      // 即時時鐘
-      setInterval(() => {
-        $('#realtime-clock').text(new Date().toLocaleTimeString());
-      }, 1000);
-
-      // 即時預覽聯動
-      $('#empId').on('input', function() { $('#pv-emp').text($(this).val() || '---'); });
-      $('#reason').on('change', function() { $('#pv-reason').text($(this).val()); });
-      $('#uncardTime').on('change', function() { $('#pv-time').text($(this).val().replace('T', ' ')); });
-
-      // 載入草稿
-      const draft = JSON.parse(localStorage.getItem('apex_uncard_draft') || '{}');
-      if(draft.empId) $('#empId').val(draft.empId).trigger('input');
-      if(draft.reason) $('#reason').val(draft.reason).trigger('change');
-      if(draft.uncardTime) $('#uncardTime').val(draft.uncardTime).trigger('change');
-
-      // 監聽寫入草稿
-      $('#empId, #reason, #uncardTime').on('input change', function() {
-        localStorage.setItem('apex_uncard_draft', JSON.stringify({
-          empId: $('#empId').val(),
-          reason: $('#reason').val(),
-          uncardTime: $('#uncardTime').val()
-        }));
-      });
-    });
-
-    // 切換語系
-    function changeLang(lang) {
-      $('.lang-btn').removeClass('active');
-      $(`button:contains('${lang}')`).addClass('active');
-      const d = i18n[lang];
-      $('#nav-home').text(d.home);
-      $('#nav-leave').text(d.leave);
-      $('#nav-uncard').text(d.uncard);
-      $('#page-title').text(d.title);
-      $('#btn-history').text(d.history);
-      $('#lbl-empId').text(d.empId);
-      $('#lbl-idLast').text(d.idLast);
-      $('#lbl-reason').text(d.reason);
-      $('#lbl-time').text(d.time);
-      $('#btn-submit').text(d.submit);
-    }
-
-    // 密碼切換
-    function togglePassword() {
-      const input = $('#idLastFour');
-      const icon = $('#eyeIcon');
-      if (input.attr('type') === 'password') {
-        input.attr('type', 'text');
-        icon.removeClass('bi-eye').addClass('bi-eye-slash');
-      } else {
-        input.attr('type', 'password');
-        icon.removeClass('bi-eye-slash').addClass('bi-eye');
-      }
-    }
-
-    // 主題切換
-    function toggleTheme() {
-      const html = document.documentElement;
-      html.setAttribute('data-bs-theme', html.getAttribute('data-bs-theme') === 'dark' ? 'light' : 'dark');
-    }
-
-    // 表單送出
-    function handleFormSubmit(e) {
-      e.preventDefault();
-      const record = {
-        id: Date.now(),
-        submitTime: new Date().toLocaleString(),
-        empId: $('#empId').val(),
-        reason: $('#reason').val(),
-        uncardTime: $('#uncardTime').val().replace('T', ' ')
-      };
-
-      const history = JSON.parse(localStorage.getItem('apex_uncard_history') || '[]');
-      history.unshift(record);
-      localStorage.setItem('apex_uncard_history', JSON.stringify(history));
-
-      alert('【APEX 系統通知】未刷卡單送出成功！已寫入歷史紀錄。');
-      localStorage.removeItem('apex_uncard_draft');
-      $('#uncardForm')[0].reset();
-      $('#pv-emp').text('---');
-      $('#pv-time').text('未設定');
-    }
-
-    // 渲染歷史紀錄
-    function renderHistory() {
-      const history = JSON.parse(localStorage.getItem('apex_uncard_history') || '[]');
-      const tbody = $('#historyTableBody');
-      tbody.empty();
-      if(history.length === 0) {
-        tbody.append('<tr><td colspan="5" class="text-center text-muted">尚無歷史紀錄</td></tr>');
-        return;
-      }
-      history.forEach(item => {
-        tbody.append(`
-          <tr>
-            <td><small>${item.submitTime}</small></td>
-            <td><span class="badge bg-secondary">${item.empId}</span></td>
-            <td>${item.reason}</td>
-            <td><small class="text-info">${item.uncardTime}</small></td>
-            <td><button class="btn btn-outline-danger btn-sm py-0" onclick="deleteHistory(${item.id})">刪除</button></td>
-          </tr>
-        `);
-      });
-    }
-
-    function deleteHistory(id) {
-      let history = JSON.parse(localStorage.getItem('apex_uncard_history') || '[]');
-      history = history.filter(item => item.id !== id);
-      localStorage.setItem('apex_uncard_history', JSON.stringify(history));
-      renderHistory();
-    }
-
-    function clearAllHistory() {
-      if(confirm('確定要清空所有歷史紀錄嗎？')) {
-        localStorage.removeItem('apex_uncard_history');
-        renderHistory();
-      }
-    }
-  </script>
-</body>
-</html>
+  <script src
