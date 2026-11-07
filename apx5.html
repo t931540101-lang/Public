@@ -1,56 +1,58 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-TW" data-bs-theme="light">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HRWebCooperation - 未刷卡單</title>
+  <title>HRWebCooperation</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
   <style>
     body {
-      background-color: #12181f;
-      color: #c9d1d9;
+      background-color: #f8f9fa;
+      color: #333;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
+    /* 頂部導覽列 (對應原圖深色風格) */
     .navbar-custom {
-      background-color: #161e2e;
-      border-bottom: 1px solid #2a364f;
+      background-color: #212529;
+      border-bottom: 1px solid #dee2e6;
     }
     .lang-btn {
-      width: 32px;
-      height: 32px;
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
       padding: 0;
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       font-weight: bold;
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      color: #fff;
     }
+    /* 主內容卡片外框 */
     .main-box {
-      background-color: #1a2332;
-      border: 1px solid #2a364f;
-      border-radius: 8px;
+      background-color: #ffffff;
+      border: 1px solid #dee2e6;
+      border-radius: 6px;
       padding: 2.5rem;
       margin-top: 2rem;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      position: relative;
     }
-    .form-control, .form-select {
-      background-color: #0f1520;
-      border: 1px solid #2a364f;
-      color: #fff;
-    }
-    .form-control:focus, .form-select:focus {
-      background-color: #0f1520;
-      border-color: #0d6efd;
-      color: #fff;
-      box-shadow: none;
-    }
-    .tablet-box {
-      border: 12px solid #2d3748;
-      border-radius: 16px;
-      background: #000;
-      height: 240px;
+    /* 模擬原圖右下角的平板裝飾圖 */
+    .tablet-decor {
+      position: absolute;
+      right: 20px;
+      bottom: 20px;
+      width: 140px;
+      height: 80px;
+      background: #212529;
+      border-radius: 12px;
+      opacity: 0.8;
+      transform: rotate(-10deg);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -59,31 +61,37 @@
       color: #6c757d;
       font-size: 0.85rem;
       padding: 1.5rem 0;
-      position: fixed;
-      bottom: 0;
-      width: 100%;
+      margin-top: auto;
       text-align: center;
     }
     .theme-toggle-btn {
       position: fixed;
       bottom: 20px;
       right: 20px;
+      z-index: 1000;
+    }
+    /* 分頁顯示控制 */
+    .page-section {
+      display: none;
+    }
+    .page-section.active {
+      display: block;
     }
   </style>
 </head>
 <body>
 
-  <!-- 頂部導覽列 -->
+  <!-- 頂部導覽列 (對應三張照片頂部) -->
   <nav class="navbar navbar-expand-md navbar-dark navbar-custom py-2">
     <div class="container-fluid px-4">
       <div class="collapse navbar-collapse">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item"><a class="nav-link px-3 text-secondary" href="#">首頁</a></li>
-          <li class="nav-item"><a class="nav-link px-3 text-secondary" href="#">請假單</a></li>
-          <li class="nav-item"><a class="nav-link px-3 active fw-bold text-white" href="#">未刷卡</a></li>
+          <li class="nav-item"><a class="nav-link px-3" href="#" onclick="switchPage('home', event)" id="nav-home">首頁</a></li>
+          <li class="nav-item"><a class="nav-link px-3" href="#" onclick="switchPage('leave', event)" id="nav-leave">請假單</a></li>
+          <li class="nav-item"><a class="nav-link px-3" href="#" onclick="switchPage('uncard', event)" id="nav-uncard">未刷卡</a></li>
         </ul>
-        <!-- 語系切換按鈕 -->
-        <div class="d-flex gap-2">
+        <!-- 語系切換按鈕 (TW, TH, ID) -->
+        <div class="d-flex align-items-center gap-2">
           <button class="btn btn-danger lang-btn">TW</button>
           <button class="btn btn-warning lang-btn text-dark">TH</button>
           <button class="btn btn-danger lang-btn">ID</button>
@@ -92,74 +100,172 @@
     </div>
   </nav>
 
-  <!-- 主要內容區塊 -->
-  <div class="container" style="max-width: 1200px;">
-    <div class="main-box">
-      <div class="row mb-4 align-items-center">
-        <div class="col-6">
-          <button class="btn btn-primary px-4 py-2 fw-bold">
-            <i class="bi bi-journal-text me-2"></i>申請記錄
-          </button>
-        </div>
-        <div class="col-6 text-end">
-          <h2 class="display-6 fw-bold mb-0 text-white">未刷單</h2>
+  <!-- 主要內容容器 -->
+  <div class="container" style="max-width: 1100px;">
+
+    <!-- 1. 首頁 (對應圖片五：HR web service) -->
+    <div id="page-home" class="page-section active">
+      <div class="main-box text-center py-5">
+        <h1 class="display-5 fw-bold mb-3 text-secondary">HR web service</h1>
+        <p class="text-muted fs-5">Designed for IT</p>
+        <div class="tablet-decor">
+          <i class="bi bi-tablet text-light fs-4"></i>
         </div>
       </div>
+    </div>
 
-      <form>
-        <div class="row g-4">
-          <!-- 左側輸入區 -->
-          <div class="col-md-7">
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label class="form-label text-secondary">工號</label>
-                <input type="text" class="form-control">
+    <!-- 2. 請假單頁面 (對應圖片四：請假單) -->
+    <div id="page-leave" class="page-section">
+      <div class="main-box">
+        <div class="text-center mb-4">
+          <h2 class="fw-bold text-secondary">請假單</h2>
+        </div>
+        <form>
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label text-muted small">身分證後四碼</label>
+              <div class="input-group" style="max-width: 350px;">
+                <input type="password" class="form-control" value="****" maxlength="4">
+                <button class="btn btn-outline-secondary" type="button"><i class="bi bi-eye"></i></button>
               </div>
-              <div class="col-md-6">
-                <label class="form-label text-secondary">身分證後四碼</label>
-                <div class="input-group">
-                  <input type="password" class="form-control" maxlength="4">
-                  <button class="btn btn-outline-secondary" type="button"><i class="bi bi-eye"></i></button>
-                </div>
-              </div>
-              <div class="col-md-6">
-                <label class="form-label text-secondary">未刷卡原因</label>
-                <select class="form-select">
-                  <option selected>未帶卡</option>
-                  <option>忘刷卡</option>
-                </select>
-              </div>
-              <div class="col-md-6">
-                <label class="form-label text-secondary">未刷卡時間</label>
-                <input type="text" class="form-control" placeholder="年 / 月 / 日 --:--:--">
-              </div>
-              <div class="col-12 mt-4">
-                <button type="submit" class="btn btn-primary w-100 py-2 fw-bold fs-5">送出</button>
-              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label text-muted small">工號</label>
+              <input type="text" class="form-control" value="d01762">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label text-muted small">部門</label>
+              <input type="text" class="form-control" disabled>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label text-muted small">姓名</label>
+              <input type="text" class="form-control" disabled>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label text-muted small">1級主管</label>
+              <input type="text" class="form-control" disabled>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label text-muted small">請假名稱</label>
+              <select class="form-select">
+                <option selected>請選擇...</option>
+                <option>特休假</option>
+                <option>事假</option>
+                <option>病假</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label text-muted small">2級主管</label>
+              <input type="text" class="form-control" disabled>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label text-muted small">開始時間</label>
+              <input type="text" class="form-control" placeholder="年 / 月 / 日 --:--:--">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label text-muted small">未休時數</label>
+              <input type="text" class="form-control" disabled>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label text-muted small">結束時間</label>
+              <input type="text" class="form-control" placeholder="年 / 月 / 日 --:--:--">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label text-muted small">預計請假時數</label>
+              <input type="text" class="form-control" disabled>
+            </div>
+            <div class="col-12 text-center mt-4">
+              <button type="button" class="btn btn-primary px-4 me-2">查詢</button>
+              <button type="submit" class="btn btn-primary px-4">送出</button>
             </div>
           </div>
+          <div class="tablet-decor">
+            <i class="bi bi-tablet text-light fs-4"></i>
+          </div>
+        </form>
+      </div>
+    </div>
 
-          <!-- 右側平板示意圖 -->
-          <div class="col-md-5 d-flex align-items-center justify-content-center">
-            <div class="tablet-box w-100">
-              <div class="text-center text-muted">
-                <i class="bi bi-tablet fs-1 text-secondary"></i>
-              </div>
-            </div>
+    <!-- 3. 未刷卡頁面 (對應圖片三：未刷單) -->
+    <div id="page-uncard" class="page-section">
+      <div class="main-box">
+        <div class="row mb-4 align-items-center">
+          <div class="col-6">
+            <button class="btn btn-primary px-3 py-2">
+              <i class="bi bi-journal-text me-2"></i>申請記錄
+            </button>
+          </div>
+          <div class="col-6 text-end">
+            <h2 class="fw-bold text-secondary mb-0">未刷單</h2>
           </div>
         </div>
-      </form>
+
+        <form>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label text-muted small">工號</label>
+              <input type="text" class="form-control">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label text-muted small">身分證後四碼</label>
+              <div class="input-group">
+                <input type="password" class="form-control" maxlength="4">
+                <button class="btn btn-outline-secondary" type="button"><i class="bi bi-eye"></i></button>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label text-muted small">未刷卡原因</label>
+              <select class="form-select">
+                <option selected>未帶卡</option>
+                <option>忘刷卡</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label text-muted small">未刷卡時間</label>
+              <input type="text" class="form-control" placeholder="年 / 月 / 日 --:--:--">
+            </div>
+            <div class="col-12 mt-4">
+              <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">送出</button>
+            </div>
+          </div>
+          <div class="tablet-decor">
+            <i class="bi bi-tablet text-light fs-4"></i>
+          </div>
+        </form>
+      </div>
     </div>
+
   </div>
 
   <!-- 頁尾與右下角切換鈕 -->
   <footer>
-    &copy; APEX DYNAMICS 2026
+    <i class="bi bi-gear-wide"></i> &copy; APEX DYNAMICS 2026
   </footer>
 
-  <button class="btn btn-primary theme-toggle-btn rounded-pill px-3 shadow">
+  <button class="btn btn-dark theme-toggle-btn rounded-pill px-3 shadow" onclick="toggleTheme()">
     Toggle theme <i class="bi bi-moon-stars ms-1"></i>
   </button>
 
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-  <script src
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // 頁面切換邏輯
+    function switchPage(pageId, e) {
+      if(e) e.preventDefault();
+      $('.page-section').removeClass('active');
+      $(`#page-${pageId}`).addClass('active');
+      
+      // 導覽列 active 狀態切換
+      $('.navbar-nav .nav-link').removeClass('active fw-bold text-white').addClass('text-secondary');
+      $(`#nav-${pageId}`).addClass('active fw-bold text-white').removeClass('text-secondary');
+    }
+
+    // 主題切換 (Light / Dark)
+    function toggleTheme() {
+      const html = document.documentElement;
+      const currentTheme = html.getAttribute('data-bs-theme');
+      html.setAttribute('data-bs-theme', currentTheme === 'dark' ? 'light' : 'dark');
+    }
+  </script>
+</body>
+</html>
